@@ -111,16 +111,6 @@ export function Home() {
             Cadence records every frame while a page scrolls on a real phone, laptop or desktop, then shows which section stuttered and why.
           </p>
         </div>
-        <div className="card start-card install-card">
-          <div className="start-card-head">
-            <div className="title-row">
-              <h2 className="h2">Add Cadence to your site</h2>
-              <span className="tag-soon">Not published yet</span>
-            </div>
-            <p className="meta">It stays off until a page's address ends in ?perf, so visitors never load it.</p>
-          </div>
-          <Install />
-        </div>
         <div className="start-cards">
           <div className="card start-card">
             <div className="start-card-head">
@@ -150,6 +140,7 @@ export function Home() {
             <Qr text={link} />
           </div>
         </div>
+        <Setup />
       </section>
 
       <section className="enter">
@@ -248,6 +239,30 @@ export function Home() {
       </section>
 
       {dragging && <div className="drop-veil">Drop a run to open it</div>}
+    </div>
+  );
+}
+
+/** Setup, folded away: one quiet row that opens the install steps when asked. */
+function Setup() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="card setup" data-open={open || undefined}>
+      <button className="setup-btn" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <span className="setup-icon"><Icon name="terminal" size={16} /></span>
+        <span className="setup-title">Add Cadence to your site</span>
+        <span className="setup-peek">npm install cadence-probe</span>
+        <span className="tag-soon">Not published yet</span>
+        <Icon name="chevron" size={16} />
+      </button>
+      <div className="disclosure-body" data-open={open || undefined}>
+        <div>
+          <div className="setup-body">
+            <p className="meta">It stays off until a page's address ends in ?perf, so visitors never load it.</p>
+            <Install />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

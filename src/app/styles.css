@@ -626,3 +626,20 @@ svg { display: block; flex: none; }
 .tok-punct { color: var(--ink-3); }
 .start { gap: 24px; }
 .start-copy { margin-bottom: 8px; }
+
+/* Setup: a slim row under the test cards that opens the install steps. */
+.setup { overflow: hidden; }
+.setup-btn {
+  width: 100%; height: 64px; padding: 0 16px; display: flex; align-items: center; gap: 12px; text-align: left;
+  font-size: 14px; line-height: 1; color: var(--ink);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.setup-btn:hover { background: var(--hover); }
+.setup-icon { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: var(--recess); color: var(--ink-2); flex: none; }
+.setup-title { font-weight: 500; white-space: nowrap; }
+.setup-peek { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); font: 400 12px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; }
+.setup-btn .tag-soon { margin-left: auto; }
+.setup-btn > svg { color: var(--ink-3); transition: transform var(--dur-slow) var(--ease-out); }
+.setup-btn[aria-expanded="true"] > svg { transform: rotate(180deg); }
+.setup-body { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 600px) { .setup-peek, .setup-btn .tag-soon { display: none; } .setup-btn > svg { margin-left: auto; } }
