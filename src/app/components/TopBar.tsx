@@ -18,7 +18,7 @@ export function TopBar({ back, children }: { back?: boolean; children?: ReactNod
         </a>
       ) : (
         <a href="/" className="brand" onClick={home}>
-          <Mark />Cadence
+          <Mark /><span className="brand-word">cadence</span>
         </a>
       )}
       <span className="spacer" />

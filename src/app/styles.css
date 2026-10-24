@@ -653,3 +653,6 @@ svg { display: block; flex: none; }
 #root { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
 #root > .shell { width: 100%; }
 .footer { margin-top: auto; }
+
+/* The wordmark: lowercase, a touch heavier and tighter than the text around it. */
+.brand-word { font-size: 17px; font-weight: 650; letter-spacing: -0.035em; line-height: 1; }

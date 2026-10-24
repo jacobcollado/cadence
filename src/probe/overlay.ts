@@ -116,7 +116,7 @@ export class Overlay {
     const head = h(
       "div",
       { class: "head" },
-      h("span", { class: "brand" }, iconEl(icon.mark()), "Cadence"),
+      h("span", { class: "brand" }, iconEl(icon.mark()), h("span", { class: "brand-word" }, "cadence")),
       h("button", { class: "icon-btn", "aria-label": "Minimize", onclick: () => this.setCollapsed(true) }, iconEl(icon.minus())),
       h("button", { class: "icon-btn", "aria-label": "Close Cadence", onclick: () => this.onClose() }, iconEl(icon.close())),
     );
