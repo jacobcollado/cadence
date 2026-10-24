@@ -1,6 +1,8 @@
 # Cadence
 
-Find where a page stutters, on the device in your hand.
+Stress test your site on the devices your customers use.
+
+A slow site makes a fast product look slow. Plenty of sites from serious companies stutter, especially on phones, and a technical visitor reads that lag as a sign of the product's quality. Cadence scrolls your pages on real phones, laptops and desktops, records every frame, and shows which section stutters and why, so you can fix it before a customer notices. It goes deeper than a load score: where frames dropped, what the browser was busy with, and how it compares across devices.
 
 Cadence has two parts:
 

@@ -107,9 +107,9 @@ export function Home() {
 
       <section className="start enter">
         <div className="start-copy">
-          <h1 className="title">Find the frames a page drops, on any device.</h1>
+          <h1 className="title">Stress test your site on the devices your customers use.</h1>
           <p className="lede">
-            Cadence records every frame while a page scrolls on a real phone, laptop or desktop, then shows which section stuttered and why.
+            A slow site makes a fast product look slow. Cadence scrolls your pages on real phones, laptops and desktops, records every frame, and shows which section stutters and why, so you can fix it before a customer notices.
           </p>
         </div>
         <div className="start-cards">

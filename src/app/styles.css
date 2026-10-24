@@ -228,7 +228,8 @@ svg { display: block; flex: none; }
    share a top edge. Phones get only the first; there's nothing to scan with. */
 .start { display: flex; flex-direction: column; gap: 32px; padding: 48px 0 64px; }
 @media (min-width: 760px) { .start { padding: 72px 0 80px; } }
-.start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 600px; }
+.start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 780px; }
+.start-copy .lede { max-width: 640px; }
 .start-cards { display: grid; gap: 16px; align-items: stretch; }
 @media (min-width: 760px) and (pointer: fine) { .start-card-head { padding-right: 8px; } }
 @media (min-width: 760px) and (pointer: fine) { .start-cards { grid-template-columns: minmax(0, 1fr) 264px; } }
