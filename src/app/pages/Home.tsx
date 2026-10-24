@@ -3,6 +3,7 @@ import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../components/ui";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
+import { Install } from "../components/Install";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
 
@@ -118,10 +119,7 @@ export function Home() {
             </div>
             <p className="meta">It stays off until a page's address ends in ?perf, so visitors never load it.</p>
           </div>
-          <div className="install-steps">
-            <Code label="Install" code="npm install cadence-probe" />
-            <Code label="Add it to your root layout" code={`import { Cadence } from "cadence-probe";\n\n<Cadence />`} />
-          </div>
+          <Install />
         </div>
         <div className="start-cards">
           <div className="card start-card">
@@ -250,19 +248,6 @@ export function Home() {
       </section>
 
       {dragging && <div className="drop-veil">Drop a run to open it</div>}
-    </div>
-  );
-}
-
-/** A labeled code block with a copy button in its corner. */
-function Code({ label, code }: { label: string; code: string }) {
-  return (
-    <div className="code-wrap">
-      <div className="code-head">
-        <span className="field-label">{label}</span>
-        <CopyButton text={() => code} label="Copy" className="tag-btn code-copy" />
-      </div>
-      <pre className="code"><code>{code}</code></pre>
     </div>
   );
 }
