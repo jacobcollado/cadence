@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 const REPO = "jacobcollado/cadence";
 const KEY = "cadence.stars";
+/** While developing, a stand-in count shows how the button looks with one. Never in a build. */
+const DEMO = import.meta.env.DEV ? 1284 : null;
 
 /** Star count from GitHub, cached for the session. Null until known, or while the repo is private. */
 function useStars(): number | null {
@@ -39,7 +41,7 @@ function format(n: number): string {
 
 /** A quiet link to the repo: the GitHub mark, Star, and the count once there is one. */
 export function GitHubStar() {
-  const stars = useStars();
+  const stars = useStars() ?? DEMO;
   return (
     <a className="gh-star" href={`https://github.com/${REPO}`} target="_blank" rel="noopener" aria-label={stars === null ? "Star Cadence on GitHub" : `Star Cadence on GitHub, ${stars} stars`}>
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
