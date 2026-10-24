@@ -1,9 +1,9 @@
 const svg = (size: number, body: string) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
-/** The mark: three beats of uneven length, the shape of a frame cadence. */
+/** The mark: a dot on an orbit. */
 export const mark = (size = 14) =>
-  `<svg width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="7" width="3" height="7" rx="1" fill="currentColor"/><rect x="6.5" y="2" width="3" height="12" rx="1" fill="currentColor"/><rect x="11" y="5" width="3" height="9" rx="1" fill="currentColor"/></svg>`;
+  `<svg width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.2 7.27A5.25 5.25 0 1 1 7.82 2.75" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="11.38" cy="3.98" r="1.9" fill="currentColor"/></svg>`;
 
 export const minus = (s = 14) => svg(s, `<path d="M3.5 8h9"/>`);
 export const close = (s = 14) => svg(s, `<path d="M4 4l8 8M12 4l-8 8"/>`);

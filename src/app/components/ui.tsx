@@ -36,12 +36,14 @@ export function Icon({ name, size = 16 }: { name: keyof typeof paths; size?: num
   );
 }
 
+/** The mark: a dot on an orbit, something moving in a steady loop. */
 export function Mark({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
-      <rect x="2" y="7" width="3" height="7" rx="1" fill="currentColor" />
-      <rect x="6.5" y="2" width="3" height="12" rx="1" fill="currentColor" />
-      <rect x="11" y="5" width="3" height="9" rx="1" fill="currentColor" />
+    <svg className="mark" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
+      <g className="mark-orbit">
+        <path d="M13.2 7.27A5.25 5.25 0 1 1 7.82 2.75" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="11.38" cy="3.98" r="1.9" fill="currentColor" />
+      </g>
     </svg>
   );
 }

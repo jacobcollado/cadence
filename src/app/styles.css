@@ -656,3 +656,8 @@ svg { display: block; flex: none; }
 
 /* The wordmark: lowercase, a touch heavier and tighter than the text around it. */
 .brand-word { font-size: 17px; font-weight: 650; letter-spacing: -0.035em; line-height: 1; }
+
+/* The mark's dot travels once around its orbit when the logo is hovered. */
+.mark-orbit { transform-origin: 8px 8px; transform-box: view-box; }
+.brand:hover .mark-orbit { animation: orbit 1200ms var(--ease-in-out); }
+@keyframes orbit { to { transform: rotate(360deg); } }
