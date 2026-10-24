@@ -3,14 +3,17 @@ import { reducedMotion } from "../../shared/motion";
 import { estimateHz, missed } from "../../shared/stats";
 import { token, useTheme } from "../theme";
 
-// The hero's visual, live: a ring of one dot per frame in a second. Each frame
-// this browser draws lights the next dot, so a bright head sweeps round with a
-// fading tail; a frame it drops leaves its dot red. The center reads the frame
-// rate right now. Nothing here is staged.
+// The hero's visual, live: a ring of 60 dots, each standing for a fifteenth of
+// a second of this browser's frames, so the bright head sweeps round once
+// every four seconds with a long, soft tail. A dot whose frames included a
+// dropped one turns red and fades. The center reads the frame rate right now.
+// Nothing here is staged, and nothing flashes: every change fades.
 
 const SIZE = 240;
 const R = 96;
-const MAX_DOTS = 120;   // past 120 Hz, a dot stands for two frames
+const DOTS = 60;
+const DOTS_PER_SECOND = 15;   // one lap every four seconds
+const TAIL = 2400;            // ms a lit dot takes to fade
 
 export function FrameClock() {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -27,10 +30,12 @@ export function FrameClock() {
     const font = getComputedStyle(document.body).fontFamily;
     const still = reducedMotion();
 
-    let hz = 60, n = 60;
-    const lit = new Float64Array(MAX_DOTS);      // when each dot last lit
-    const dropped = new Float64Array(MAX_DOTS);  // when each dot was last dropped
+    let hz = 60;
+    const n = DOTS;
+    const lit = new Float64Array(DOTS);      // when each dot last lit
+    const dropped = new Float64Array(DOTS);  // when each dot was last dropped
     let head = 0, last = 0, skip = true, raf = 0, visible = true, shownFps = 60, lastText = 0;
+    let frames = 0, groupDropped = false;    // frames counted toward the next dot
     const deltas: number[] = [];
     const recent: number[] = [];                 // frame end times, last second
 
@@ -43,12 +48,12 @@ export function FrameClock() {
         const sinceDrop = now - dropped[i];
         const sinceLit = now - lit[i];
         let fill = col.base, alpha = 1, r = 2.2;
-        if (sinceDrop < 1400 && dropped[i] > lit[i]) {
+        if (dropped[i] && sinceDrop < 2400 && dropped[i] >= lit[i]) {
           fill = col.bad;
           r = 2.8;
-        } else if (!still && sinceLit < 900) {
+        } else if (!still && sinceLit < TAIL) {
           fill = col.lit;
-          alpha = 1 - sinceLit / 900;
+          alpha = Math.pow(1 - sinceLit / TAIL, 1.6);
           r = 2.2 + 1.2 * alpha;
         }
         ctx.fillStyle = col.base;
@@ -66,7 +71,7 @@ export function FrameClock() {
         }
       }
       // The live reading, refreshed a few times a second so it can be read.
-      if (now - lastText > 250) {
+      if (now - lastText > 500) {
         while (recent.length && recent[0] < now - 1000) recent.shift();
         shownFps = Math.min(hz, recent.length);
         lastText = now;
@@ -89,21 +94,20 @@ export function FrameClock() {
         if (deltas.length > 120) deltas.shift();
         if (deltas.length >= 30 && deltas.length % 30 === 0) {
           const est = estimateHz(deltas);
-          if (est && est > hz) {
-            hz = est;
-            n = Math.min(MAX_DOTS, hz);
-          }
+          if (est && est > hz) hz = est;
         }
-        const interval = 1000 / hz;
-        const step = hz > MAX_DOTS ? 2 : 1;
-        const lost = missed(d, interval);
-        // Frames the browser never drew: their dots turn red.
-        for (let k = 0; k < lost; k += step) {
+        const perDot = Math.max(1, Math.round(hz / DOTS_PER_SECOND));
+        const lost = missed(d, 1000 / hz);
+        if (lost) groupDropped = true;
+        // Every frame counts, drawn or dropped; each full group lights a dot.
+        frames += 1 + lost;
+        while (frames >= perDot) {
+          frames -= perDot;
           head = (head + 1) % n;
-          dropped[head] = now;
+          lit[head] = now;
+          if (groupDropped) dropped[head] = now;
+          groupDropped = false;
         }
-        head = (head + 1) % n;
-        lit[head] = now;
         recent.push(now);
       }
       skip = false;
