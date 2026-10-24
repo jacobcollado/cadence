@@ -110,7 +110,7 @@ svg { display: block; flex: none; }
 /* Layout */
 .shell { max-width: 960px; margin: 0 auto; padding: 0 var(--gutter) 80px; }
 .topbar { height: 64px; display: flex; align-items: center; gap: 12px; }
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; line-height: 1; }
+.brand { display: flex; align-items: baseline; gap: 8px; font-weight: 600; font-size: 15px; line-height: 1; }
 .topbar .spacer { flex: 1; }
 
 /* Type */

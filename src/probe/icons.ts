@@ -3,7 +3,7 @@ const svg = (size: number, body: string) =>
 
 /** The mark: a dot on an orbit. */
 export const mark = (size = 14) =>
-  `<svg width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.2 7.27A5.25 5.25 0 1 1 7.82 2.75" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="11.38" cy="3.98" r="1.9" fill="currentColor"/></svg>`;
+  `<svg width="${size}" height="${(size * 14) / 16}" viewBox="0 0 16 14" aria-hidden="true"><path d="M13.2 7.27A5.25 5.25 0 1 1 7.82 2.75" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="11.38" cy="3.98" r="1.9" fill="currentColor"/></svg>`;
 
 export const minus = (s = 14) => svg(s, `<path d="M3.5 8h9"/>`);
 export const close = (s = 14) => svg(s, `<path d="M4 4l8 8M12 4l-8 8"/>`);

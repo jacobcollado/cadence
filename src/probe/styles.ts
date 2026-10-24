@@ -80,7 +80,7 @@ svg { display: block; flex: none; }
   cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
 }
 .head:active { cursor: grabbing; }
-.brand { display: flex; align-items: center; gap: 6px; font-weight: 600; flex: 1; line-height: 1; }
+.brand { display: flex; align-items: baseline; gap: 6px; font-weight: 600; flex: 1; line-height: 1; }
 .brand-word { font-size: 14px; font-weight: 650; letter-spacing: -0.035em; }
 .icon-btn {
   width: 28px; height: 28px; border-radius: 4px;

@@ -39,7 +39,7 @@ export function Icon({ name, size = 16 }: { name: keyof typeof paths; size?: num
 /** The mark: a dot on an orbit, something moving in a steady loop. */
 export function Mark({ size = 16 }: { size?: number }) {
   return (
-    <svg className="mark" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
+    <svg className="mark" width={size} height={(size * 14) / 16} viewBox="0 0 16 14" aria-hidden="true">
       <g className="mark-orbit">
         <path d="M13.2 7.27A5.25 5.25 0 1 1 7.82 2.75" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <circle cx="11.38" cy="3.98" r="1.9" fill="currentColor" />

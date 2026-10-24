@@ -4,6 +4,12 @@ Builds on Jacob's global design rules. Where this file is more specific, it wins
 
 Cadence is read by developers and engineers who need to know what's wrong, quickly. Every graded thing leads with a verdict, then the number, then the detail.
 
+## Logo
+
+- The mark is an orbit: a ring with a dot riding on it, in a gap. The wordmark is lowercase "cadence" in Satoshi, a touch heavier and tighter than body text.
+- The mark sits on the wordmark's baseline the way a round letter does: its box ends at the ring's outer edge (viewBox 0 0 16 14) and the logo aligns by baseline. Never nudge it with offsets.
+- On hover the dot travels once around the orbit; skipped under reduced motion.
+
 ## Tokens
 
 All live in `src/app/styles.css` (`:root`) and are mirrored in `src/probe/styles.ts` for the overlay.
