@@ -1,0 +1,6 @@
+node_modules
+dist
+public/probe.js
+.vercel
+*.log
+shots

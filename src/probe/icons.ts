@@ -1,0 +1,19 @@
+const svg = (size: number, body: string) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+
+/** The mark: three beats of uneven length, the shape of a frame cadence. */
+export const mark = (size = 14) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="7" width="3" height="7" rx="1" fill="currentColor"/><rect x="6.5" y="2" width="3" height="12" rx="1" fill="currentColor"/><rect x="11" y="5" width="3" height="9" rx="1" fill="currentColor"/></svg>`;
+
+export const minus = (s = 14) => svg(s, `<path d="M3.5 8h9"/>`);
+export const close = (s = 14) => svg(s, `<path d="M4 4l8 8M12 4l-8 8"/>`);
+export const chevron = (s = 12) => svg(s, `<path d="M4 6l4 4 4-4"/>`);
+export const external = (s = 14) => svg(s, `<path d="M6 3.5H3.5v9h9V10M9 3h4v4M13 3L7.5 8.5"/>`);
+export const link = (s = 14) => svg(s, `<path d="M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1"/>`);
+export const check = (s = 14) => svg(s, `<path d="M3.5 8.5l3 3 6-7"/>`);
+export const again = (s = 14) => svg(s, `<path d="M3 8a5 5 0 109-3M12 2.5V5H9.5"/>`);
+// Ratings differ in shape as well as color.
+export const smooth = (s = 12) => svg(s, `<circle cx="8" cy="8" r="6.25"/><path d="M5.5 8.25l1.75 1.75 3.25-3.75"/>`);
+export const uneven = (s = 12) => svg(s, `<path d="M7.13 2.75a1 1 0 011.74 0l5.2 9a1 1 0 01-.87 1.5H2.8a1 1 0 01-.87-1.5z"/><path d="M8 6.75v2.5M8 11.5h.01"/>`);
+export const choppy = (s = 12) => svg(s, `<circle cx="8" cy="8" r="6.25"/><path d="M8 5v3.5M8 11h.01"/>`);
+export const locate = (s = 12) => svg(s, `<circle cx="8" cy="8" r="2"/><path d="M8 1.5v2.5M8 12v2.5M1.5 8H4M12 8h2.5"/>`);

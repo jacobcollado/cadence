@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cadence demo page</title>
+<style>
+  body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: #1a1a1a; background: #fff; letter-spacing: -0.01em; }
+  section { min-height: 100vh; display: grid; place-items: center; padding: 48px 16px; box-sizing: border-box; }
+  section:nth-child(even) { background: #f6f6f4; }
+  h2 { font-size: 20px; font-weight: 600; margin: 0 0 8px; }
+  p { margin: 0; color: #52514e; max-width: 40ch; }
+  canvas { width: min(480px, 100%); height: 240px; display: block; margin-top: 24px; }
+</style>
+</head>
+<body>
+<main>
+  <section data-hero><div><h2>Calm</h2><p>Nothing moves here. Frames should land on every refresh.</p></div></section>
+  <section aria-label="Canvas"><div><h2>Canvas</h2><p>A light canvas animation while this section is on screen.</p><canvas id="c"></canvas></div></section>
+  <section class="heavy" aria-label="Heavy"><div><h2>Heavy</h2><p>Burns 24ms of main thread every frame while on screen, so it should drop frames.</p></div></section>
+  <section class="shifty" aria-label="Long tasks"><div><h2>Layout</h2><p>Adds a long task now and then.</p></div></section>
+</main>
+<footer style="padding:48px 16px">Footer</footer>
+<script>
+  const heavy = document.querySelector(".heavy");
+  const shifty = document.querySelector(".shifty");
+  const c = document.getElementById("c");
+  const ctx = c.getContext("2d");
+  let heavyOn = false, shiftyOn = false, canvasOn = false;
+  new IntersectionObserver(([e]) => (heavyOn = e.isIntersecting)).observe(heavy);
+  new IntersectionObserver(([e]) => (shiftyOn = e.isIntersecting)).observe(shifty);
+  new IntersectionObserver(([e]) => (canvasOn = e.isIntersecting)).observe(c);
+  let n = 0;
+  function loop(t) {
+    requestAnimationFrame(loop);
+    if (heavyOn) { const end = performance.now() + 24; while (performance.now() < end) {} }
+    if (shiftyOn && ++n % 15 === 0) { const end = performance.now() + 90; while (performance.now() < end) {} }
+    if (canvasOn) {
+      const w = (c.width = c.clientWidth * devicePixelRatio), h = (c.height = c.clientHeight * devicePixelRatio);
+      ctx.fillStyle = "#c6c6c0";
+      for (let i = 0; i < 60; i++) ctx.fillRect((i / 60) * w, h / 2 + Math.sin(t / 300 + i / 4) * h * 0.3, w / 80, w / 80);
+    }
+  }
+  requestAnimationFrame(loop);
+</script>
+<script src="/probe.js" async></script>
+</body>
+</html>
