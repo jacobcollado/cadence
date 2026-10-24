@@ -4,6 +4,7 @@ import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../compo
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
+import { OrbitField } from "../components/OrbitField";
 import { OPEN_SETUP } from "../components/Footer";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
@@ -106,17 +107,20 @@ export function Home() {
       <TopBar />
 
       <section className="start enter">
-        <div className="start-copy">
-          <h1 className="title">Stress test your site on the devices your customers use.</h1>
-          <p className="lede">
-            A slow site makes a fast product look slow. Cadence scrolls your pages on real phones, laptops and desktops, records every frame, and shows which section stutters and why, so you can fix it before a customer notices.
-          </p>
+        <div className="start-top">
+          <div className="start-copy">
+            <h1 className="title">Stress test your site on the devices your customers use.</h1>
+            <p className="lede">
+              A slow site makes a fast product look slow. Cadence shows which section stutters, and why.
+            </p>
+          </div>
+          <OrbitField />
         </div>
         <div className="start-cards">
           <div className="card start-card">
             <div className="start-card-head">
               <h2 className="h2">Test on this device</h2>
-              <p className="meta">Opens the page with the probe on. Run a pass, then open its report to keep it here.</p>
+              <p className="meta">Opens the page with the probe on.</p>
             </div>
             <label className="field-label" htmlFor="target">Page</label>
             <div className="link-row">
@@ -136,7 +140,7 @@ export function Home() {
           <div className="card start-card qr-card">
             <div className="start-card-head">
               <h2 className="h2">Test on a phone</h2>
-              <p className="meta">Scan to open the same page there.</p>
+              <p className="meta">Scan to open it there.</p>
             </div>
             <Qr text={link} />
           </div>
