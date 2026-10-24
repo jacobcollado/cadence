@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { navigate } from "../lib";
 import { setTheme, useTheme } from "../theme";
 import { Icon, Mark } from "./ui";
+import { GitHubStar } from "./GitHubStar";
 
 export function TopBar({ back, children }: { back?: boolean; children?: ReactNode }) {
   const theme = useTheme();
@@ -27,6 +28,7 @@ export function TopBar({ back, children }: { back?: boolean; children?: ReactNod
       )}
       <span className="spacer" />
       {children}
+      <GitHubStar />
       <button className="theme-btn" aria-label={`Switch to ${next} theme`} title={`Switch to ${next} theme`} onClick={() => setTheme(next)}>
         <span className="theme-icon" key={theme}><Icon name={theme === "dark" ? "sun" : "moon"} /></span>
       </button>

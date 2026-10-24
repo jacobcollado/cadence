@@ -676,3 +676,15 @@ svg { display: block; flex: none; }
 .theme-btn { width: 16px; height: 16px; justify-content: center; color: var(--ink-3); }
 .theme-btn:hover { color: var(--ink); }
 .back-link:focus-visible, .theme-btn:focus-visible { outline-offset: 6px; }
+
+/* GitHub star: a small outlined control beside the theme toggle. */
+.topbar { gap: 20px; }
+.gh-star {
+  height: 28px; padding: 0 10px 0 7px; border-radius: 6px;
+  display: inline-flex; align-items: center; gap: 6px; line-height: 1;
+  font-size: 13px; font-weight: 500; color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--ring-firm);
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.gh-star:hover { color: var(--ink); background: var(--hover); }
+.gh-count { padding-left: 6px; box-shadow: inset 1px 0 0 var(--ring-firm); color: var(--ink-3); }
