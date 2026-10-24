@@ -382,7 +382,7 @@ svg { display: block; flex: none; }
 @media (min-width: 860px) { .card-pair { grid-template-columns: 1fr 1fr; } }
 .cause + .cause { margin-top: 8px; }
 
-.spark { display: block; width: 100%; height: 64px; margin-top: 16px; }
+.spark { display: block; width: 100%; height: 96px; margin-top: 16px; }
 .kv-row { grid-template-columns: repeat(2, 1fr); margin-top: 16px; }
 @media (min-width: 480px) { .kv-row { grid-template-columns: repeat(4, 1fr); } }
 
@@ -490,3 +490,34 @@ svg { display: block; flex: none; }
 .block-title.title-row .h2 { flex: none; }
 /* QR codes stay dark on white in both themes: not every camera reads them inverted. */
 .qr { background: #fff; border-radius: 4px; padding: 8px; }
+
+/* Zone bar: thresholds in color, inside a note. */
+.zone { position: relative; margin: 4px 0 2px; }
+.zone[data-marked] { padding-top: 22px; }
+.zone-track { display: flex; gap: 2px; height: 8px; }
+.zone-seg { border-radius: 2px; background: var(--good); }
+.zone-seg[data-level="warn"] { background: var(--warn); }
+.zone-seg[data-level="bad"] { background: var(--bad); }
+.zone-seg:first-child { border-radius: 4px 2px 2px 4px; }
+.zone-seg:last-child { border-radius: 2px 4px 4px 2px; }
+.zone-words { display: flex; gap: 2px; margin-top: 6px; font-size: 11px; line-height: 14px; color: var(--ink-2); }
+.zone-words span { text-align: center; white-space: nowrap; overflow: hidden; }
+.zone-ticks { position: relative; height: 14px; margin-top: 2px; font-size: 11px; line-height: 14px; color: var(--ink-3); }
+.zone-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.zone-marker { position: absolute; top: 18px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; box-shadow: 0 0 0 2px var(--paper); z-index: 1; }
+.zone-marker-label {
+  position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+  font-size: 11px; line-height: 14px; font-weight: 600; color: var(--ink); white-space: nowrap;
+}
+.zone-marker[data-edge="start"] .zone-marker-label { transform: none; left: -1px; }
+.zone-marker[data-edge="end"] .zone-marker-label { transform: none; left: auto; right: -1px; }
+
+/* Memory chart: a crosshair and dot that follow the pointer. */
+.spark-wrap { position: relative; margin-top: 16px; touch-action: pan-y; cursor: crosshair; }
+.spark-wrap .spark { margin-top: 0; }
+.spark-line { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ink); pointer-events: none; }
+.spark-dot {
+  position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
+  background: var(--ink); box-shadow: 0 0 0 2px var(--paper); pointer-events: none;
+}
+.spark-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; line-height: 14px; color: var(--ink-3); }

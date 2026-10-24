@@ -230,3 +230,57 @@ export function Info({ title, children }: { title: string; children: ReactNode }
     </>
   );
 }
+
+export interface Zone {
+  /** Upper edge of the zone, in the same unit as the bar. */
+  to: number;
+  level: Level;
+  label?: string;
+}
+
+/**
+ * Thresholds as a color-coded bar: each zone in its status color with its
+ * word under it, the cutoffs labeled, and an optional marker for this run.
+ */
+export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel }: {
+  zones: Zone[];
+  /** Where the bar starts, when the low end isn't worth the room. */
+  min?: number;
+  max: number;
+  format: (v: number) => string;
+  marker?: number;
+  markerLabel?: string;
+}) {
+  const range = max - min;
+  const pct = (v: number) => `${((Math.min(max, Math.max(min, v)) - min) / range) * 100}%`;
+  let from = min;
+  const spans = zones.map((z) => {
+    const s = { ...z, from, to: Math.min(z.to, max) };
+    from = s.to;
+    return s;
+  });
+  return (
+    <div className="zone" data-marked={marker !== undefined || undefined}>
+      {marker !== undefined && (
+        <div className="zone-marker" data-edge={(marker - min) / range < 0.15 ? "start" : (marker - min) / range > 0.85 ? "end" : undefined} style={{ left: pct(marker) }}>
+          <span className="zone-marker-label num">{markerLabel ?? format(marker)}</span>
+        </div>
+      )}
+      <div className="zone-track">
+        {spans.map((z) => (
+          <div key={z.from} className="zone-seg" data-level={z.level} style={{ width: `${((z.to - z.from) / range) * 100}%` }} />
+        ))}
+      </div>
+      <div className="zone-words">
+        {spans.map((z) => (
+          <span key={z.from} style={{ width: `${((z.to - z.from) / range) * 100}%` }}>{z.label ?? LEVEL_LABEL[z.level]}</span>
+        ))}
+      </div>
+      <div className="zone-ticks">
+        {spans.slice(0, -1).map((z) => (
+          <span key={z.to} className="num" style={{ left: pct(z.to) }}>{format(z.to)}</span>
+        ))}
+      </div>
+    </div>
+  );
+}

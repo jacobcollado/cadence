@@ -4,7 +4,7 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Flip, Icon, Info, RatingTag, StatusIcon, StatusTag } from "../components/ui";
+import { Bar, CopyButton, CountUp, Flip, Icon, Info, RatingTag, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
 import { LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
@@ -210,6 +210,16 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                       <Info title="Frame rate">
                         <p>New frames drawn each second. This screen shows up to {run.hz}.</p>
                         <p>Near that, motion looks continuous. Under {choppyBelow(run.hz)} it visibly stutters.</p>
+                        <ZoneBar
+                          zones={[
+                            { to: choppyBelow(run.hz), level: "bad", label: "Choppy" },
+                            { to: run.hz * 0.92, level: "warn", label: "Uneven" },
+                            { to: run.hz, level: "good", label: "Smooth" },
+                          ]}
+                          min={Math.round(run.hz / 2)}
+                          max={run.hz}
+                          format={(v) => `${Math.round(v)} fps`}
+                        />
                       </Info>
                     </span>
                   </th>
@@ -226,6 +236,15 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                       <Info title="Longest frame">
                         <p>The single slowest frame in the section. Averages hide it; people don't.</p>
                         <p>Each frame has {Math.round(1000 / run.hz)} ms to make the refresh. Past {FREEZE} ms the page visibly stops and jumps, and that one frame is usually where the fix is.</p>
+                        <ZoneBar
+                          zones={[
+                            { to: 1000 / run.hz, level: "good", label: "On time" },
+                            { to: FREEZE, level: "warn", label: "Late" },
+                            { to: FREEZE * 1.6, level: "bad", label: "Freeze" },
+                          ]}
+                          max={FREEZE * 1.6}
+                          format={(v) => `${Math.round(v)} ms`}
+                        />
                       </Info>
                     </span>
                   </th>
@@ -428,7 +447,14 @@ function MetricRow({ m, delay }: { m: Metric; delay: number }) {
         <Info title={m.name}>
           <p>{m.what}</p>
           <p>{m.why}</p>
-          {m.good !== undefined && <p>Good is {m.format(m.good)} or less. Over {m.format(m.poor!)} is poor.</p>}
+          {m.good !== undefined && (
+            <ZoneBar
+              zones={[{ to: m.good, level: "good" }, { to: m.poor!, level: "warn" }, { to: m.poor! * 1.5, level: "bad" }]}
+              max={m.poor! * 1.5}
+              format={m.format}
+              marker={m.value}
+            />
+          )}
           {m.value !== undefined && m.level && <p className="info-run">{runVerdict(m)}</p>}
         </Info>
       </div>
@@ -493,25 +519,65 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
   );
 }
 
-/** Heap over the run: one quiet line on a soft fill. */
+/** Heap over the run: one quiet line on a soft fill. Hover to read any moment. */
 function Spark({ samples }: { samples: [number, number][] }) {
-  const W = 400, H = 64;
+  const W = 400, H = 96;
+  const wrap = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<number | null>(null);
   const t0 = samples[0][0], span = samples[samples.length - 1][0] - t0 || 1;
   const vs = samples.map(([, v]) => v);
   const lo = Math.min(...vs) * 0.98, hi = Math.max(...vs) * 1.02;
-  const pts = samples.map(([t, v]) => [((t - t0) / span) * W, H - 2 - ((v - lo) / (hi - lo || 1)) * (H - 4)]);
-  const line = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join("");
+  const xOf = (t: number) => (t - t0) / span;
+  const yOf = (v: number) => 1 - (2 + ((v - lo) / (hi - lo || 1)) * (H - 4)) / H;
+  const line = samples.map(([t, v], i) => `${i ? "L" : "M"}${(xOf(t) * W).toFixed(1)} ${(yOf(v) * H).toFixed(1)}`).join("");
+
+  const move = (e: React.PointerEvent) => {
+    const r = wrap.current!.getBoundingClientRect();
+    const t = t0 + Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * span;
+    let best = 0;
+    for (let i = 1; i < samples.length; i++) if (Math.abs(samples[i][0] - t) < Math.abs(samples[best][0] - t)) best = i;
+    setHover(best);
+  };
+
+  const h = hover !== null ? samples[hover] : null;
+  const change = h ? h[1] - samples[0][1] : 0;
+  const left = h ? xOf(h[0]) : 0;
   return (
-    <svg className="spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Memory over the run">
-      <defs>
-        <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="var(--data)" stopOpacity="0.45" />
-          <stop offset="1" stopColor="var(--data)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`${line}L${W} ${H}L0 ${H}Z`} fill="url(#spark-fill)" />
-      <path d={line} fill="none" stroke="var(--data-line)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
-    </svg>
+    <div>
+      <div
+        ref={wrap}
+        className="spark-wrap"
+        onPointerMove={move}
+        onPointerDown={move}
+        onPointerLeave={() => setHover(null)}
+      >
+        <svg className="spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Memory over the run">
+          <defs>
+            <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--data)" stopOpacity="0.45" />
+              <stop offset="1" stopColor="var(--data)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={`${line}L${W} ${H}L0 ${H}Z`} fill="url(#spark-fill)" />
+          <path d={line} fill="none" stroke="var(--data-line)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+        </svg>
+        {h && (
+          <>
+            <div className="spark-line" style={{ left: `${left * 100}%` }} />
+            <div className="spark-dot" style={{ left: `${left * 100}%`, top: `${yOf(h[1]) * 100}%` }} />
+            <div className="tooltip" style={left > 0.6 ? { right: `${(1 - left) * 100}%`, marginRight: 12, top: 0 } : { left: `${left * 100}%`, marginLeft: 12, top: 0 }}>
+              <div className="tooltip-title"><span className="num">{((h[0] - t0) / 1000).toFixed(1)} s</span></div>
+              <div className="tooltip-row"><span>Heap</span><span className="num">{h[1].toFixed(1)} MB</span></div>
+              <div className="tooltip-row"><span>Since start</span><span className="num">{`${change >= 0 ? "+" : ""}${change.toFixed(1)} MB`}</span></div>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="spark-axis num">
+        <span>0 s</span>
+        <span>{(span / 1000).toFixed(1)} s</span>
+      </div>
+    </div>
   );
 }
 
