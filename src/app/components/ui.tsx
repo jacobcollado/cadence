@@ -4,7 +4,6 @@ import { encode } from "uqr";
 import { countUp, flipText } from "../../shared/motion";
 import { RATING_LABEL, type Rating } from "../../shared/stats";
 import { LEVEL_LABEL, RATING_LEVEL, type Level } from "../../shared/vitals";
-import { WORDMARK } from "../../shared/wordmark";
 import { copyText } from "../lib";
 
 const paths = {
@@ -37,12 +36,12 @@ export function Icon({ name, size = 16 }: { name: keyof typeof paths; size?: num
   );
 }
 
-/** The Cadence wordmark, sized by its height; it takes the text color. */
-export function Wordmark({ height = 22 }: { height?: number }) {
-  const [, , w, h] = WORDMARK.viewBox.split(" ").map(Number);
+export function Mark({ size = 16 }: { size?: number }) {
   return (
-    <svg height={height} width={(height * w) / h} viewBox={WORDMARK.viewBox} role="img" aria-label="Cadence">
-      <path d={WORDMARK.d} fill="currentColor" />
+    <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="2" y="7" width="3" height="7" rx="1" fill="currentColor" />
+      <rect x="6.5" y="2" width="3" height="12" rx="1" fill="currentColor" />
+      <rect x="11" y="5" width="3" height="9" rx="1" fill="currentColor" />
     </svg>
   );
 }

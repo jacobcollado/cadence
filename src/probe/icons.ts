@@ -1,11 +1,9 @@
-import { MONOGRAM } from "../shared/wordmark";
-
 const svg = (size: number, body: string) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
-/** The mark: the C from the Cadence wordmark. */
-export const mark = (size = 16) =>
-  `<svg width="${size}" height="${size}" viewBox="${MONOGRAM.viewBox}" aria-hidden="true"><path d="${MONOGRAM.d}" fill="currentColor"/></svg>`;
+/** The mark: three beats of uneven length, the shape of a frame cadence. */
+export const mark = (size = 14) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="7" width="3" height="7" rx="1" fill="currentColor"/><rect x="6.5" y="2" width="3" height="12" rx="1" fill="currentColor"/><rect x="11" y="5" width="3" height="9" rx="1" fill="currentColor"/></svg>`;
 
 export const minus = (s = 14) => svg(s, `<path d="M3.5 8h9"/>`);
 export const close = (s = 14) => svg(s, `<path d="M4 4l8 8M12 4l-8 8"/>`);

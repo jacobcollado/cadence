@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { navigate } from "../lib";
 import { setTheme, useTheme } from "../theme";
-import { Icon, Wordmark } from "./ui";
+import { Icon, Mark } from "./ui";
 
 export function TopBar({ back, children }: { back?: boolean; children?: ReactNode }) {
   const theme = useTheme();
@@ -17,8 +17,8 @@ export function TopBar({ back, children }: { back?: boolean; children?: ReactNod
           <Icon name="back" size={14} />Runs
         </a>
       ) : (
-        <a href="/" className="brand" onClick={home} aria-label="Cadence, home">
-          <Wordmark height={28} />
+        <a href="/" className="brand" onClick={home}>
+          <Mark />Cadence
         </a>
       )}
       <span className="spacer" />
