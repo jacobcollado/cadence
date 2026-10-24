@@ -688,3 +688,4 @@ svg { display: block; flex: none; }
 }
 .gh-star:hover { color: var(--ink); background: var(--hover); }
 .gh-count { padding-left: 6px; box-shadow: inset 1px 0 0 var(--ring-firm); color: var(--ink-3); }
+.footer-sub { margin-top: 2px; font-size: 12px; line-height: 18px; }
