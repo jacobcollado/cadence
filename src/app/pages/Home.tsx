@@ -4,7 +4,7 @@ import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../compo
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
-import { OrbitField } from "../components/OrbitField";
+import { FrameClock } from "../components/FrameClock";
 import { OPEN_SETUP } from "../components/Footer";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
@@ -114,7 +114,7 @@ export function Home() {
               A slow site makes a fast product look slow. Cadence shows which section stutters, and why.
             </p>
           </div>
-          <OrbitField />
+          <FrameClock />
         </div>
         <div className="start-cards">
           <div className="card start-card">

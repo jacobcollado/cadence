@@ -694,8 +694,8 @@ svg { display: block; flex: none; }
 /* Hero top: the line and lede beside the orbit field; on phones the field
    sits under the lede, scaled to the width. */
 .start-top { display: grid; align-items: center; gap: 24px; }
-.orbit-field { display: block; justify-self: center; }
+.orbit-field, .frame-clock { display: block; justify-self: center; }
 @media (min-width: 860px) {
   .start-top { grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; }
-  .orbit-field { justify-self: end; }
+  .orbit-field, .frame-clock { justify-self: end; }
 }
