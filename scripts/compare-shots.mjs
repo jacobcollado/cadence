@@ -9,7 +9,7 @@ await page.goto("http://localhost:5173/");
 await page.evaluate(() => localStorage.clear());
 for (const l of links) {
   await page.goto("http://localhost:5173/r" + l.slice(l.indexOf("#")));
-  await page.waitForSelector(".hero-value");
+  await page.waitForSelector(".tile");
 }
 await page.waitForTimeout(1500);
 await page.screenshot({ path: "shots/report-last.png", fullPage: true });

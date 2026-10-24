@@ -284,3 +284,23 @@ export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel }: {
     </div>
   );
 }
+
+/** A device name from the probe ("iPhone · Safari 26.0") as its two parts. */
+export function splitName(name: string): { device: string; browser: string } {
+  const [device, ...rest] = name.split(" · ");
+  return { device, browser: rest.join(" ") };
+}
+
+/** Labeled fields: a small muted label over each value, set as spaced columns. */
+export function Fields({ items }: { items: [string, ReactNode][] }) {
+  return (
+    <dl className="fields">
+      {items.map(([k, v]) => (
+        <div key={k}>
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}

@@ -4,7 +4,7 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Flip, Icon, Info, RatingTag, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { Bar, CopyButton, CountUp, Fields, Flip, Icon, Info, RatingTag, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
 import { LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
@@ -55,13 +55,15 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   const metrics = pageLoad(run);
   const mem = memory(run);
   const loadName = LOADS.find((l) => l.ms === run.load)?.label;
-  const meta = [
-    MODE_LABEL[run.mode],
-    pathOf(run.url),
-    when(run.at),
-    `${run.hz} Hz screen`,
-    run.load ? `${loadName} added load` : "",
-  ].filter(Boolean).join(" · ");
+  const name = splitName(run.device.name);
+  const fields: [string, string][] = [
+    ["Browser", name.browser],
+    ["Mode", MODE_LABEL[run.mode]],
+    ["Page", pathOf(run.url)],
+    ["Time", when(run.at)],
+    ["Screen", `${run.hz} Hz`],
+  ];
+  if (run.load) fields.push(["Added load", loadName ?? `${run.load} ms`]);
 
   // Context that changes how to read every tab, so it sits above them.
   const notes = deviceNotes(run);
@@ -83,8 +85,8 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
     <>
       <header className="report-head enter">
         <div className="report-title">
-          <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{run.device.name}</h1>
-          <p className="meta">{meta}</p>
+          <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{name.device}</h1>
+          <Fields items={fields.filter(([, v]) => v)} />
         </div>
         <div className="actions">
           <DeviceButton run={run} />

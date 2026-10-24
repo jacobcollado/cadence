@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MODE_LABEL } from "../../shared/stats";
-import { CopyButton, Icon, Qr, RatingTag, StatusIcon } from "../components/ui";
+import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../components/ui";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
@@ -166,7 +166,18 @@ export function Home() {
           </div>
         ) : (
           <div className="run-list">
-            {runs.map((r) => (
+            <div className="run-head-row" aria-hidden="true">
+              <span />
+              <span>Device</span>
+              <span className="col-browser">Browser</span>
+              <span className="col-mode">Mode</span>
+              <span className="col-page">Page</span>
+              <span className="col-when">When</span>
+              <span className="run-tag">Rating</span>
+              <span className="r">Frame rate</span>
+              <span />
+            </div>
+            {runs.map((r) => { const n = splitName(r.name); return (
               <div
                 key={r.id}
                 className="run-row"
@@ -184,11 +195,15 @@ export function Home() {
                   aria-label={`Select ${r.name} to compare`}
                 />
                 <div className="run-main">
-                  <div className="run-name"><span style={{ viewTransitionName: `name-${r.id}` }}>{r.name}</span></div>
-                  <div className="run-meta">{MODE_LABEL[r.mode]} · {pathOf(r.url)} · {when(r.at)}</div>
+                  <div className="run-name"><span style={{ viewTransitionName: `name-${r.id}` }}>{n.device}</span></div>
+                  <div className="run-sub">{n.browser}</div>
                 </div>
+                <span className="run-cell col-browser">{n.browser}</span>
+                <span className="run-cell col-mode">{MODE_LABEL[r.mode]}</span>
+                <span className="run-cell col-page">{pathOf(r.url)}</span>
+                <span className="run-cell col-when">{when(r.at)}</span>
+                <span className="run-tag">{r.rating && <RatingTag rating={r.rating} />}</span>
                 <div className="run-score">
-                  {r.rating && <span className="run-tag"><RatingTag rating={r.rating} /></span>}
                   <div className="run-fps">
                     {r.rating && <span className="run-icon"><StatusIcon level={RATING_LEVEL[r.rating]} /></span>}
                     <strong className="num">{Math.round(r.fps)}</strong>
@@ -206,7 +221,7 @@ export function Home() {
                   <Icon name="trash" />
                 </button>
               </div>
-            ))}
+            ); })}
           </div>
         )}
       </section>

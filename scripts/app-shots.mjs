@@ -11,7 +11,7 @@ for (const [name, opts] of [["desk", { viewport: { width: 1280, height: 900 }, d
   page.on("pageerror", (e) => console.log(name, "pageerror:", e.message));
   page.on("console", (m) => m.type() === "error" && console.log(name, "console:", m.text()));
   await page.goto(`http://localhost:5173/r${hash}`);
-  await page.waitForSelector(".hero-value");
+  await page.waitForSelector(".tile");
   await page.waitForTimeout(1500);
   await page.screenshot({ path: `${out}/${name}-report.png`, fullPage: true });
   const tl = await page.$(".timeline");

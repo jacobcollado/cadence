@@ -62,3 +62,4 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - Plain words over jargon. A term that has to stay ("main thread", "Hz") is defined in its `Info` note.
 - Say what wasn't measured and why, never show a zero for it.
 - No em dashes, no uppercase labels.
+- No separator glyphs (dots, pipes, slashes, decorative marks) between facts. Facts that sit together get structure instead: labeled fields (`Fields`, a small muted label over each value) in headers, and a column header row in lists. A device name from the probe ("iPhone · Safari 26.0") is split with `splitName` into device and browser; in a sentence it reads as plain words.
