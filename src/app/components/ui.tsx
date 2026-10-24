@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { encode } from "uqr";
 import { countUp, flipText } from "../../shared/motion";
 import { RATING_LABEL, type Rating } from "../../shared/stats";
+import { LEVEL_LABEL, RATING_LEVEL, type Level } from "../../shared/vitals";
 import { copyText } from "../lib";
 
 const paths = {
@@ -84,20 +85,33 @@ export function Disclosure({ title, count, children, defaultOpen = false }: {
   );
 }
 
-/** How a stretch of frames felt, as a tag: shape, color and word together. */
-export function RatingTag({ rating, size = 24 }: { rating: Rating; size?: 24 | 28 }) {
+const LEVEL_ICON = { good: "smooth", warn: "uneven", bad: "choppy" } as const;
+
+/** A status as a tag: shape, color and word together, never color alone. */
+export function StatusTag({ level, label, size = 24 }: { level: Level; label?: string; size?: 24 | 28 }) {
   return (
-    <span className="rating" data-rating={rating} data-size={size}>
-      <Icon name={rating} size={size === 28 ? 14 : 12} />
-      {RATING_LABEL[rating]}
+    <span className="rating" data-level={level} data-size={size}>
+      <Icon name={LEVEL_ICON[level]} size={size === 28 ? 14 : 12} />
+      {label ?? LEVEL_LABEL[level]}
     </span>
   );
 }
 
+/** How a stretch of frames felt. */
+export function RatingTag({ rating, size = 24 }: { rating: Rating; size?: 24 | 28 }) {
+  return <StatusTag level={RATING_LEVEL[rating]} label={RATING_LABEL[rating]} size={size} />;
+}
+
+/** Just the icon, where a row already names what it's rating. */
+export function StatusIcon({ level, size = 14 }: { level: Level; size?: number }) {
+  return <span className="status-icon" data-level={level}><Icon name={LEVEL_ICON[level]} size={size} /></span>;
+}
+
 /** A bar that grows from zero to its width once it's on screen. */
-export function Bar({ value, rating, delay = 0, className = "bar", color }: {
+export function Bar({ value, rating, level, delay = 0, className = "bar", color }: {
   value: number;
   rating?: Rating;
+  level?: Level;
   delay?: number;
   className?: string;
   color?: string;
@@ -111,6 +125,7 @@ export function Bar({ value, rating, delay = 0, className = "bar", color }: {
     <div
       className={className}
       data-rating={rating}
+      data-level={level}
       style={{ width: shown ? `${Math.max(1, Math.min(100, value * 100))}%` : 0, transitionDelay: `${delay}ms`, background: color }}
     />
   );

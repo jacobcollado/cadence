@@ -4,7 +4,8 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Disclosure, Icon, RatingTag } from "../components/ui";
+import { Bar, CopyButton, CountUp, Disclosure, Icon, RatingTag, StatusIcon, StatusTag } from "../components/ui";
+import { LEVEL_LABEL, memory, pageLoad, type Level, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
 import { decodeRun, download, pathOf, saveRun, when } from "../lib";
@@ -61,8 +62,16 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   return (
     <>
       <header className="report-head enter">
-        <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{run.device.name}</h1>
-        <p className="meta">{meta}</p>
+        <div className="report-title">
+          <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{run.device.name}</h1>
+          <p className="meta">{meta}</p>
+        </div>
+        <div className="actions">
+          <button className="btn btn-secondary btn-icon-l" onClick={() => download(run)}>
+            <Icon name="download" size={14} />Download JSON
+          </button>
+          <CopyButton text={() => location.href} />
+        </div>
       </header>
 
       <section className="hero enter">
@@ -144,19 +153,14 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
 
         {cause.text && <CauseCard run={run} cause={cause} />}
 
+        <PageLoad run={run} />
+        <div className="card-pair">
+          <MemoryCard run={run} />
+          <DeviceCard run={run} />
+        </div>
+
         <div style={{ marginTop: 16 }}>
-          <Load run={run} />
-          <Memory run={run} />
-          <DeviceDetails run={run} />
           <Glossary run={run} />
-          <Disclosure title="Data">
-            <div className="actions">
-              <button className="btn btn-secondary btn-icon-l" onClick={() => download(run)}>
-                <Icon name="download" size={14} />Download JSON
-              </button>
-              <CopyButton text={() => location.href} />
-            </div>
-          </Disclosure>
         </div>
       </div>
     </>
@@ -211,80 +215,170 @@ function CauseCard({ run, cause }: { run: Run; cause: Cause }) {
   );
 }
 
-function Load({ run }: { run: Run }) {
-  const v = run.vitals;
-  const na = `Not reported by ${run.device.browser}`;
-  const items: [string, string | undefined, boolean][] = [
-    ["Time to first byte", v.ttfb !== undefined ? `${v.ttfb} ms` : undefined, true],
-    ["First paint", v.fcp !== undefined ? `${v.fcp} ms` : undefined, true],
-    ["Largest paint", v.lcp !== undefined ? `${v.lcp} ms` : undefined, run.support.lcp],
-    ["Layout shift", v.cls !== undefined ? v.cls.toFixed(3) : run.support.shifts ? "0.000" : undefined, run.support.shifts],
-    ["Slowest interaction", v.inp !== undefined ? `${v.inp} ms` : run.support.inp ? "None yet" : undefined, run.support.inp],
-    ["Elements", v.nodes?.toLocaleString(), true],
-    ["Canvases", v.canvases?.toString(), true],
-  ];
+function PageLoad({ run }: { run: Run }) {
+  const metrics = pageLoad(run);
+  const counts = (["bad", "warn", "good"] as Level[])
+    .map((l) => [l, metrics.filter((m) => m.level === l).length] as const)
+    .filter(([, n]) => n > 0);
   return (
-    <Disclosure title="Page load">
-      <p className="note" style={{ marginBottom: 16 }}>Measured from when this tab first loaded the site.</p>
-      <dl className="kv">
-        {items.map(([k, val, supported]) => (
-          <div key={k}>
-            <dt>{k}</dt>
-            <dd className={val === undefined ? "na" : "num"}>{val ?? (supported ? "Not measured" : na)}</dd>
-          </div>
-        ))}
-      </dl>
-    </Disclosure>
+    <section className="card block">
+      <div className="block-head">
+        <div className="block-title">
+          <h2 className="h2">Page load</h2>
+          <p className="meta">From when this tab first loaded the site, graded on Core Web Vitals.</p>
+        </div>
+        <div className="legend">
+          {counts.map(([l, n]) => (
+            <span key={l} className="num"><StatusIcon level={l} size={12} />{n} {LEVEL_LABEL[l].toLowerCase()}</span>
+          ))}
+        </div>
+      </div>
+      <div className="metrics">
+        {metrics.map((m, i) => <MetricRow key={m.key} m={m} delay={i * 40} />)}
+      </div>
+    </section>
   );
 }
 
-function Memory({ run }: { run: Run }) {
-  const mem = run.mem.map(([, v]) => v / 10);
-  if (!run.support.memory || mem.length < 2) {
-    return (
-      <Disclosure title="Memory">
-        <p className="note">{run.device.browser} doesn't expose memory use to pages.</p>
-      </Disclosure>
-    );
-  }
-  const start = mem[0], end = mem[mem.length - 1], peak = Math.max(...mem);
-  const items: [string, string][] = [
-    ["At start", `${start.toFixed(1)} MB`],
-    ["Peak", `${peak.toFixed(1)} MB`],
-    ["At end", `${end.toFixed(1)} MB`],
-    ["Change", `${end - start >= 0 ? "+" : ""}${(end - start).toFixed(1)} MB`],
-  ];
+function MetricRow({ m, delay }: { m: Metric; delay: number }) {
   return (
-    <Disclosure title="Memory">
-      <dl className="kv">
-        {items.map(([k, v]) => <div key={k}><dt>{k}</dt><dd className="num">{v}</dd></div>)}
-      </dl>
-    </Disclosure>
+    <div className="metric">
+      <div className="metric-name">
+        <span>{m.name}</span>
+        <span className="metric-what">{m.what}</span>
+      </div>
+      {m.value === undefined ? (
+        <div className="metric-missing">{m.missing}</div>
+      ) : (
+        <>
+          <div className="metric-scale">{m.good !== undefined && <Scale m={m} delay={delay} />}</div>
+          <div className="metric-value num">{m.display}</div>
+          <div className="metric-status">{m.level && <StatusTag level={m.level} />}</div>
+        </>
+      )}
+    </div>
   );
 }
 
-function DeviceDetails({ run }: { run: Run }) {
+/** The value on a track, with the good and poor thresholds marked under it. */
+function Scale({ m, delay }: { m: Metric; delay: number }) {
+  const max = m.poor! * 1.6;
+  const at = (v: number) => Math.min(1, v / max);
+  return (
+    <div className="scale">
+      <div className="scale-track">
+        <Bar value={Math.max(0.01, at(m.value!))} level={m.level === "good" ? undefined : m.level} delay={delay} />
+      </div>
+      {[m.good!, m.poor!].map((t) => (
+        <span key={t} className="scale-tick num" style={{ left: `${at(t) * 100}%` }}>{m.format(t)}</span>
+      ))}
+    </div>
+  );
+}
+
+function MemoryCard({ run }: { run: Run }) {
+  const m = memory(run);
+  const mb = (v: number) => `${v.toFixed(1)} MB`;
+  return (
+    <section className="card block">
+      <div className="block-head">
+        <div className="block-title">
+          <h2 className="h2">Memory</h2>
+          <p className="meta">JavaScript heap during the run.</p>
+        </div>
+        {m && <StatusTag level={m.level} label={m.level === "good" ? "Steady" : "Growing"} />}
+      </div>
+      {!m ? (
+        <p className="cause">{run.device.browser} doesn't expose memory use to pages. Chrome and Edge do.</p>
+      ) : (
+        <>
+          <p className="cause">{m.text}</p>
+          <Spark samples={m.samples} />
+          <dl className="kv kv-row">
+            <div><dt>At start</dt><dd className="num">{mb(m.start)}</dd></div>
+            <div><dt>Peak</dt><dd className="num">{mb(m.peak)}</dd></div>
+            <div><dt>At end</dt><dd className="num">{mb(m.end)}</dd></div>
+            <div><dt>Change</dt><dd className="num">{`${m.change >= 0 ? "+" : ""}${m.change.toFixed(1)} MB`}</dd></div>
+          </dl>
+        </>
+      )}
+    </section>
+  );
+}
+
+/** Heap over the run: one quiet line on a soft fill. */
+function Spark({ samples }: { samples: [number, number][] }) {
+  const W = 400, H = 64;
+  const t0 = samples[0][0], span = samples[samples.length - 1][0] - t0 || 1;
+  const vs = samples.map(([, v]) => v);
+  const lo = Math.min(...vs) * 0.98, hi = Math.max(...vs) * 1.02;
+  const pts = samples.map(([t, v]) => [((t - t0) / span) * W, H - 2 - ((v - lo) / (hi - lo || 1)) * (H - 4)]);
+  const line = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join("");
+  return (
+    <svg className="spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Memory over the run">
+      <defs>
+        <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="var(--data)" stopOpacity="0.45" />
+          <stop offset="1" stopColor="var(--data)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={`${line}L${W} ${H}L0 ${H}Z`} fill="url(#spark-fill)" />
+      <path d={line} fill="none" stroke="var(--data-line)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function DeviceCard({ run }: { run: Run }) {
   const d = run.device;
-  const items: [string, string | undefined][] = [
-    ["Operating system", [d.os, d.osVersion].filter(Boolean).join(" ")],
-    ["Browser", [d.browser, d.browserVersion].filter(Boolean).join(" ")],
-    ["Model", d.model],
-    ["Graphics", d.gpu],
-    ["Processor cores", d.cores?.toString()],
-    ["Memory", d.memory ? `${d.memory} GB or more` : undefined],
-    ["Screen", `${d.screen[0]} × ${d.screen[1]} at ${d.dpr}x`],
-    ["Viewport", `${d.viewport[0]} × ${d.viewport[1]}`],
-    ["Refresh rate", `${run.hz} Hz`],
-    ["Input", d.touch ? "Touch" : "Pointer"],
-    ["Network", d.connection?.toUpperCase()],
-    ["Reduced motion", d.reducedMotion ? "On" : "Off"],
+  const groups: [string, [string, string | undefined][]][] = [
+    ["System", [
+      ["Operating system", [d.os, d.osVersion].filter(Boolean).join(" ")],
+      ["Browser", [d.browser, d.browserVersion].filter(Boolean).join(" ")],
+      ["Model", d.model],
+    ]],
+    ["Hardware", [
+      ["Graphics", d.gpu],
+      ["Processor cores", d.cores?.toString()],
+      ["Memory", d.memory ? `${d.memory} GB or more` : undefined],
+    ]],
+    ["Display", [
+      ["Screen", `${d.screen[0]} × ${d.screen[1]} at ${d.dpr}x`],
+      ["Viewport", `${d.viewport[0]} × ${d.viewport[1]}`],
+      ["Refresh rate", `${run.hz} Hz`],
+    ]],
+    ["Settings", [
+      ["Input", d.touch ? "Touch" : "Pointer"],
+      ["Network", d.connection?.toUpperCase()],
+      ["Reduced motion", d.reducedMotion ? "On" : "Off"],
+    ]],
   ];
+  // Things about the device that change how to read the result.
+  const notes: string[] = [];
+  if (d.reducedMotion) notes.push("Reduced motion was on, so the site may have skipped animation. Most visitors see more motion than this run did.");
+  if (d.connection && /2g|3g/.test(d.connection)) notes.push(`On a ${d.connection.toUpperCase()} connection, so load times run long.`);
+  if ((d.memory && d.memory <= 4) || (d.cores && d.cores <= 4)) notes.push("A lower-end device, which makes this a good stress test.");
   return (
-    <Disclosure title="Device">
-      <dl className="kv">
-        {items.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
-      </dl>
-    </Disclosure>
+    <section className="card block">
+      <div className="block-head">
+        <div className="block-title">
+          <h2 className="h2">Device</h2>
+          <p className="meta">What this run ran on.</p>
+        </div>
+      </div>
+      {notes.map((n) => <p key={n} className="cause">{n}</p>)}
+      <div className="device-groups">
+        {groups.map(([title, items]) => {
+          const shown = items.filter(([, v]) => v);
+          if (!shown.length) return null;
+          return (
+            <dl key={title} className="device-group">
+              <div className="device-group-title">{title}</div>
+              {shown.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+            </dl>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

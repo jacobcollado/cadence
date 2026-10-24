@@ -17,6 +17,7 @@
   --grid: #ecebe6;
   --data: #c6c6c0;
   --data-dim: #e6e6e1;
+  --data-line: #a8a7a0;
   /* Status: kept for ratings and frame tiers, always beside an icon or a label. */
   --good: #0ca30c;
   --warn: #f5a623;
@@ -148,9 +149,10 @@ svg { display: block; flex: none; }
   font-size: 12px; font-weight: 500; line-height: 1; white-space: nowrap;
 }
 .rating[data-size="28"] { height: 28px; padding: 0 10px 0 7px; gap: 6px; border-radius: 6px; font-size: 13px; }
-.rating svg { color: var(--good); }
-.rating[data-rating="uneven"] svg { color: var(--warn-ink); }
-.rating[data-rating="choppy"] svg { color: var(--bad); }
+.rating svg, .status-icon { color: var(--good); }
+.rating[data-level="warn"] svg, .status-icon[data-level="warn"] { color: var(--warn-ink); }
+.rating[data-level="bad"] svg, .status-icon[data-level="bad"] { color: var(--bad); }
+.status-icon { display: inline-flex; }
 
 /* Flip: changing text leaves upward. */
 .flip { position: relative; display: inline-block; clip-path: inset(0 -100vw); vertical-align: bottom; }
@@ -300,3 +302,54 @@ svg { display: block; flex: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
+
+/* Report header: title on the left, actions on the right. */
+.report-head { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.report-title { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+/* Graded metrics: name and what it measures, the value on its thresholds, the status. */
+.metrics { display: flex; flex-direction: column; }
+.metric {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px 16px;
+  padding: 16px 0; box-shadow: inset 0 1px 0 var(--grid);
+}
+.metric-name { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 20px; font-weight: 500; }
+.metric-what { font-size: 13px; line-height: 18px; font-weight: 400; color: var(--ink-3); }
+.metric-value { font-size: 15px; line-height: 20px; font-weight: 500; text-align: right; }
+.metric-status { display: flex; min-width: 96px; }
+.metric-missing { grid-column: 1 / -1; font-size: 13px; line-height: 20px; color: var(--ink-3); }
+@media (min-width: 720px) {
+  .metric { grid-template-columns: minmax(0, 1fr) 200px 72px 104px; gap: 24px; }
+  .metric-name { grid-column: auto; }
+  .metric-missing { grid-column: 2 / -1; text-align: right; }
+}
+.scale { position: relative; height: 28px; }
+.scale-track { height: 8px; border-radius: 4px; background: var(--recess); overflow: hidden; }
+.scale-track .bar { border-radius: 4px; }
+.scale-tick { position: absolute; top: 14px; transform: translateX(-50%); font-size: 11px; line-height: 14px; color: var(--ink-3); white-space: nowrap; }
+.scale-tick::before { content: ""; position: absolute; left: 50%; top: -16px; width: 1px; height: 12px; background: var(--ink-3); opacity: 0.5; }
+.bar[data-level="warn"] { background: var(--warn); }
+.bar[data-level="bad"] { background: var(--bad); }
+
+/* Two cards side by side on wide screens, sharing a top edge. */
+.card-pair { display: grid; gap: 16px; margin-bottom: 16px; align-items: stretch; }
+.card-pair > .block { margin-bottom: 0; }
+@media (min-width: 860px) { .card-pair { grid-template-columns: 1fr 1fr; } }
+.cause + .cause { margin-top: 8px; }
+
+.spark { display: block; width: 100%; height: 64px; margin-top: 16px; }
+.kv-row { grid-template-columns: repeat(2, 1fr); margin-top: 16px; }
+@media (min-width: 480px) { .kv-row { grid-template-columns: repeat(4, 1fr); } }
+
+.device-groups { display: grid; gap: 20px 24px; margin-top: 4px; }
+.cause + .device-groups { margin-top: 16px; }
+@media (min-width: 480px) { .device-groups { grid-template-columns: 1fr 1fr; } }
+.device-group { display: flex; flex-direction: column; min-width: 0; }
+.device-group-title { font-size: 13px; line-height: 20px; font-weight: 500; margin-bottom: 4px; }
+.device-group > div:not(.device-group-title) {
+  display: flex; justify-content: space-between; gap: 12px; padding: 6px 0;
+  font-size: 13px; line-height: 20px; box-shadow: inset 0 1px 0 var(--grid);
+}
+.device-group dt { color: var(--ink-3); white-space: nowrap; }
+.device-group dd { text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-pair .block-title { flex-basis: 0; }
