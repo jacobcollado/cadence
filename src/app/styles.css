@@ -222,18 +222,25 @@ svg { display: block; flex: none; }
 .disclosure-inner { padding: 0 0 24px; }
 
 /* Home */
-.start { display: grid; gap: 32px; padding: 48px 0 64px; align-items: center; }
-@media (min-width: 760px) and (pointer: fine) { .start { grid-template-columns: 1fr 248px; gap: 64px; padding: 72px 0 80px; } }
-.start-copy { display: flex; flex-direction: column; gap: 12px; }
-.link-row { display: flex; gap: 8px; margin-top: 12px; }
+/* Hero: the line and lede, then the two ways to start a run as cards that
+   share a top edge. Phones get only the first; there's nothing to scan with. */
+.start { display: flex; flex-direction: column; gap: 32px; padding: 48px 0 64px; }
+@media (min-width: 760px) { .start { padding: 72px 0 80px; } }
+.start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 600px; }
+.start-cards { display: grid; gap: 16px; align-items: stretch; }
+@media (min-width: 760px) and (pointer: fine) { .start-card-head { padding-right: 8px; } }
+@media (min-width: 760px) and (pointer: fine) { .start-cards { grid-template-columns: minmax(0, 1fr) 264px; } }
+.start-card { padding: 20px; display: flex; flex-direction: column; }
+.start-card-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; }
+.field-label { font-size: 12px; line-height: 16px; color: var(--ink-3); margin-bottom: 6px; }
+.link-row { display: flex; gap: 8px; }
 .link-row .field { flex: 1; min-width: 0; }
-.link-preview { font-size: 13px; color: var(--ink-3); line-height: 20px; }
-.link-preview .num { color: var(--ink-2); }
+@media (max-width: 480px) { .link-row { flex-wrap: wrap; } .link-row .field { flex-basis: 100%; } .link-row .btn { flex: 1; } }
 @media (max-width: 759px), (pointer: coarse) { .qr-card { display: none !important; } }
-.qr-card { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.qr { width: 100%; max-width: 208px; aspect-ratio: 1; }
-.qr-caption { font-size: 13px; color: var(--ink-3); line-height: 20px; text-align: center; }
-
+.qr-card { align-items: stretch; }
+.qr-card .qr { width: 100%; max-width: 136px; align-self: center; margin-top: auto; }
+/* The controls sit on the card's bottom edge, level with the QR beside it. */
+.start-card .field-label { margin-top: auto; }
 .runs-head { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 12px; }
 .runs-head .h2 { flex: 1; }
 .runs-hint { font-size: 13px; line-height: 20px; color: var(--ink-3); margin-right: 8px; }
@@ -503,7 +510,7 @@ svg { display: block; flex: none; }
 .block-title.title-row { flex-direction: row; align-items: center; gap: 4px; }
 .block-title.title-row .h2 { flex: none; }
 /* QR codes stay dark on white in both themes: not every camera reads them inverted. */
-.qr { background: #fff; border-radius: 4px; padding: 8px; }
+.qr { background: #fff; border-radius: 4px; padding: 8px; aspect-ratio: 1; }
 
 /* Zone bar: thresholds in color, inside a note. */
 .zone { position: relative; margin: 4px 0 2px; }

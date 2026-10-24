@@ -105,29 +105,39 @@ export function Home() {
 
       <section className="start enter">
         <div className="start-copy">
-          <h1 className="title">Find where a page stutters, on any device.</h1>
+          <h1 className="title">Find the frames a page drops, on any device.</h1>
           <p className="lede">
-            Open the site with the probe on and run a pass. Cadence records every frame and shows which section dropped it.
-          </p>
-          <div className="link-row">
-            <input
-              className="field"
-              value={base}
-              onChange={(e) => setBase(e.target.value)}
-              aria-label="Site to test"
-              spellCheck={false}
-              autoCapitalize="off"
-            />
-            <CopyButton text={() => link} label="Copy" className="btn btn-lg btn-secondary btn-icon-l" />
-            <a className="btn btn-lg btn-primary" href={link} target="_blank" rel="noopener">Open</a>
-          </div>
-          <p className="link-preview">
-            Inertia loads the probe whenever the address ends in <span className="num">?perf</span>.
+            Cadence records every frame while a page scrolls on a real phone, laptop or desktop, then shows which section stuttered and why.
           </p>
         </div>
-        <div className="card qr-card">
-          <Qr text={link} />
-          <p className="qr-caption">Scan with a phone to test it there</p>
+        <div className="start-cards">
+          <div className="card start-card">
+            <div className="start-card-head">
+              <h2 className="h2">Test on this device</h2>
+              <p className="meta">Opens the page with the probe on. Run a pass, then open its report to keep it here.</p>
+            </div>
+            <label className="field-label" htmlFor="target">Page</label>
+            <div className="link-row">
+              <input
+                id="target"
+                className="field"
+                value={base}
+                onChange={(e) => setBase(e.target.value)}
+                spellCheck={false}
+                autoCapitalize="off"
+                placeholder="https://example.com"
+              />
+              <CopyButton text={() => link} label="Copy link" className="btn btn-lg btn-secondary btn-icon-l" />
+              <a className="btn btn-lg btn-primary" href={link} target="_blank" rel="noopener">Open</a>
+            </div>
+          </div>
+          <div className="card start-card qr-card">
+            <div className="start-card-head">
+              <h2 className="h2">Test on a phone</h2>
+              <p className="meta">Scan to open the same page there.</p>
+            </div>
+            <Qr text={link} />
+          </div>
         </div>
       </section>
 
