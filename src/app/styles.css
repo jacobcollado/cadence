@@ -223,28 +223,38 @@ svg { display: block; flex: none; }
 
 /* Home */
 .start { display: grid; gap: 32px; padding: 48px 0 64px; align-items: center; }
-@media (min-width: 760px) { .start { grid-template-columns: 1fr 248px; gap: 64px; padding: 72px 0 80px; } }
+@media (min-width: 760px) and (pointer: fine) { .start { grid-template-columns: 1fr 248px; gap: 64px; padding: 72px 0 80px; } }
 .start-copy { display: flex; flex-direction: column; gap: 12px; }
 .link-row { display: flex; gap: 8px; margin-top: 12px; }
 .link-row .field { flex: 1; min-width: 0; }
 .link-preview { font-size: 13px; color: var(--ink-3); line-height: 20px; }
 .link-preview .num { color: var(--ink-2); }
+@media (max-width: 759px), (pointer: coarse) { .qr-card { display: none !important; } }
 .qr-card { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .qr { width: 100%; max-width: 208px; aspect-ratio: 1; }
 .qr-caption { font-size: 13px; color: var(--ink-3); line-height: 20px; text-align: center; }
 
 .runs-head { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 12px; }
 .runs-head .h2 { flex: 1; }
-.run-list { display: flex; flex-direction: column; }
+.runs-hint { font-size: 13px; line-height: 20px; color: var(--ink-3); margin-right: 8px; }
+@media (max-width: 600px) { .runs-hint { display: none; } }
+/* The runs sit in one card whose edge lines up with the heading above it;
+   rows carry their own padding inside, so hovering never moves anything. */
+.run-list { display: flex; flex-direction: column; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); overflow: hidden; }
 .run-row {
-  display: grid; grid-template-columns: 16px 1fr auto 32px; align-items: center; gap: 16px;
-  min-height: 64px; padding: 12px 8px 12px 16px; border-radius: 6px; cursor: pointer;
+  display: grid; grid-template-columns: 16px minmax(0, 1fr) auto 32px; align-items: center; gap: 16px;
+  min-height: 64px; padding: 12px 8px 12px 16px; cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-out);
 }
 .run-row:hover { background: var(--hover); }
 .run-row + .run-row { box-shadow: inset 0 1px 0 var(--grid); }
-.run-row:hover + .run-row, .run-row + .run-row:hover { box-shadow: none; }
-.run-name { font-weight: 500; font-size: 15px; line-height: 20px; }
+.run-name { font-weight: 500; font-size: 15px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.run-icon { display: none; align-self: center; margin-right: 2px; }
+@media (max-width: 600px) {
+  .run-tag { display: none; }
+  .run-icon { display: inline-flex; }
+  .run-row { gap: 12px; }
+}
 .run-meta { font-size: 13px; line-height: 20px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .run-main { min-width: 0; }
 .run-score { display: flex; align-items: center; gap: 16px; }

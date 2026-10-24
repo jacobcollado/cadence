@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MODE_LABEL } from "../../shared/stats";
-import { CopyButton, Icon, Qr, RatingTag } from "../components/ui";
+import { CopyButton, Icon, Qr, RatingTag, StatusIcon } from "../components/ui";
+import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
@@ -135,6 +136,7 @@ export function Home() {
           <h2 className="h2">
             Runs {runs.length > 0 && <span className="muted num">{runs.length}</span>}
           </h2>
+          {runs.length >= 2 && selected.length < 2 && <span className="runs-hint">Select two or more to compare</span>}
           {selected.length >= 2 && (
             <button
               className="btn btn-primary btn-icon-l"
@@ -186,8 +188,9 @@ export function Home() {
                   <div className="run-meta">{MODE_LABEL[r.mode]} · {pathOf(r.url)} · {when(r.at)}</div>
                 </div>
                 <div className="run-score">
-                  {r.rating && <RatingTag rating={r.rating} />}
+                  {r.rating && <span className="run-tag"><RatingTag rating={r.rating} /></span>}
                   <div className="run-fps">
+                    {r.rating && <span className="run-icon"><StatusIcon level={RATING_LEVEL[r.rating]} /></span>}
                     <strong className="num">{Math.round(r.fps)}</strong>
                     <span>fps</span>
                   </div>
