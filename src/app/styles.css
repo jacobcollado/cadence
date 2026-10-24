@@ -661,3 +661,18 @@ svg { display: block; flex: none; }
 .mark-orbit { transform-origin: 8px 8px; transform-box: view-box; }
 .brand:hover .mark-orbit { animation: orbit 1200ms var(--ease-in-out); }
 @keyframes orbit { to { transform: rotate(360deg); } }
+
+/* Top bar controls sit exactly on the content edges: no box around them at
+   rest or on hover, and a larger invisible tap area that doesn't move them. */
+.back-link, .theme-btn {
+  position: relative; display: inline-flex; align-items: center; color: var(--ink-2); line-height: 1;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.back-link::before, .theme-btn::before { content: ""; position: absolute; inset: -10px; }
+.back-link { gap: 6px; height: 28px; font-size: 14px; }
+.back-link svg { transition: transform var(--dur-base) var(--ease-out); }
+.back-link:hover { color: var(--ink); }
+.back-link:hover svg { transform: translateX(-2px); }
+.theme-btn { width: 16px; height: 16px; justify-content: center; color: var(--ink-3); }
+.theme-btn:hover { color: var(--ink); }
+.back-link:focus-visible, .theme-btn:focus-visible { outline-offset: 6px; }
