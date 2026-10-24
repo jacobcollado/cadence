@@ -585,3 +585,20 @@ svg { display: block; flex: none; }
   .compare-legend-head { display: none; }
 }
 .report-head.compare-head { flex-direction: column; align-items: flex-start; gap: 0; }
+
+/* Install: the first step, as code to copy. */
+.install-card .start-card-head { margin-bottom: 16px; }
+.tag-soon { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; margin-left: 8px; background: var(--recess); color: var(--ink-3); font-size: 12px; font-weight: 500; line-height: 1; }
+.install-steps { display: grid; gap: 16px; }
+@media (min-width: 760px) { .install-steps { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: stretch; } }
+.code-wrap { display: flex; flex-direction: column; min-width: 0; }
+.code-head { display: flex; align-items: center; justify-content: space-between; height: 28px; margin-bottom: 4px; }
+.code-head .field-label { margin: 0; }
+.code-copy { margin-right: -6px; }
+.code {
+  flex: 1; margin: 0; padding: 12px 14px; overflow-x: auto; border-radius: 4px;
+  background: var(--recess); box-shadow: inset 0 0 0 1px var(--ring);
+  font: 400 13px/20px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink); white-space: pre;
+}
+.start { gap: 24px; }
+.start-copy { margin-bottom: 8px; }
