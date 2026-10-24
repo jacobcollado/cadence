@@ -15,6 +15,7 @@ const paths = {
   upload: <path d="M8 10.5v-8M4.5 6L8 2.5 11.5 6M3 13.5h10" />,
   trash: <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.5 8.5h6l.5-8.5" />,
   compare: <path d="M3 13V8M8 13V3M13 13V6" />,
+  device: <><rect x="2.5" y="3" width="11" height="7.5" rx="1" /><path d="M6 13.5h4M8 10.5v3" /></>,
   // Ratings differ in shape as well as color, so they never rely on color alone.
   smooth: <><circle cx="8" cy="8" r="6.25" /><path d="M5.5 8.25l1.75 1.75 3.25-3.75" /></>,
   uneven: <><path d="M7.13 2.75a1 1 0 011.74 0l5.2 9a1 1 0 01-.87 1.5H2.8a1 1 0 01-.87-1.5z" /><path d="M8 6.75v2.5M8 11.5h.01" /></>,

@@ -353,3 +353,60 @@ svg { display: block; flex: none; }
 .device-group dt { color: var(--ink-3); white-space: nowrap; }
 .device-group dd { text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card-pair .block-title { flex-basis: 0; }
+
+/* Overview: one tile per graded category. The selected one is filled black,
+   like any active state; its panel opens below. */
+.overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 32px 0 20px; }
+@media (min-width: 720px) { .overview { gap: 16px; } }
+.tile {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0;
+  padding: 16px; border-radius: 6px; text-align: left;
+  background: var(--paper); box-shadow: inset 0 0 0 1px var(--ring-firm), 0 1px 2px rgba(0,0,0,.04);
+  transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+@media (min-width: 720px) { .tile { padding: 20px; } }
+.tile:hover { background: var(--hover); }
+.tile:active { transform: translateY(1px); }
+.tile[aria-selected="true"] {
+  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(0,0,0,.6), 0 6px 16px -6px rgba(0,0,0,.35);
+}
+.tile-label { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ink-2); min-width: 0; }
+.tile[aria-selected="true"] .tile-label { color: rgba(255,255,255,.72); }
+.tile-value { display: flex; align-items: baseline; gap: 4px; font-size: 28px; line-height: 32px; font-weight: 600; letter-spacing: -0.03em; }
+@media (min-width: 720px) { .tile-value { font-size: 32px; line-height: 36px; } }
+.tile-unit { font-size: 14px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink-3); }
+.tile[aria-selected="true"] .tile-unit { color: rgba(255,255,255,.6); }
+.tile-none { font-size: 15px; line-height: 32px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink-3); }
+.tile-detail { font-size: 13px; line-height: 18px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.tile[aria-selected="true"] .tile-detail { color: rgba(255,255,255,.6); }
+@media (max-width: 480px) { .tile-detail { display: none; } .tile { gap: 6px; } }
+
+/* The selected tab's one-line answer, flipping when the tab changes. */
+.lede-sentence { font-size: 17px; line-height: 26px; color: var(--ink-2); max-width: 64ch; margin-bottom: 8px; }
+.flip.flip-wrap { display: block; }
+.flip.flip-wrap > span { white-space: normal; width: 100%; }
+.tab-panel { margin-top: 24px; }
+
+/* Device details float over the report. */
+.popover-wrap { position: relative; }
+.popover {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 20;
+  width: min(560px, calc(100vw - 32px)); padding: 20px; border-radius: 6px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--ring-firm), 0 24px 48px -12px rgba(0,0,0,.24), 0 2px 6px rgba(0,0,0,.06);
+  animation: pop var(--dur-base) var(--ease-out) both; transform-origin: top right;
+}
+@keyframes pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+.popover-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
+@media (max-width: 600px) { .popover-wrap { position: static; } .report-head { position: relative; } .popover { left: 0; right: 0; width: auto; } }
+/* The header's actions hold the device popover, so they sit above the content below. */
+.report-head > .actions { position: relative; z-index: 30; }
+@media (max-width: 600px) { .report-head > .actions { position: static; } .report-head { z-index: 30; } }
+.block-head:has(> .rating) .block-title { flex-basis: 0; }
+.tile-value { height: 32px; }
+@media (min-width: 720px) { .tile-value { height: 36px; } }
+.tile-unit { line-height: 1; }
+/* The popover anchors to the whole action row: its right edge on desktop, its full width on phones. */
+.report-head > .actions .popover-wrap { position: static; }
+@media (max-width: 600px) { .report-head > .actions { width: 100%; } }

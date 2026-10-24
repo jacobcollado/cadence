@@ -37,6 +37,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 
 ## Components
 
+- **Report layout**: the header (device, page, actions), then the overview, then the selected category. The overview has one tile per graded category (Smoothness, Page load, Memory), each with its status, headline number and a short verdict, so the whole report reads at a glance. Tiles are tabs: the selected one is filled black, its one-sentence answer sits under the row, and its cards open below. The tab lives in the URL (`?tab=load`), so a copied link opens the same view. Device details are context, not a result, so they open in a popover from the header.
 - **Card** (`.card.block`): flat, inset ring, 20px padding, 16px apart. Every card opens with `.block-head`: an `h2`, a one-line `.meta` saying how to read it, and an optional legend or status on the right.
 - **Card pair** (`.card-pair`): two cards side by side from 860px, sharing a top edge.
 - **Metric row** (`.metric`): name and what it measures, the value on a threshold scale (`Scale`), the number, the status. Missing values say why, in place of the scale.
