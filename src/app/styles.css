@@ -691,11 +691,11 @@ svg { display: block; flex: none; }
 .gh-count { padding-left: 6px; box-shadow: inset 1px 0 0 var(--ring-firm); color: var(--ink-3); }
 .footer-sub { margin-top: 2px; font-size: 12px; line-height: 18px; }
 
-/* Hero top: the line and lede beside the orbit field. The field is art, so it
-   steps aside on phones. */
-.start-top { display: grid; align-items: center; gap: 32px; }
-.orbit-field { display: none; justify-self: end; }
+/* Hero top: the line and lede beside the orbit field; on phones the field
+   sits under the lede, scaled to the width. */
+.start-top { display: grid; align-items: center; gap: 24px; }
+.orbit-field { display: block; justify-self: center; }
 @media (min-width: 860px) {
-  .start-top { grid-template-columns: minmax(0, 1fr) 360px; }
-  .orbit-field { display: block; }
+  .start-top { grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; }
+  .orbit-field { justify-self: end; }
 }

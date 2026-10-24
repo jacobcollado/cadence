@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { reducedMotion } from "../../shared/motion";
 import { token, useTheme } from "../theme";
 
@@ -7,7 +7,7 @@ import { token, useTheme } from "../theme";
 // jumps ahead in red, with a ring where it skipped), the way a dropped frame
 // does. Canvas, paused off screen, still under reduced motion.
 
-const W = 360, H = 300;
+const W = 360, H = 200;
 const TILT = -0.26;                    // radians
 const SQUASH = 0.42;                   // ellipse height over width
 const ORBITS = [46, 74, 102, 130, 158];
@@ -20,12 +20,20 @@ const STUTTER_EVERY = 3200, FREEZE = 260, FLASH = 700;
 export function OrbitField() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const theme = useTheme();
+  // Drawn at 360 by 200 and scaled to fit, so phones get the same field, smaller.
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = canvas.current!.parentElement!;
+    const ro = new ResizeObserver(([e]) => setScale(Math.min(1, e.contentRect.width / W)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     const cv = canvas.current!;
-    const dpr = Math.min(2, devicePixelRatio || 1);
-    cv.width = W * dpr;
-    cv.height = H * dpr;
+    const dpr = Math.min(2, devicePixelRatio || 1) * scale;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
     const ctx = cv.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const col = { ring: token("--grid"), dot: token("--ink-2"), center: token("--ink"), bad: token("--bad") };
@@ -121,7 +129,7 @@ export function OrbitField() {
       cancelAnimationFrame(raf);
       io.disconnect();
     };
-  }, [theme]);
+  }, [theme, scale]);
 
-  return <canvas ref={canvas} className="orbit-field" style={{ width: W, height: H }} aria-hidden="true" />;
+  return <canvas ref={canvas} className="orbit-field" style={{ width: W * scale, height: H * scale }} aria-hidden="true" />;
 }
