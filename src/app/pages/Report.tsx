@@ -4,7 +4,7 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Disclosure, Flip, Icon, RatingTag, StatusIcon, StatusTag } from "../components/ui";
+import { Bar, CopyButton, CountUp, Flip, Icon, Info, RatingTag, StatusIcon, StatusTag } from "../components/ui";
 import { LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
@@ -108,10 +108,6 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         {tab === "load" && <PageLoad metrics={metrics} />}
         {tab === "memory" && <MemoryCard run={run} m={mem} />}
       </div>
-
-      <div style={{ marginTop: 16 }}>
-        <Glossary run={run} />
-      </div>
     </>
   );
 }
@@ -195,9 +191,12 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
       {rows.length > 0 && (
         <section className="card block">
           <div className="block-head">
-            <div className="block-title">
+            <div className="block-title title-row">
               <h2 className="h2">Sections</h2>
-              <p className="meta">Where on the page frames dropped, top to bottom.</p>
+              <Info title="Sections">
+                <p>The parts of the page, top to bottom, found from its landmarks and headings. Each frame counts toward the section crossing the middle of the screen when it was drawn.</p>
+                <p>So a slow section is where to look in the code.</p>
+              </Info>
             </div>
           </div>
           <div className="table-scroll">
@@ -205,11 +204,39 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
               <thead>
                 <tr>
                   <th>Section</th>
-                  <th>Rating</th>
-                  <th>Frame rate</th>
-                  <th className="r wide">Dropped frames</th>
-                  <th className="r wide">Longest frame</th>
-                  <th className="r wide">On screen</th>
+                  <th><span className="th-info">Rating<RatingInfo hz={run.hz} /></span></th>
+                  <th>
+                    <span className="th-info">Frame rate
+                      <Info title="Frame rate">
+                        <p>New frames drawn each second. This screen shows up to {run.hz}.</p>
+                        <p>Near that, motion looks continuous. Under {choppyBelow(run.hz)} it visibly stutters.</p>
+                      </Info>
+                    </span>
+                  </th>
+                  <th className="r wide">
+                    <span className="th-info">Dropped frames
+                      <Info title="Dropped frames">
+                        <p>Refreshes where the page wasn't ready, so the screen showed the last frame again.</p>
+                        <p>Each one is a visible skip. A few in a second already read as jank, even when the average frame rate looks fine.</p>
+                      </Info>
+                    </span>
+                  </th>
+                  <th className="r wide">
+                    <span className="th-info">Longest frame
+                      <Info title="Longest frame">
+                        <p>The single slowest frame in the section. Averages hide it; people don't.</p>
+                        <p>Each frame has {Math.round(1000 / run.hz)} ms to make the refresh. Past {FREEZE} ms the page visibly stops and jumps, and that one frame is usually where the fix is.</p>
+                      </Info>
+                    </span>
+                  </th>
+                  <th className="r wide">
+                    <span className="th-info">On screen
+                      <Info title="On screen">
+                        <p>How long the section was in the middle of the screen.</p>
+                        <p>Longer means more frames behind its rating. Under {MIN_SECTION_TIME / 1000} s there's too little to judge, so it isn't rated.</p>
+                      </Info>
+                    </span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -244,9 +271,13 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
 
       <section className="card block">
         <div className="block-head">
-          <div className="block-title">
+          <div className="block-title title-row">
             <h2 className="h2">Frames</h2>
-            <p className="meta">Each bar is one frame. Above the {budget} ms line, it missed its refresh.</p>
+            <Info title="Reading the frames">
+              <p>Every frame of the run, left to right. A taller bar took longer to draw.</p>
+              <p>Above the {budget} ms line a frame missed its refresh and turns amber. Past {FREEZE} ms it froze and turns red. Dark marks along the bottom are where the main thread was busy.</p>
+              <p>Hover a section in the table to light up its frames.</p>
+            </Info>
           </div>
           <div className="legend">
             <span><i className="swatch" style={{ background: "var(--data)" }} />On time</span>
@@ -369,9 +400,12 @@ function PageLoad({ metrics }: { metrics: Metric[] }) {
   return (
     <section className="card block">
       <div className="block-head">
-        <div className="block-title">
+        <div className="block-title title-row">
           <h2 className="h2">Page load</h2>
-          <p className="meta">From when this tab first loaded the site, graded on Core Web Vitals.</p>
+          <Info title="Page load">
+            <p>Measured from when this tab first loaded the site.</p>
+            <p>Graded on Core Web Vitals, the thresholds Google publishes from real-user data, and on Lighthouse for page size. Each bar marks where good ends and poor begins.</p>
+          </Info>
         </div>
         <div className="legend">
           {counts.map(([l, n]) => (
@@ -389,9 +423,14 @@ function PageLoad({ metrics }: { metrics: Metric[] }) {
 function MetricRow({ m, delay }: { m: Metric; delay: number }) {
   return (
     <div className="metric">
-      <div className="metric-name">
+      <div className="metric-name title-row">
         <span>{m.name}</span>
-        <span className="metric-what">{m.what}</span>
+        <Info title={m.name}>
+          <p>{m.what}</p>
+          <p>{m.why}</p>
+          {m.good !== undefined && <p>Good is {m.format(m.good)} or less. Over {m.format(m.poor!)} is poor.</p>}
+          {m.value !== undefined && m.level && <p className="info-run">{runVerdict(m)}</p>}
+        </Info>
       </div>
       {m.value === undefined ? (
         <div className="metric-missing">{m.missing}</div>
@@ -427,9 +466,12 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
   return (
     <section className="card block">
       <div className="block-head">
-        <div className="block-title">
+        <div className="block-title title-row">
           <h2 className="h2">Memory</h2>
-          <p className="meta">JavaScript heap during the run.</p>
+          <Info title="Memory">
+            <p>The JavaScript heap: what the page's scripts are holding on to, sampled twice a second.</p>
+            <p>Some rise and fall is normal. Memory that only climbs is a leak, and on phones it ends with the tab reloading. Growing means it rose more than 10 MB and a fifth during the run.</p>
+          </Info>
         </div>
         {m && <StatusTag level={m.level} label={m.level === "good" ? "Steady" : "Growing"} />}
       </div>
@@ -511,7 +553,6 @@ function DevicePanel({ run }: { run: Run }) {
     <>
       <div className="popover-head">
         <h2 className="h2">Device</h2>
-        <p className="meta">What this run ran on.</p>
       </div>
       <div className="device-groups">
         {groups.map(([title, items]) => {
@@ -529,25 +570,27 @@ function DevicePanel({ run }: { run: Run }) {
   );
 }
 
-/** The methodology, in plain words, for anyone reading a report cold. */
-function Glossary({ run }: { run: Run }) {
-  const choppy = choppyBelow(run.hz);
-  const terms: [string, string][] = [
-    ["Frame rate", `How many new frames the page drew each second. The screen's refresh rate, ${run.hz} Hz on this device, is the most it can show.`],
-    ["Dropped frame", "A refresh where the page wasn't ready, so the screen showed the last frame again. Scrolling looks like it skips."],
-    ["Late and freeze", `A late frame missed its refresh by a little. A freeze took ${FREEZE} ms or more, long enough to see the page stop and jump.`],
-    [
-      `${RATING_LABEL.smooth}, ${RATING_LABEL.uneven.toLowerCase()}, ${RATING_LABEL.choppy.toLowerCase()}`,
-      `Smooth holds 92% of the refresh rate, with 95% of frames on time and no freezes. Choppy is under ${choppy} fps, where motion stops looking continuous. Uneven is in between.`,
-    ],
-    ["Section", `The part of the page across the middle of the screen when a frame was drawn. Sections on screen under ${MIN_SECTION_TIME / 1000} s aren't rated.`],
-    ["Busy main thread", `The main thread is where a page runs its scripts and works out style and layout. While it's busy, nothing new can be drawn. Chrome and Edge report each stretch over ${FREEZE} ms, with the script behind it. Safari and Firefox don't.`],
-  ];
+/** Every rating a section can get, with the rule behind it. */
+function RatingInfo({ hz }: { hz: number }) {
   return (
-    <Disclosure title="How to read this">
-      <dl className="glossary">
-        {terms.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
-      </dl>
-    </Disclosure>
+    <Info title="Rating">
+      <p>How the section felt while scrolling, from its frames.</p>
+      <div className="rating-defs">
+        <div className="rating-def"><RatingTag rating="smooth" /><span>Holds 92% of {hz} fps, with 95% of frames on time and none over {FREEZE} ms.</span></div>
+        <div className="rating-def"><RatingTag rating="uneven" /><span>Mostly fine, with dropped frames or a freeze you can notice.</span></div>
+        <div className="rating-def"><RatingTag rating="choppy" /><span>Under {choppyBelow(hz)} fps, where motion stops looking continuous.</span></div>
+      </div>
+      <p>Too brief means it was on screen under {MIN_SECTION_TIME / 1000} s, too short to judge.</p>
+    </Info>
   );
+}
+
+/** Where this run's value lands against the thresholds, in words. */
+function runVerdict(m: Metric): string {
+  const v = m.value!, good = m.good!, poor = m.poor!;
+  if (m.key === "cls" && v === 0) return "This run: 0, so nothing moved once it appeared.";
+  const here = `This run: ${m.display}`;
+  if (m.level === "good") return v <= good / 2 ? `${here}, well inside good.` : `${here}, inside good.`;
+  if (m.level === "warn") return `${here}, past good but not yet poor.`;
+  return v > poor * 1.5 ? `${here}, far past the poor line.` : `${here}, past the poor line.`;
 }

@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { encode } from "uqr";
 import { countUp, flipText } from "../../shared/motion";
 import { RATING_LABEL, type Rating } from "../../shared/stats";
@@ -15,6 +16,9 @@ const paths = {
   upload: <path d="M8 10.5v-8M4.5 6L8 2.5 11.5 6M3 13.5h10" />,
   trash: <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.5 8.5h6l.5-8.5" />,
   compare: <path d="M3 13V8M8 13V3M13 13V6" />,
+  sun: <><circle cx="8" cy="8" r="2.75" /><path d="M8 1.5v1.25M8 13.25v1.25M1.5 8h1.25M13.25 8h1.25M3.4 3.4l.9.9M11.7 11.7l.9.9M3.4 12.6l.9-.9M11.7 4.3l.9-.9" /></>,
+  moon: <path d="M13.25 9.6A5.5 5.5 0 016.4 2.75a5.5 5.5 0 106.85 6.85z" />,
+  info: <><circle cx="8" cy="8" r="6.25" /><path d="M8 7.25v3.5M8 5.25h.01" /></>,
   device: <><rect x="2.5" y="3" width="11" height="7.5" rx="1" /><path d="M6 13.5h4M8 10.5v3" /></>,
   // Ratings differ in shape as well as color, so they never rely on color alone.
   smooth: <><circle cx="8" cy="8" r="6.25" /><path d="M5.5 8.25l1.75 1.75 3.25-3.75" /></>,
@@ -138,7 +142,7 @@ export function Qr({ text }: { text: string }) {
   data.forEach((row, y) => row.forEach((on, x) => { if (on) d += `M${x} ${y}h1v1h-1z`; }));
   return (
     <svg className="qr" viewBox={`0 0 ${size} ${size}`} shapeRendering="crispEdges" role="img" aria-label={`QR code for ${text}`}>
-      <path d={d} fill="var(--ink)" />
+      <path d={d} fill="#1a1a1a" />
     </svg>
   );
 }
@@ -160,5 +164,69 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
       <Icon name={done ? "check" : "link"} size={14} />
       <Flip text={done ? "Copied" : label} />
     </button>
+  );
+}
+
+/**
+ * An explanation one tap away: an "i" that opens a small card on hover (with a
+ * mouse) or on tap. It renders into the body, so tables and animated
+ * containers can't clip it.
+ */
+export function Info({ title, children }: { title: string; children: ReactNode }) {
+  const [at, setAt] = useState<{ x: number; y: number; up: boolean } | null>(null);
+  const btn = useRef<HTMLButtonElement>(null);
+  const id = useId();
+  const show = () => {
+    const r = btn.current!.getBoundingClientRect();
+    const up = r.bottom + 220 > innerHeight && r.top > 240;
+    setAt({ x: Math.max(16, Math.min(r.left + r.width / 2 - 140, innerWidth - 296)), y: up ? r.top - 8 : r.bottom + 8, up });
+  };
+  useEffect(() => {
+    if (!at) return;
+    const close = () => setAt(null);
+    const away = (e: PointerEvent) => !btn.current?.contains(e.target as Node) && close();
+    const key = (e: KeyboardEvent) => e.key === "Escape" && close();
+    addEventListener("pointerdown", away);
+    addEventListener("keydown", key);
+    addEventListener("scroll", close, { passive: true, capture: true });
+    return () => {
+      removeEventListener("pointerdown", away);
+      removeEventListener("keydown", key);
+      removeEventListener("scroll", close, { capture: true });
+    };
+  }, [at]);
+  return (
+    <>
+      <button
+        ref={btn}
+        type="button"
+        className="info-btn"
+        aria-label={`About ${title.toLowerCase()}`}
+        aria-expanded={!!at}
+        aria-describedby={at ? id : undefined}
+        onPointerEnter={(e) => e.pointerType === "mouse" && show()}
+        onPointerLeave={(e) => e.pointerType === "mouse" && setAt(null)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (at) setAt(null);
+          else show();
+        }}
+      >
+        <Icon name="info" size={14} />
+      </button>
+      {at && createPortal(
+        <div
+          role="tooltip"
+          id={id}
+          className="info-tip"
+          data-up={at.up || undefined}
+          style={{ left: at.x, top: at.y }}
+        >
+          <div className="info-title">{title}</div>
+          <div className="info-body">{children}</div>
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }

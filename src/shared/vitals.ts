@@ -23,6 +23,8 @@ export interface Metric {
   name: string;
   /** What it measures, in one line. */
   what: string;
+  /** Why it matters to the person using the page. */
+  why: string;
   value?: number;
   display: string;
   level?: Level;
@@ -55,33 +57,33 @@ export function pageLoad(run: Run): Metric[] {
   const unsupported = `${browser} doesn't report this`;
   const defs: (Omit<Metric, "display" | "level"> & { supported: boolean })[] = [
     {
-      key: "lcp", name: "Largest paint", what: "When the biggest image or block of text appeared.",
+      key: "lcp", why: "People judge a page as loaded when its main content shows. Google uses this in search ranking.", name: "Largest paint", what: "When the biggest image or block of text appeared.",
       value: v.lcp, good: 2500, poor: 4000, format: formatMs, supported: run.support.lcp,
     },
     {
-      key: "cls", name: "Layout shift", what: "How much the page jumped around as it loaded.",
+      key: "cls", why: "Content that moves under a reader's finger causes misclicks and lost place. It's a score, not a time: how much of the screen moved, times how far. 0 means nothing moved once it appeared.", name: "Layout shift", what: "How much the page jumped around as it loaded.",
       value: v.cls ?? (run.support.shifts ? 0 : undefined), good: 0.1, poor: 0.25, format: formatShift,
       supported: run.support.shifts,
     },
     {
-      key: "inp", name: "Slowest interaction", what: "The longest wait between a tap or click and the screen answering.",
+      key: "inp", why: "How quickly the page answers. Past 200 ms a tap starts to feel ignored.", name: "Slowest interaction", what: "The longest wait between a tap or click and the screen answering.",
       value: v.inp, good: 200, poor: 500, format: formatMs, supported: run.support.inp,
       missing: run.support.inp ? "No taps or clicks during this visit" : undefined,
     },
     {
-      key: "fcp", name: "First paint", what: "When anything first appeared on screen.",
+      key: "fcp", why: "The first sign the page is working. A blank screen for long makes people leave.", name: "First paint", what: "When anything first appeared on screen.",
       value: v.fcp, good: 1800, poor: 3000, format: formatMs, supported: true,
     },
     {
-      key: "ttfb", name: "Server response", what: "How long the server took to send the first byte.",
+      key: "ttfb", why: "Everything else waits on the server. A slow start leaves less time for the rest of the load.", name: "Server response", what: "How long the server took to send the first byte.",
       value: v.ttfb, good: 800, poor: 1800, format: formatMs, supported: true,
     },
     {
-      key: "nodes", name: "Page size", what: "Elements on the page. More of them means slower style and layout.",
+      key: "nodes", why: "Every element costs style and layout time, again on every change. Lighthouse flags pages past 800.", name: "Page size", what: "Elements on the page. More of them means slower style and layout.",
       value: v.nodes, good: 800, poor: 1400, format: formatCount, supported: true,
     },
     {
-      key: "canvases", name: "Canvases", what: "Canvas elements, often WebGL. Each one draws on the GPU every frame it animates.",
+      key: "canvases", why: "Not graded: one canvas can be cheap or very costly. Worth checking when a section with canvases runs slow.", name: "Canvases", what: "Canvas elements, often WebGL. Each one draws on the GPU every frame it animates.",
       value: v.canvases, format: formatCount, supported: true,
     },
   ];

@@ -23,6 +23,19 @@
   --warn: #f5a623;
   --warn-ink: #d38900;
   --bad: #d03b3b;
+  --warn-dim: #fbe4bd;
+  --bad-dim: #f2c4c4;
+  --budget: #d6d5cf;
+  /* Solid fills: the primary button and the selected tile. Black in light mode, light in dark. */
+  --solid: #1a1a1a;
+  --solid-face: linear-gradient(180deg, #3b3b3b 0%, #1d1d1d 52%, #141414 100%);
+  --solid-edge: inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(0,0,0,.6);
+  --on-solid: #ffffff;
+  --on-solid-2: rgba(255,255,255,.72);
+  --on-solid-3: rgba(255,255,255,.6);
+  --shadow: rgba(0,0,0,.25);
+  --veil: rgba(255,255,255,.86);
+  --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5'/%3E%3C/svg%3E");
 
   --dur-fast: 140ms;
   --dur-base: 220ms;
@@ -37,9 +50,41 @@
   :root { --gutter: 32px; }
 }
 
+/* Dark: its own steps, not an inversion. Status hues stay the same; dims and
+   data grays are re-stepped against the dark surface. */
+:root[data-theme="dark"] {
+  --ink: #ecebe7;
+  --ink-2: #b4b3ad;
+  --ink-3: #85847e;
+  --paper: #141413;
+  --recess: #1f1f1d;
+  --hover: #1a1a19;
+  --ring: rgba(255, 255, 255, 0.08);
+  --ring-firm: rgba(255, 255, 255, 0.14);
+  --grid: #262624;
+  --data: #5c5b56;
+  --data-dim: #2c2c29;
+  --data-line: #8d8c86;
+  --warn-ink: #f5a623;
+  --warn-dim: #4d3c18;
+  --bad-dim: #4d2323;
+  --budget: #3d3d39;
+  --solid: #ecebe7;
+  --solid-face: linear-gradient(180deg, #ffffff 0%, #ecebe7 52%, #dddcd7 100%);
+  --solid-edge: inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(0,0,0,.3);
+  --on-solid: #141413;
+  --on-solid-2: rgba(20,20,19,.72);
+  --on-solid-3: rgba(20,20,19,.6);
+  --shadow: rgba(0,0,0,.6);
+  --veil: rgba(20,20,19,.86);
+  --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23141413' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5'/%3E%3C/svg%3E");
+  color-scheme: dark;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 body {
+  transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
   background: var(--paper);
   color: var(--ink);
   font: 400 14px/1.5 "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -80,11 +125,11 @@ svg { display: block; flex: none; }
 .btn-icon-l { padding-left: 11px; }
 .btn-lg.btn-icon-l { padding-left: 14px; }
 .btn-primary {
-  color: #fff;
-  background: linear-gradient(180deg, #3b3b3b 0%, #1d1d1d 52%, #141414 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(0,0,0,.6), 0 1px 2px rgba(0,0,0,.25), 0 4px 10px -3px rgba(0,0,0,.3);
+  color: var(--on-solid);
+  background: var(--solid-face);
+  box-shadow: var(--solid-edge), 0 1px 2px var(--shadow), 0 4px 10px -3px var(--shadow);
 }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 0 1px rgba(0,0,0,.6), 0 2px 3px rgba(0,0,0,.22), 0 8px 16px -4px rgba(0,0,0,.32); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--solid-edge), 0 2px 3px var(--shadow), 0 8px 16px -4px var(--shadow); }
 .btn-primary:active { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(0,0,0,.4), inset 0 0 0 1px rgba(0,0,0,.7), 0 0 1px rgba(0,0,0,.2); }
 .btn-secondary { background: var(--paper); box-shadow: inset 0 0 0 1px var(--ring-firm), 0 1px 1px rgba(0,0,0,.04); }
 .btn-secondary:hover { background: var(--hover); }
@@ -120,7 +165,7 @@ svg { display: block; flex: none; }
   transition: background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 .check:checked {
-  background: var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5'/%3E%3C/svg%3E") center / 12px no-repeat;
+  background: var(--solid) var(--check) center / 12px no-repeat;
   box-shadow: inset 0 0 0 1px var(--ink);
 }
 
@@ -205,7 +250,7 @@ svg { display: block; flex: none; }
 .empty strong { display: block; color: var(--ink); font-weight: 500; margin-bottom: 4px; }
 .drop-veil {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
-  background: rgba(255,255,255,.86); backdrop-filter: blur(4px);
+  background: var(--veil); backdrop-filter: blur(4px);
   font-size: 17px; font-weight: 500;
   animation: veil var(--dur-base) var(--ease-out);
 }
@@ -368,18 +413,18 @@ svg { display: block; flex: none; }
 .tile:hover { background: var(--hover); }
 .tile:active { transform: translateY(1px); }
 .tile[aria-selected="true"] {
-  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%); color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(0,0,0,.6), 0 6px 16px -6px rgba(0,0,0,.35);
+  background: var(--solid-face); color: var(--on-solid);
+  box-shadow: var(--solid-edge), 0 6px 16px -6px var(--shadow);
 }
 .tile-label { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ink-2); min-width: 0; }
-.tile[aria-selected="true"] .tile-label { color: rgba(255,255,255,.72); }
+.tile[aria-selected="true"] .tile-label { color: var(--on-solid-2); }
 .tile-value { display: flex; align-items: baseline; gap: 4px; font-size: 28px; line-height: 32px; font-weight: 600; letter-spacing: -0.03em; }
 @media (min-width: 720px) { .tile-value { font-size: 32px; line-height: 36px; } }
 .tile-unit { font-size: 14px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink-3); }
-.tile[aria-selected="true"] .tile-unit { color: rgba(255,255,255,.6); }
+.tile[aria-selected="true"] .tile-unit { color: var(--on-solid-3); }
 .tile-none { font-size: 15px; line-height: 32px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink-3); }
 .tile-detail { font-size: 13px; line-height: 18px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.tile[aria-selected="true"] .tile-detail { color: rgba(255,255,255,.6); }
+.tile[aria-selected="true"] .tile-detail { color: var(--on-solid-3); }
 @media (max-width: 480px) { .tile-detail { display: none; } .tile { gap: 6px; } }
 
 /* The selected tab's one-line answer, flipping when the tab changes. */
@@ -410,3 +455,38 @@ svg { display: block; flex: none; }
 /* The popover anchors to the whole action row: its right edge on desktop, its full width on phones. */
 .report-head > .actions .popover-wrap { position: static; }
 @media (max-width: 600px) { .report-head > .actions { width: 100%; } }
+
+/* Theme toggle: the icon turns in as it changes. */
+.theme-icon { display: inline-flex; animation: turn var(--dur-slow) var(--ease-out) both; }
+@keyframes turn { from { opacity: 0; transform: rotate(-90deg) scale(0.6); } }
+
+/* Explanations: a quiet "i" beside a title, opening a raised card. */
+.title-row { display: flex; align-items: center; gap: 4px; }
+.info-btn {
+  width: 20px; height: 20px; border-radius: 4px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;
+  color: var(--ink-3); transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.info-btn:hover, .info-btn[aria-expanded="true"] { color: var(--ink); background: var(--recess); }
+.info-tip {
+  position: fixed; z-index: 100; width: 280px; padding: 12px 14px; border-radius: 6px;
+  background: var(--paper); color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--ring-firm), 0 16px 32px -8px var(--shadow), 0 2px 6px rgba(0,0,0,.08);
+  font-size: 13px; line-height: 19px; font-weight: 400; letter-spacing: -0.01em; text-align: left; white-space: normal;
+  animation: tip var(--dur-fast) var(--ease-out) both;
+}
+.info-tip[data-up] { transform: translateY(-100%); animation-name: tip-up; }
+@keyframes tip { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes tip-up { from { opacity: 0; transform: translateY(calc(-100% + 4px)); } }
+.info-title { font-size: 13px; line-height: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.info-body { display: flex; flex-direction: column; gap: 8px; }
+.info-body .rating-defs { display: flex; flex-direction: column; gap: 8px; }
+.info-body .rating-def { display: grid; grid-template-columns: 96px 1fr; gap: 8px; align-items: start; }
+.th-info { display: inline-flex; align-items: center; gap: 2px; }
+.table th.r .th-info { flex-direction: row-reverse; }
+.info-run { color: var(--ink); }
+.metric-name.title-row { flex-direction: row; align-items: center; }
+.block-title.title-row { flex-direction: row; align-items: center; gap: 4px; }
+.block-title.title-row .h2 { flex: none; }
+/* QR codes stay dark on white in both themes: not every camera reads them inverted. */
+.qr { background: #fff; border-radius: 4px; padding: 8px; }

@@ -20,6 +20,10 @@ All live in `src/app/styles.css` (`:root`) and are mirrored in `src/probe/styles
 
 Type is Satoshi. Sizes in use: 28 title, 24 subtitle, 17 card heading and hero sentence, 15 and 14 body, 13 meta, 12 labels and tags, 11 axis ticks. Don't add new ones.
 
+## Themes
+
+Light and dark, picked with the toggle in the top bar, remembered per browser, and following the system until someone picks. `index.html` sets `data-theme` before first paint. Dark mode is its own set of steps, not an inversion: status hues stay the same, while dims, data grays and the solid fill are re-stepped. Solid fills (`--solid`, `--solid-face`) are black in light mode and near-white in dark. Canvas charts read the tokens when they draw. QR codes stay dark on white in both.
+
 ## Status
 
 One scale for everything graded, defined in `src/shared/vitals.ts`:
@@ -33,7 +37,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - A status is always shape, color and word together (`StatusTag`). An icon alone (`StatusIcon`) only goes where the row already names what's graded, like a legend count or the overlay's section rows.
 - Status colors mark problems. Bars for good results stay gray `--data`; only needs-work and poor bars take amber and red, so problems are what stands out.
 - Frame tiers follow the same order: on time gray, late amber, freeze (50 ms or more) red.
-- Thresholds are published standards wherever one exists (Core Web Vitals, Lighthouse page size). Cadence's own thresholds live in `src/shared/stats.ts` and are explained in the report's glossary.
+- Thresholds are published standards wherever one exists (Core Web Vitals, Lighthouse page size). Cadence's own thresholds live in `src/shared/stats.ts` and are explained in the notes beside each rating.
 
 ## Components
 
@@ -44,7 +48,8 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - **Table** (`.table`): 32px header, 44px rows, hairlines between, numbers right-aligned and tabular. Wide columns (`.wide`) hide under 600px.
 - **Tag** (`.rating`): 24px (28px in the hero), recess fill, 4px radius (6px at 28).
 - **Buttons**: 36px secondary for actions, the pressable primary only for the one main action on a view.
-- **Disclosure**: only for reference material that isn't graded (the glossary).
+- **Info** (`Info`): an "i" beside a title or column header that opens a raised card: what it is, why it matters, the thresholds, and where this run landed. Use it instead of subtitles. What stays visible: verdicts, numbers, thresholds and the sentences that explain a slowdown.
+- **Disclosure**: only for reference material that isn't graded.
 - **Charts**: the frame timeline and memory spark are canvas or SVG, gray data, status color only for problems, hover tooltips as white raised cards.
 
 ## Writing

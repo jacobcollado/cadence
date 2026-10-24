@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Run } from "../../shared/run";
 import { FREEZE, frameAt, fpsAround, LAYOUT, missed, tier, type RunStats } from "../../shared/stats";
 import { DUR, easeOut, reducedMotion } from "../../shared/motion";
+import { token, useTheme } from "../theme";
 
 const LABELS = 24;
 const PLOT = 160;
@@ -14,18 +15,20 @@ const MAX_CEILING = 150;
 /** Closest two frame time labels may sit. */
 const TICK_GAP = 14;
 
-// Per tier: on time, late, freeze. The dim set is for frames outside a
-// highlighted section.
-const FILL = ["#c6c6c0", "#f5a623", "#d03b3b"];
-const FILL_DIM = ["#e8e8e3", "#fbe4bd", "#f2c4c4"];
-const C = {
-  task: "#52514e",
-  taskDim: "#c9c8c3",
-  grid: "#ecebe6",
-  budget: "#d6d5cf",
-  ink: "#1a1a1a",
-  ink3: "#8a8a85",
-};
+// Colors come from the theme tokens, read when drawing. Per tier: on time,
+// late, freeze; the dim set is for frames outside a highlighted section.
+function palette() {
+  return {
+    fill: [token("--data"), token("--warn"), token("--bad")],
+    fillDim: [token("--data-dim"), token("--warn-dim"), token("--bad-dim")],
+    task: token("--ink-2"),
+    taskDim: token("--data-dim"),
+    grid: token("--grid"),
+    budget: token("--budget"),
+    ink: token("--ink"),
+    ink3: token("--ink-3"),
+  };
+}
 
 interface Span {
   index: number;
@@ -61,6 +64,7 @@ export function Timeline({ run, stats, highlight }: { run: Run; stats: RunStats;
   const [hover, setHover] = useState<Hover | null>(null);
   const [progress, setProgress] = useState(reducedMotion() ? 1 : 0);
   const [fontsReady, setFontsReady] = useState(false);
+  const theme = useTheme();
   const lane = run.support.loaf && run.tasks.length > 0;
   const height = LABELS + PLOT + (lane ? LANE + 4 : 0) + AXIS;
 
@@ -97,7 +101,7 @@ export function Timeline({ run, stats, highlight }: { run: Run; stats: RunStats;
     const ctx = cv.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     draw(ctx, { run, stats, spans, width, height, dpr, progress, highlight, hover, lane });
-  }, [run, stats, spans, width, height, progress, highlight, hover, lane, fontsReady]);
+  }, [run, stats, spans, width, height, progress, highlight, hover, lane, fontsReady, theme]);
 
   const move = (e: React.PointerEvent) => {
     const r = wrap.current!.getBoundingClientRect();
@@ -192,6 +196,7 @@ function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
   const y = (ms: number) => plotBottom - (ms / ceiling) * PLOT;
   const px = 1 / dpr;
   const snap = (v: number) => Math.round(v * dpr) / dpr;
+  const C = palette();
   ctx.clearRect(0, 0, W, a.height);
   ctx.textBaseline = "middle";
 
@@ -240,7 +245,7 @@ function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
   const bar = (x0: number, w: number, d: number, dim: boolean) => {
     const level = tier(d, stats.interval);
     const h = Math.max(px, Math.min(1, d / ceiling) * PLOT * progress);
-    ctx.fillStyle = (dim ? FILL_DIM : FILL)[level];
+    ctx.fillStyle = (dim ? C.fillDim : C.fill)[level];
     ctx.fillRect(x0, plotBottom - h, w, h);
     // Past the top of the scale: a break near the end says it ran further.
     if (d > ceiling && progress >= 1) ctx.clearRect(x0, LABELS + 4, w, 2);
