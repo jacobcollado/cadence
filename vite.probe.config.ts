@@ -14,7 +14,7 @@ export default defineConfig({
     target: "es2020",
     minify: true,
     lib: {
-      entry: "src/probe/index.ts",
+      entry: "src/probe/auto.ts",
       formats: ["iife"],
       name: "CadenceProbe",
       fileName: () => "probe.js",

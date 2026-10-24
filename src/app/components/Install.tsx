@@ -16,7 +16,7 @@ const KEY = "cadence.pm";
 
 /** Lines of the layout file; `add` marks the ones the user writes. */
 const LAYOUT: { text: string; add?: boolean }[] = [
-  { text: `import { Cadence } from "${PACKAGE}";`, add: true },
+  { text: `import { Cadence } from "${PACKAGE}/react";`, add: true },
   { text: "" },
   { text: "export default function RootLayout({ children }) {" },
   { text: "  return (" },

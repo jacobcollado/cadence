@@ -4,3 +4,4 @@ public/probe.js
 .vercel
 *.log
 shots
+packages/cadence-probe/LICENSE

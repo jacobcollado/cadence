@@ -12,16 +12,21 @@ declare global {
   }
 }
 
-// Read while this script is still the one executing; it's null afterwards.
-const script = document.currentScript as HTMLScriptElement | null;
+export interface BootOptions {
+  /** Where reports open. Defaults to the hosted Cadence app. */
+  app?: string;
+  /** The probe's own script URL, so its work is labelled Cadence in reports. */
+  src?: string;
+}
 
-function boot() {
+/** Starts the probe: the panel, the frame monitor and the observers. Safe to call twice. */
+export function boot(options: BootOptions = {}) {
   if (window.__cadence) return;
 
-  const app = (script?.dataset.app || __CADENCE_APP__).replace(/\/$/, "");
+  const app = (options.app || __CADENCE_APP__).replace(/\/$/, "");
   const monitor = new Monitor();
   const sections = new Sections();
-  const observers = new Observers(script?.src ?? "");
+  const observers = new Observers(options.src ?? "");
   const runner = new Runner(monitor, sections, observers, readDevice());
 
   const close = () => {
@@ -49,5 +54,3 @@ function boot() {
   };
 }
 
-if (document.body) boot();
-else document.addEventListener("DOMContentLoaded", boot, { once: true });

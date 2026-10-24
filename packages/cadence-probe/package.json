@@ -1,0 +1,32 @@
+{
+  "name": "cadence-probe",
+  "version": "0.1.0",
+  "description": "Stress test your site on real devices. Records every frame and shows which section stutters, and why.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./types/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    }
+  },
+  "files": ["dist", "types", "README.md", "LICENSE"],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true }
+  },
+  "keywords": ["performance", "fps", "frame rate", "jank", "web vitals", "mobile", "testing"],
+  "repository": { "type": "git", "url": "https://github.com/jacobcollado/cadence" }
+}

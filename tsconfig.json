@@ -13,5 +13,5 @@
     "verbatimModuleSyntax": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "vite.config.ts", "vite.probe.config.ts"]
+  "include": ["src", "packages/cadence-probe/src", "vite.config.ts", "vite.probe.config.ts"]
 }

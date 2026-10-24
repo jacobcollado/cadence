@@ -8,7 +8,8 @@
     "dev:probe": "vite build -c vite.probe.config.ts --watch",
     "build": "vite build -c vite.probe.config.ts && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:package": "vite build -c packages/cadence-probe/vite.config.ts && node -e \"require('fs').copyFileSync('LICENSE','packages/cadence-probe/LICENSE')\""
   },
   "dependencies": {
     "react": "^19.3.1",
