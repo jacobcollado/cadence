@@ -39,9 +39,13 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - Frame tiers follow the same order: on time gray, late amber, freeze (50 ms or more) red.
 - Thresholds are published standards wherever one exists (Core Web Vitals, Lighthouse page size). Cadence's own thresholds live in `src/shared/stats.ts` and are explained in the notes beside each rating.
 
+## Layout
+
+- Every page uses the same `.shell` (960px, 16 or 32px gutters), and the scrollbar's room is always reserved (`scrollbar-gutter: stable`), so moving between a short page and a long one never shifts the layout.
+
 ## Components
 
-- **Report layout**: the header (device, page, actions), then the overview, then the selected category. The overview has one tile per graded category (Smoothness, Page load, Memory), each with its status, headline number and a short verdict, so the whole report reads at a glance. Tiles are tabs: the selected one is filled black, its one-sentence answer sits under the row, and its cards open below. The tab lives in the URL (`?tab=load`), so a copied link opens the same view. Device details are context, not a result, so they open in a popover from the header.
+- **Report layout**: the header (device, page, actions), then the overview, then the selected category. The overview has one tile per graded category (Smoothness, Page load, Memory), each with its status, headline number and a short verdict, so the whole report reads at a glance. Tiles are tabs, held in a recessed tray: the selected one lifts out as a raised card (never a solid black or white fill, which reads too loud at this size), its one-sentence answer sits under the row, and its cards open below. The tab lives in the URL (`?tab=load`), so a copied link opens the same view. Device details are context, not a result, so they open in a popover from the header.
 - **Card** (`.card.block`): flat, inset ring, 20px padding, 16px apart. Every card opens with `.block-head`: an `h2` with its `Info`, and an optional legend or status on the right.
 - **Card pair** (`.card-pair`): two cards side by side from 860px, sharing a top edge.
 - **Metric row** (`.metric`): the name with its `Info`, the value on a threshold scale (`Scale`), the number, the status. Missing values say why, in place of the scale.
