@@ -644,19 +644,10 @@ svg { display: block; flex: none; }
 .setup-body { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px; }
 @media (max-width: 600px) { .setup-peek, .setup-btn .tag-soon { display: none; } .setup-btn > svg { margin-left: auto; } }
 
-/* Footer: who makes it, then the links that lead somewhere. Same column as
-   the pages above it. */
-.footer { box-shadow: inset 0 1px 0 var(--grid); }
-.footer-inner { max-width: 960px; margin: 0 auto; padding: 32px var(--gutter) 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
-.footer-brand { display: flex; flex-direction: column; gap: 8px; }
-.footer-by { font-size: 13px; line-height: 20px; color: var(--ink-3); }
-.footer-by a { color: var(--ink-2); box-shadow: inset 0 -1px 0 var(--ring-firm); transition: color var(--dur-fast) var(--ease-out); }
-.footer-by a:hover { color: var(--ink); }
-.footer-links { display: flex; gap: 24px; font-size: 13px; line-height: 20px; }
-.footer-links a { color: var(--ink-2); display: inline-flex; align-items: center; gap: 4px; transition: color var(--dur-fast) var(--ease-out); }
-.footer-links a:hover { color: var(--ink); }
-.footer-ext svg { color: var(--ink-3); }
-.footer-base { padding-top: 24px; padding-bottom: 32px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
+/* Footer: one quiet line, centered, no rule above it. */
+.footer { padding: 32px var(--gutter) 40px; text-align: center; font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.footer a { color: var(--ink-2); transition: color var(--dur-fast) var(--ease-out); }
+.footer a:hover { color: var(--ink); }
 
 /* The footer sits at the bottom of the window on short pages. */
 #root { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
