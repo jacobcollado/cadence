@@ -4,6 +4,12 @@ Builds on Jacob's global design rules. Where this file is more specific, it wins
 
 Cadence is read by developers and engineers who need to know what's wrong, quickly. Every graded thing leads with a verdict, then the number, then the detail.
 
+## Logo
+
+- The wordmark is a custom script "Cadence", drawn as centerlines and built into a filled outline by `scripts/wordmark.py`: downstrokes swell, upstrokes thin, every letter connects, slanted 16°. Run the script after changing a centerline; it writes `src/shared/wordmark.ts` and `public/favicon.svg`. Never hand-edit the generated paths, and never swap in a font.
+- `Wordmark` in the app takes the text color; 28px tall in the top bar.
+- The monogram is the wordmark's C, drawn heavier for small sizes: the browser tab (light and dark) and the probe panel.
+
 ## Tokens
 
 All live in `src/app/styles.css` (`:root`) and are mirrored in `src/probe/styles.ts` for the overlay.

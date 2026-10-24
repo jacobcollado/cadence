@@ -1,5 +1,5 @@
 {
-  "rewrites": [{ "source": "/((?!probe\\.js|fonts/|assets/|demo\\.html).*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/((?!probe\\.js|favicon\\.svg|fonts/|assets/|demo\\.html).*)", "destination": "/index.html" }],
   "headers": [
     { "source": "/probe.js", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }, { "key": "Access-Control-Allow-Origin", "value": "*" }] }
   ]
