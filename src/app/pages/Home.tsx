@@ -4,6 +4,7 @@ import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../compo
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
+import { OPEN_SETUP } from "../components/Footer";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
 
@@ -245,9 +246,20 @@ export function Home() {
 
 /** Setup, folded away: one quiet row that opens the install steps when asked. */
 function Setup() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => location.hash === "#setup");
+  const el = useRef<HTMLDivElement>(null);
+  // The footer's Set up link opens this row and brings it into view.
+  useEffect(() => {
+    const show = () => {
+      setOpen(true);
+      requestAnimationFrame(() => el.current?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "center" }));
+    };
+    if (location.hash === "#setup") show();
+    addEventListener(OPEN_SETUP, show);
+    return () => removeEventListener(OPEN_SETUP, show);
+  }, []);
   return (
-    <div className="card setup" data-open={open || undefined}>
+    <div className="card setup" id="setup" ref={el} data-open={open || undefined}>
       <button className="setup-btn" aria-expanded={open} onClick={() => setOpen(!open)}>
         <span className="setup-icon"><Icon name="terminal" size={16} /></span>
         <span className="setup-title">Add Cadence to your site</span>
