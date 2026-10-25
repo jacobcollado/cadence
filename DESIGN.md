@@ -6,6 +6,7 @@ Cadence is read by developers and engineers who need to know what's wrong, quick
 
 - The mark is an orbit: a ring with a dot riding on it, in a gap. The wordmark is lowercase "cadence" in Satoshi, a touch heavier and tighter than body text.
 - The mark sits on the wordmark's baseline the way a round letter does: its box ends at the ring's outer edge (viewBox 0 0 16 14) and the logo aligns by baseline. Never nudge it with offsets.
+- In display or marketing type (headlines, video, social), the name only appears as the lockup: the mark with lowercase "cadence". Never a capitalized "Cadence" set as a headline word. Where a line needs the product as its subject, rewrite it so the lockup can answer it instead. `<Cadence />` in code and plain running text in docs are the exceptions.
 - On hover the dot travels once around the orbit; skipped under reduced motion.
 
 ## Tokens
