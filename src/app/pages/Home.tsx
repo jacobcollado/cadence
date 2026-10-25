@@ -242,9 +242,9 @@ export function Home() {
                 </button>
               </div>
             ); })}
+            <p className="run-foot"><span className="run-foot-icon"><Icon name="info" size={14} /></span>Saved in this browser. Report links open on any device.</p>
           </div>
         )}
-        {runs.length > 0 && <p className="note runs-foot">Saved in this browser. Report links open on any device.</p>}
       </section>
 
       {dragging && <div className="drop-veil">Drop a run to open it</div>}

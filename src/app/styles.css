@@ -1046,6 +1046,9 @@ svg { display: block; flex: none; }
 .saved-icon { height: 32px; display: flex; align-items: center; color: var(--ink-2); }
 .saved-note p { flex: 1; min-width: 0; padding: 6px 0; font-size: 14px; line-height: 20px; color: var(--ink-2); }
 .saved-actions { display: flex; align-items: center; gap: 2px; height: 32px; }
-.runs-foot { margin-top: 12px; text-align: center; }
+/* The runs list's footer: where runs are saved. The icon sits in the checkbox column. */
+.run-foot { display: flex; align-items: flex-start; gap: 16px; padding: 9px 16px; background: var(--recess); box-shadow: inset 0 1px 0 var(--grid); font-size: 13px; line-height: 18px; color: var(--ink-2); }
+.run-foot-icon { flex: none; width: 16px; height: 18px; display: flex; align-items: center; justify-content: center; color: var(--ink-3); }
+@media (max-width: 600px) { .run-foot { gap: 12px; } }
 /* Phones: the header's Copy link sits right above, so the note keeps only its close button. */
 @media (max-width: 600px) { .saved-actions .tag-btn { display: none; } }
