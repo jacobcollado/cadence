@@ -19,22 +19,26 @@ export function PassMeter({ pass }: { pass: Pass }) {
   );
 }
 
-/** The report's three tiles, small, with example values. */
+/** The report's three tiles, small, with example values, each with its meaning beneath. */
 export function TilesSpecimen() {
   const tiles = [
-    { level: "good" as const, label: "Smoothness", value: "60", unit: "fps", detail: "Smooth, out of 60" },
-    { level: "warn" as const, label: "Page load", value: "3.1", unit: "s", detail: "Largest paint, 1 needs work" },
-    { level: "good" as const, label: "Memory", value: "38.4", unit: "MB", detail: "Steady, at its peak" },
+    { level: "good" as const, label: "Smoothness", value: "60", unit: "fps", about: "Smooth, Uneven or Choppy, for the page and each of its sections." },
+    { level: "warn" as const, label: "Page load", value: "3.1", unit: "s", about: "How fast the page appeared, on the thresholds Google uses for Core Web Vitals." },
+    { level: "good" as const, label: "Memory", value: "38.4", unit: "MB", about: "How much memory the run used, and whether it kept growing." },
   ];
   return (
-    <div className="specimen" aria-hidden="true">
-      {tiles.map((t, i) => (
-        <div key={t.label} className="specimen-tile" data-selected={i === 0 || undefined}>
-          <span className="specimen-label"><StatusIcon level={t.level} size={12} />{t.label}</span>
-          <span className="specimen-value num">{t.value}<span>{t.unit}</span></span>
-          <span className="specimen-detail">{t.detail}</span>
-        </div>
-      ))}
+    <div className="specimen-wrap">
+      <div className="specimen" aria-hidden="true">
+        {tiles.map((t, i) => (
+          <div key={t.label} className="specimen-tile" data-selected={i === 0 || undefined}>
+            <span className="specimen-label"><StatusIcon level={t.level} size={12} />{t.label}</span>
+            <span className="specimen-value num">{t.value}<span>{t.unit}</span></span>
+          </div>
+        ))}
+      </div>
+      <dl className="specimen-about">
+        {tiles.map((t) => <div key={t.label}><dt>{t.label}</dt><dd>{t.about}</dd></div>)}
+      </dl>
     </div>
   );
 }
@@ -64,24 +68,46 @@ export function CauseTags() {
   );
 }
 
-/** Three devices on one section, like the compare page. */
+/** Three devices across three sections, like the compare page, against the target line. */
 export function CompareSpecimen() {
-  const rows = [
-    { name: "iPhone", fps: 58 },
-    { name: "Android", fps: 34 },
+  const devices = [
+    { name: "iPhone", fps: 59 },
+    { name: "Android", fps: 42 },
     { name: "Laptop", fps: 60 },
   ];
+  const sections = [
+    { label: "Hero", fps: [60, 52, 60] },
+    { label: "Work", fps: [58, 34, 60] },
+    { label: "Close", fps: [59, 41, 60] },
+  ];
   return (
-    <div className="cmp" aria-hidden="true">
-      <div className="cmp-head"><span>Work</span><span className="num">fps</span></div>
-      {rows.map((r, i) => (
-        <div key={r.name} className="cmp-row">
-          <span className="cmp-name"><i style={{ background: SERIES[i] }} />{r.name}</span>
-          <span className="cmp-track"><span style={{ width: `${(r.fps / 60) * 100}%`, background: SERIES[i] }} /></span>
-          <span className="cmp-value num">{r.fps}</span>
-        </div>
-      ))}
-      <div className="cmp-note">Android was the slowest at 34 fps, against 60 on Laptop.</div>
-    </div>
+    <figure className="cmp" aria-label="Example: three devices compared across three sections">
+      <div className="cmp-legend">
+        {devices.map((d, i) => (
+          <span key={d.name} className="cmp-key">
+            <i style={{ background: SERIES[i] }} />{d.name}<span className="num">{d.fps} fps</span>
+          </span>
+        ))}
+        <span className="cmp-key cmp-key-target"><i />Target<span className="num">60 fps</span></span>
+      </div>
+      <div className="cmp-plot" aria-hidden="true">
+        <span className="cmp-target" />
+        {sections.map((s) => (
+          <div key={s.label} className="cmp-group">
+            <div className="cmp-bars">
+              {s.fps.map((v, i) => (
+                <span key={i} className="cmp-bar" style={{ height: `${(v / 60) * 100}%`, background: SERIES[i] }}>
+                  <span className="num">{v}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="cmp-labels" aria-hidden="true">
+        {sections.map((s) => <span key={s.label}>{s.label}</span>)}
+      </div>
+      <figcaption className="cmp-note">Android was the slowest at 42 fps, against 60 on Laptop. The widest gap was in Work.</figcaption>
+    </figure>
   );
 }

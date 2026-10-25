@@ -234,24 +234,23 @@ loadCadence();`}</Code>
 
           <Section id="report" title="Reading a report" lede="A report opens on three tiles. Each one is a part of the result, and each has a verdict. Select a tile to see its detail.">
             <TilesSpecimen />
-            <dl className="doc-list doc-parts">
-              <div><dt>Smoothness</dt><dd>Rated Smooth, Uneven or Choppy, for the whole page and for each section, so you can see where it slowed down.</dd></div>
-              <div><dt>Page load</dt><dd>How fast the page appeared, graded on the thresholds Google uses for Core Web Vitals.</dd></div>
-              <div><dt>Memory</dt><dd>How much memory the page used during the run, and whether it kept growing.</dd></div>
-            </dl>
-            <p>Every number has an <strong>i</strong> beside it that explains what it means and what counts as good. Three terms matter most:</p>
-            <div className="doc-terms">
+            <p>Every number in a report has an <strong>i</strong> beside it that explains what it means and what counts as good.</p>
+            <h3 className="doc-h3">Three terms that matter most</h3>
+            <div className="doc-cards doc-cards-3">
               <div className="doc-term">
                 <FrameStrip kind="dropped" />
-                <div><div className="doc-term-title">Dropped frame</div><p>The screen was ready to show a new frame, but the page wasn't. The scroll visibly skips.</p></div>
+                <div className="doc-term-title">Dropped frame</div>
+                <p>The screen was ready for a new frame, but the page wasn't. The scroll visibly skips.</p>
               </div>
               <div className="doc-term">
                 <FrameStrip kind="freeze" />
-                <div><div className="doc-term-title">Freeze</div><p>A single frame that took 50 ms or longer. The page stops for a moment you can see.</p></div>
+                <div className="doc-term-title">Freeze</div>
+                <p>One frame that took 50 ms or longer. The page stops for a moment you can see.</p>
               </div>
               <div className="doc-term">
                 <CauseTags />
-                <div><div className="doc-term-title">Why it slowed down</div><p>When frames froze, Cadence checks what the browser was doing: running a script (named, with its file), working out layout, or drawing. That tells you where to start fixing.</p></div>
+                <div className="doc-term-title">Why it slowed down</div>
+                <p>What the browser was busy with when frames froze: a script (named, with its file), layout, or drawing.</p>
               </div>
             </div>
           </Section>
