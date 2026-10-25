@@ -304,7 +304,7 @@ export class Overlay {
       ),
     );
 
-    // The payoff: the number counts up as the bars grow in.
+    // The number counts up while the bars grow.
     countUp(big, s.fps, (v) => String(Math.round(v)));
     requestAnimationFrame(() =>
       requestAnimationFrame(() => bars.forEach((b, i) => {

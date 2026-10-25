@@ -251,7 +251,7 @@ export function Home() {
   );
 }
 
-/** Setup, folded away: one quiet row that opens the install steps when asked. */
+/** Setup: a folded row that opens the install steps. */
 function Setup() {
   const [open, setOpen] = useState(() => location.hash === "#setup");
   const el = useRef<HTMLDivElement>(null);

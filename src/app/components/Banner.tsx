@@ -4,7 +4,7 @@ import { Icon } from "./ui";
 const KEY = "cadence.banner";
 const REPO = "https://github.com/jacobcollado/cadence";
 
-/** A slim note across the top: an early build, a personal ask, dismissible for good. */
+/** Early-build note across the top. Closing it hides it for good. */
 export function Banner() {
   const [shown, setShown] = useState(() => {
     try {

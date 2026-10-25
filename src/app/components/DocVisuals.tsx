@@ -2,8 +2,7 @@ import type { CSSProperties } from "react";
 import { SERIES } from "../lib";
 import { Icon, StatusIcon } from "./ui";
 
-// Small, quiet pictures for the docs, each drawn from the real product: a
-// pass's scroll speed, the report's tiles, frame strips, compare bars.
+// Small diagrams for the docs, built from the same pieces as the product.
 
 export type Pass = "steady" | "fast" | "idle" | "manual";
 

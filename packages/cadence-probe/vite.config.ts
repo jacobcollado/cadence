@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 // Builds the npm package: ESM and CommonJS for both entries, with the probe
 // split into its own chunk. React stays the host app's.
-const app = process.env.CADENCE_APP ?? "https://cadence-seven-ivory.vercel.app";
+const app = process.env.CADENCE_APP ?? "https://cad-ence.dev";
 
 export default defineConfig({
   publicDir: false,

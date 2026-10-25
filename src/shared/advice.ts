@@ -1,7 +1,6 @@
 import type { CauseKind } from "./stats";
 
-// What to do about each cause. Written from standard browser performance
-// practice; each tip names the change, then why it helps, in one line.
+// What to do about each cause. Each tip names the change, then why it helps.
 
 export interface Tip {
   title: string;

@@ -33,8 +33,7 @@ export function onNavigate(fn: () => void): () => void {
   };
 }
 
-// The library: runs opened on this machine, kept in localStorage until
-// Supabase takes over.
+// Saved runs: every report opened on this machine, kept in localStorage.
 
 export interface Saved {
   id: string;

@@ -3,11 +3,10 @@ import { reducedMotion } from "../../shared/motion";
 import { estimateHz, missed } from "../../shared/stats";
 import { token, useTheme } from "../theme";
 
-// The hero's visual, live: a ring of 60 dots, each standing for a fifteenth of
-// a second of this browser's frames, so the bright head sweeps round once
-// every four seconds with a long, soft tail. A dot whose frames included a
-// dropped one turns red and fades. The center reads the frame rate right now.
-// Nothing here is staged, and nothing flashes: every change fades.
+// The hero's visual: a ring of 60 dots fed by this browser's real frames. Each
+// dot covers a fifteenth of a second, so the head goes round every four
+// seconds. A dot turns red when one of its frames dropped. The center shows
+// the current frame rate.
 
 const SIZE = 240;
 const R = 96;
@@ -70,7 +69,7 @@ export function FrameClock() {
           ctx.globalAlpha = 1;
         }
       }
-      // The live reading, refreshed a few times a second so it can be read.
+      // Update the reading a few times a second, slow enough to read.
       if (now - lastText > 500) {
         while (recent.length && recent[0] < now - 1000) recent.shift();
         shownFps = Math.min(hz, recent.length);

@@ -1,6 +1,6 @@
 // Prepares a new cadence-probe release: bumps the version, rebuilds, and says
 // what's left. Usage: npm run release:package -- patch|minor|major
-// Publishing stays manual: it needs the account's Windows Hello approval.
+// Publishing stays manual.
 import { readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 
@@ -21,7 +21,6 @@ console.log(`cadence-probe ${major}.${minor}.${patch} -> ${next}`);
 execSync("npm run build:package", { stdio: "inherit" });
 
 console.log(`
-Ready. To publish ${next}, in your own PowerShell:
-  cd packages\\cadence-probe
-  npm publish
-then approve with Windows Hello.`);
+Ready. To publish ${next}:
+  cd packages/cadence-probe
+  npm publish`);

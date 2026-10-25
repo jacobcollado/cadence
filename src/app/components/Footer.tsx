@@ -1,7 +1,7 @@
 /** Opens the setup row on the home page (and scrolls to it). */
 export const OPEN_SETUP = "cadence:setup";
 
-/** The footer on every page: who makes it, and its license, stacked and centered. */
+/** Footer on every page: who makes it, and the license. */
 export function Footer() {
   return (
     <footer className="footer">

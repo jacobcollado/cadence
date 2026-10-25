@@ -129,7 +129,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   );
 }
 
-/** One tile per graded category: the whole report at a glance, and the way into each part. */
+/** One tile per graded category. Each tile is also the tab for its part. */
 function Overview({ run, stats, metrics, mem, tab, onPick }: {
   run: Run;
   stats: RunStats;
@@ -546,7 +546,7 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
   );
 }
 
-/** Heap over the run: one quiet line on a soft fill. Hover to read any moment. */
+/** Heap size over the run. Hover to read any point. */
 function Spark({ samples }: { samples: [number, number][] }) {
   const W = 400, H = 96;
   const wrap = useRef<HTMLDivElement>(null);

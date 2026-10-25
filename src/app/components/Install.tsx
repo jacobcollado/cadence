@@ -92,8 +92,8 @@ function highlightShell(cmd: string): ReactNode {
   );
 }
 
-// A small, quiet highlighter: keywords and punctuation step back, strings and
-// tags stay in full ink. Enough to read as code, not a rainbow.
+// Light highlighting: keywords and punctuation are muted, strings and tags
+// stay in full ink.
 const TOKENS = /("[^"]*")|\b(import|from|export|default|function|return)\b|(<\/?[A-Za-z][\w.]*|\/?>)|([{}();,])/g;
 
 function highlightTsx(line: string): ReactNode {

@@ -6,8 +6,8 @@ import { Icon } from "../components/ui";
 import { CauseTags, CompareSpecimen, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
 import { reducedMotion } from "../../shared/motion";
 
-// The guide: one centered column in plain words, with the section list beside
-// it on wide screens marking where you are.
+// The docs: one centered column, with a section list beside it on wide
+// screens that marks where you are.
 
 const SECTIONS = [
   { id: "start", title: "Get started" },
@@ -52,7 +52,7 @@ const LENGTH = 72;
 /**
  * A report link, drawn so its two halves read at a glance: the address the
  * server sees, and the encoded run after the # that it never does. A few
- * characters re-scramble at a time, like ciphertext.
+ * characters re-scramble at a time.
  */
 function CipherLink() {
   // The first bracket spans exactly the address part, measured.

@@ -1,7 +1,5 @@
 # Cadence design system
 
-Builds on Jacob's global design rules. Where this file is more specific, it wins.
-
 Cadence is read by developers and engineers who need to know what's wrong, quickly. Every graded thing leads with a verdict, then the number, then the detail.
 
 ## Logo

@@ -1,7 +1,7 @@
 export interface CadenceOptions {
   /** The query switch that turns the probe on. Default "perf", as in ?perf. */
   param?: string;
-  /** Where reports open. Default: the hosted Cadence app. */
+  /** Where reports open. Default "https://cad-ence.dev". */
   app?: string;
   /** Set false to never load, for example outside staging. Default true. */
   enabled?: boolean;

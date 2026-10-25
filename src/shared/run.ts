@@ -1,5 +1,5 @@
 // One recorded pass on one device. The probe writes it, the app reads it, and
-// the same shape travels in a report link, a saved file and (later) Supabase.
+// the same shape travels in a report link and a saved file.
 
 export type Mode = "steady" | "fast" | "idle" | "manual";
 

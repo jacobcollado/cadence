@@ -52,7 +52,7 @@ export function Icon({ name, size = 16 }: { name: keyof typeof paths; size?: num
   );
 }
 
-/** The mark: a dot on an orbit, something moving in a steady loop. */
+/** The mark: a dot on an orbit. */
 export function Mark({ size = 16 }: { size?: number }) {
   return (
     <svg className="mark" width={(size * 12) / 16} height={(size * 14) / 16} viewBox="2 0 12 14" aria-hidden="true">
@@ -189,9 +189,8 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
 }
 
 /**
- * An explanation one tap away: an "i" that opens a small card on hover (with a
- * mouse) or on tap. It renders into the body, so tables and animated
- * containers can't clip it.
+ * An "i" that opens a small card on hover or tap. It renders into the body,
+ * so tables and animated containers can't clip it.
  */
 export function Info({ title, children }: { title: string; children: ReactNode }) {
   const [at, setAt] = useState<{ x: number; y: number; up: boolean } | null>(null);
