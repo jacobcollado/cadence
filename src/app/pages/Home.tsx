@@ -22,7 +22,7 @@ const FREE: { icon: IconName; title: string }[] = [
   { icon: "check", title: "Free, with no account" },
   { icon: "lock", title: "Runs stay private" },
   { icon: "device", title: "Off for your visitors" },
-  { icon: "code", title: "Open source under MIT" },
+  { icon: "code", title: "Open source" },
 ];
 
 function withPerf(base: string): string {

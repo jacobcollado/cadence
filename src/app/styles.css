@@ -1095,7 +1095,7 @@ svg { display: block; flex: none; }
 #root:has(.rails) > .banner { z-index: 1; }
 @media (min-width: 720px) {
   #root:has(.rails)::before {
-    content: ""; position: absolute; inset: 0; max-width: 960px; margin: 0 auto; pointer-events: none;
+    content: ""; position: absolute; inset: 0; max-width: var(--page, 960px); margin: 0 auto; pointer-events: none;
     box-shadow: inset 1px 0 0 var(--grid), inset -1px 0 0 var(--grid);
   }
 }
@@ -1147,3 +1147,39 @@ svg { display: block; flex: none; }
 .test-stack { display: flex; flex-direction: column; gap: 16px; }
 .runs { display: block; }
 .nowrap { white-space: nowrap; }
+
+/* Home on desktop: a wider page and a larger type scale, so the sections
+   have room and the text reads at a distance. Other pages keep 960. */
+@media (min-width: 1024px) {
+  #root:has(.rails) { --page: 1200px; }
+  #root:has(.rails) .shell, #root:has(.rails) .footer { max-width: var(--page); }
+  .rails .title { font-size: 40px; line-height: 48px; letter-spacing: -0.03em; }
+  .rails .start-copy { max-width: 640px; }
+  .rails .lede { font-size: 17px; line-height: 28px; }
+  .rails .subtitle { font-size: 30px; line-height: 38px; letter-spacing: -0.025em; }
+  .rails .home-head .lede { max-width: 640px; }
+  .home-sec[data-split] { grid-template-columns: 320px minmax(0, 1fr); gap: 48px; }
+  .rails .home-body .meta, .rails .start-card .meta { font-size: 15px; line-height: 24px; }
+  .rails .example-title, .rails .how-title, .rails .start-card .h2 { font-size: 17px; line-height: 24px; }
+  .rails .how-step, .rails .example { padding: 24px; }
+  .rails .how-visual { height: 96px; }
+  .rails .how-code { font-size: 13px; line-height: 20px; padding: 0 16px; }
+  .rails .example-tag { height: 28px; padding: 0 10px; font-size: 13px; }
+  .rails .example-go { font-size: 15px; }
+  .rails .runs .h2 { font-size: 19px; }
+  .rails .setup-btn { font-size: 15px; }
+  .rails .free-grid { gap: 16px 32px; }
+  #root:has(.rails) .topbar { height: 72px; }
+  #root:has(.rails) .topbar-link { font-size: 15px; }
+  #root:has(.rails) .brand-word { font-size: 19px; }
+  #root:has(.rails) .gh-star { height: 32px; font-size: 14px; }
+  #root:has(.rails) .footer { font-size: 15px; line-height: 24px; }
+  #root:has(.rails) .footer-group h2 { font-size: 15px; line-height: 24px; }
+  .rails .cmp-key { font-size: 14px; line-height: 20px; }
+  .rails .cmp-labels, .rails .cmp-bar span { font-size: 13px; line-height: 16px; }
+  .rails .cmp-note { font-size: 15px; line-height: 24px; }
+  .rails .empty { font-size: 15px; line-height: 24px; }
+  .rails .field { font-size: 15px; }
+  .rails .field-label { font-size: 13px; line-height: 20px; }
+  .rails .runs-hint { font-size: 15px; }
+}
