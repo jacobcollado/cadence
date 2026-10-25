@@ -35,6 +35,7 @@ const paths = {
   manual: <path d="M6.5 8.5V3.25a1.25 1.25 0 012.5 0V8M9 7.5V6.75a1.25 1.25 0 012.5 0V9.5c0 2.5-1.75 4-4 4H7c-1.6 0-2.6-.9-3.3-2.1L2.6 9.6a1.2 1.2 0 012-1.2l1.9 2.1" />,
   lock: <><rect x="3" y="7" width="10" height="6.5" rx="1.5" /><path d="M5.25 7V5a2.75 2.75 0 015.5 0v2" /></>,
   markdown: <><rect x="1.75" y="3.5" width="12.5" height="9" rx="1.5" /><path d="M4.25 10V6l1.75 2 1.75-2v4M10.5 6v4M9.25 8.75l1.25 1.25 1.25-1.25" /></>,
+  close: <path d="M4 4l8 8M12 4l-8 8" />,
   file: <><path d="M4 2.5h5l3 3v8H4z" /><path d="M9 2.5v3h3" /></>,
   device: <><rect x="2.5" y="3" width="11" height="7.5" rx="1" /><path d="M6 13.5h4M8 10.5v3" /></>,
   // Ratings differ in shape as well as color, so they never rely on color alone.

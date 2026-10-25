@@ -4,6 +4,7 @@ import { Home } from "./pages/Home";
 import { Report } from "./pages/Report";
 import { Compare } from "./pages/Compare";
 import { Footer } from "./components/Footer";
+import { Banner } from "./components/Banner";
 import { Docs } from "./pages/Docs";
 
 export function App() {
@@ -20,6 +21,7 @@ export function App() {
       : <Home />;
   return (
     <>
+      <Banner />
       {page}
       <Footer />
     </>
