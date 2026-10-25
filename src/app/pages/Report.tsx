@@ -57,9 +57,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   const name = splitName(run.device.name);
 
   // Context that changes how to read every tab, so it sits above them.
-  const notes = deviceNotes(run);
-  if (run.hz === 30) notes.unshift("The browser held frames to 30 fps. On an iPhone that usually means Low Power Mode is on.");
-  if (run.load) notes.unshift(`The probe added ${run.load} ms of main-thread work to every frame, the way a slower processor would.`);
+  const flags = runFlags(run);
 
   // The tab lives in the address, so a copied link opens on the same view.
   const pick = (t: Tab) => {
@@ -76,6 +74,16 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         <div className="report-title">
           <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{name.device}</h1>
           <p className="report-page">{pathOf(run.url)}</p>
+          {flags.length > 0 && (
+            <div className="report-flags">
+              {flags.map((f) => (
+                <span key={f.label} className="flag">
+                  {f.label}
+                  <Info title={f.label}><p>{f.text}</p></Info>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="actions">
           <DeviceButton run={run} />
@@ -88,7 +96,6 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
 
       <div className="enter">
         <Overview run={run} stats={stats} metrics={metrics} mem={mem} tab={tab} onPick={pick} />
-        {notes.length > 0 && <div className="report-notes">{notes.map((n) => <p key={n} className="note">{n}</p>)}</div>}
       </div>
 
       <div className="tab-panel enter" key={tab} role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
@@ -567,13 +574,23 @@ function Spark({ samples }: { samples: [number, number][] }) {
 }
 
 /** Things about the device that change how to read the result. */
-function deviceNotes(run: Run): string[] {
+interface Flag {
+  label: string;
+  /** The full explanation, behind the tag's "i". */
+  text: string;
+}
+
+/** Conditions that change how to read the whole report, shown as tags in the header. */
+function runFlags(run: Run): Flag[] {
   const d = run.device;
-  const notes: string[] = [];
-  if (d.reducedMotion) notes.push("Reduced motion was on, so the site may have skipped animation. Most visitors see more motion than this run did.");
-  if (d.connection && /2g|3g/.test(d.connection)) notes.push(`On a ${d.connection.toUpperCase()} connection, so load times run long.`);
-  if ((d.memory && d.memory <= 4) || (d.cores && d.cores <= 4)) notes.push("A lower-end device, which makes this a good stress test.");
-  return notes;
+  const flags: Flag[] = [];
+  const loadName = LOADS.find((l) => l.ms === run.load)?.label;
+  if (run.load) flags.push({ label: `${loadName ?? "Added"} load`, text: `The probe added ${run.load} ms of main-thread work to every frame, the way a slower processor would. Frame rates here run lower than this device would manage on its own.` });
+  if (run.hz === 30) flags.push({ label: "Held to 30 fps", text: "The browser held frames to 30 fps. On an iPhone that usually means Low Power Mode is on. Turn it off and run again for a full result." });
+  if (d.reducedMotion) flags.push({ label: "Reduced motion", text: "Reduced motion was on, so the site may have skipped animation. Most visitors see more motion than this run did." });
+  if (d.connection && /2g|3g/.test(d.connection)) flags.push({ label: `${d.connection.toUpperCase()} network`, text: `On a ${d.connection.toUpperCase()} connection, so load times run long.` });
+  if ((d.memory && d.memory <= 4) || (d.cores && d.cores <= 4)) flags.push({ label: "Lower-end device", text: "A lower-end device, which makes this a good stress test." });
+  return flags;
 }
 
 function DevicePanel({ run }: { run: Run }) {
