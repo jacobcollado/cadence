@@ -729,18 +729,46 @@ svg { display: block; flex: none; }
   width: 184px; height: 100vh; height: 100dvh; padding: 22px 0 24px;
 }
 .doc-side > .brand { height: 20px; }
-.doc-nav { display: flex; flex-direction: column; gap: 2px; margin-top: 128px; }
-.doc-side-foot { margin-top: auto; display: flex; align-items: center; gap: 20px; }
-.doc-nav-title { font-size: 12px; line-height: 16px; color: var(--ink-3); margin-bottom: 8px; }
-.doc-nav a {
-  position: relative; height: 32px; display: flex; align-items: center; padding-left: 14px;
-  font-size: 14px; color: var(--ink-3); box-shadow: inset 1px 0 0 var(--grid);
-  transition: color var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+.doc-side-head { display: flex; align-items: center; justify-content: space-between; height: 20px; }
+.doc-side-toggle {
+  position: relative; width: 28px; height: 28px; margin-right: -6px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--ink-3);
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
-.doc-nav a:hover { color: var(--ink-2); }
-.doc-nav a[aria-current] { color: var(--ink); font-weight: 500; box-shadow: inset 2px 0 0 var(--ink); }
+.doc-side-toggle:hover, .doc-side-toggle[aria-expanded="false"] { color: var(--ink); background: var(--recess); }
+/* The list folds away to the left and comes back the same way. */
+.doc-nav-fold { display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateX(-8px); margin-top: 108px;
+  transition: grid-template-rows var(--dur-slow) var(--ease-out), opacity var(--dur-base) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+.doc-nav-fold[data-open] { grid-template-rows: 1fr; opacity: 1; transform: none; }
+.doc-side-foot { margin-top: auto; display: flex; align-items: center; gap: 20px; }
+.doc-nav-fold > nav { overflow: hidden; }
+.doc-nav { display: flex; flex-direction: column; gap: 2px; margin: 0 -10px; padding: 0 0 2px; }
+.doc-nav-title { font-size: 12px; line-height: 16px; color: var(--ink-3); margin: 0 10px 8px; }
+.doc-nav a {
+  height: 32px; display: flex; align-items: center; padding: 0 10px; border-radius: 6px;
+  font-size: 14px; color: var(--ink-3);
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+}
+.doc-nav a:hover { color: var(--ink); background: var(--hover); }
+.doc-nav a[aria-current] { color: var(--ink); font-weight: 500; background: var(--recess); }
+
+/* Phones: the pinned section list. */
+.doc-toc {
+  position: sticky; top: 0; z-index: 20; margin: 0 calc(var(--gutter) * -1) 0; padding: 0 var(--gutter);
+  background: var(--paper); box-shadow: inset 0 -1px 0 var(--grid);
+}
+.doc-toc[data-open] { box-shadow: inset 0 -1px 0 var(--grid), 0 16px 24px -16px var(--shadow); }
+@media (min-width: 900px) { .doc-toc { display: none; } }
+.doc-toc-btn { width: 100%; height: 44px; display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1; text-align: left; }
+.doc-toc-label { color: var(--ink-3); white-space: nowrap; }
+.doc-toc-current { color: var(--ink); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-toc-btn svg { color: var(--ink-3); transition: transform var(--dur-slow) var(--ease-out); }
+.doc-toc-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+.doc-toc-list { display: flex; flex-direction: column; gap: 2px; padding: 0 0 12px; }
+.doc-toc-list a { height: 40px; display: flex; align-items: center; padding: 0 12px; border-radius: 6px; font-size: 15px; color: var(--ink-2); }
+.doc-toc-list a[aria-current] { color: var(--ink); font-weight: 500; background: var(--recess); }
 .doc-body { min-width: 0; }
-.doc-head { display: flex; flex-direction: column; gap: 12px; padding: 40px 0 40px; }
+.doc-head { display: flex; flex-direction: column; gap: 12px; padding: 32px 0 40px; }
 @media (min-width: 900px) { .doc-head { padding-top: 104px; } }
 .doc-section { padding: 40px 0 8px; scroll-margin-top: 24px; box-shadow: inset 0 1px 0 var(--grid); }
 .doc-h2 { font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.02em; }

@@ -42,8 +42,28 @@ function Card({ icon, title, children }: { icon: ReactNode; title: string; child
   );
 }
 
+const NAV_KEY = "cadence.docs.nav";
+
 export function Docs() {
   const [active, setActive] = useState(SECTIONS[0].id);
+  // The section list on wide screens, shown unless it was put away.
+  const [listOpen, setListOpen] = useState(() => {
+    try {
+      return localStorage.getItem(NAV_KEY) !== "closed";
+    } catch {
+      return true;
+    }
+  });
+  // The pinned list on phones, closed until tapped.
+  const [tocOpen, setTocOpen] = useState(false);
+  const toggleList = () => {
+    setListOpen((o) => {
+      try {
+        localStorage.setItem(NAV_KEY, o ? "closed" : "open");
+      } catch {}
+      return !o;
+    });
+  };
 
   // Mark the section nearest the top of the screen.
   useEffect(() => {
@@ -61,6 +81,7 @@ export function Docs() {
 
   const go = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    setTocOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     history.replaceState(null, "", `#${id}`);
   };
@@ -76,13 +97,27 @@ export function Docs() {
       </div>
       <div className="doc-layout enter">
         <aside className="doc-side">
-          <Brand />
-          <nav className="doc-nav" aria-label="On this page">
-            <div className="doc-nav-title">On this page</div>
-            {SECTIONS.map((s) => (
-              <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined}>{s.title}</a>
-            ))}
-          </nav>
+          <div className="doc-side-head">
+            <Brand />
+            <button
+              className="doc-side-toggle"
+              aria-expanded={listOpen}
+              aria-controls="doc-nav"
+              aria-label={listOpen ? "Hide the section list" : "Show the section list"}
+              title={listOpen ? "Hide sections" : "Show sections"}
+              onClick={toggleList}
+            >
+              <Icon name="sidebar" />
+            </button>
+          </div>
+          <div className="doc-nav-fold" data-open={listOpen || undefined}>
+            <nav id="doc-nav" className="doc-nav" aria-label="On this page">
+              <div className="doc-nav-title">On this page</div>
+              {SECTIONS.map((s) => (
+                <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined} tabIndex={listOpen ? undefined : -1}>{s.title}</a>
+              ))}
+            </nav>
+          </div>
           <div className="doc-side-foot">
             <GitHubStar />
             <ThemeToggle />
@@ -90,6 +125,23 @@ export function Docs() {
         </aside>
 
         <article className="doc-body">
+          {/* Phones: the section list, pinned to the top as you scroll. */}
+          <div className="doc-toc" data-open={tocOpen || undefined}>
+            <button className="doc-toc-btn" aria-expanded={tocOpen} aria-controls="doc-toc-list" onClick={() => setTocOpen(!tocOpen)}>
+              <span className="doc-toc-label">On this page</span>
+              <span className="doc-toc-current">{SECTIONS.find((s) => s.id === active)?.title}</span>
+              <Icon name="chevron" />
+            </button>
+            <div className="disclosure-body" data-open={tocOpen || undefined}>
+              <div>
+                <nav id="doc-toc-list" className="doc-toc-list" aria-label="On this page">
+                  {SECTIONS.map((s) => (
+                    <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined} tabIndex={tocOpen ? undefined : -1}>{s.title}</a>
+                  ))}
+                </nav>
+              </div>
+            </div>
+          </div>
           <header className="doc-head">
             <h1 className="title">Docs</h1>
             <p className="lede">Add Cadence to your site, run a test on any device, and read what it found.</p>

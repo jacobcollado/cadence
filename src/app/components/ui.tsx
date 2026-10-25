@@ -20,6 +20,7 @@ const paths = {
   moon: <path d="M13.25 9.6A5.5 5.5 0 016.4 2.75a5.5 5.5 0 106.85 6.85z" />,
   info: <><circle cx="8" cy="8" r="6.25" /><path d="M8 7.25v3.5M8 5.25h.01" /></>,
   terminal: <><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M5 6.5L7 8.25 5 10M8.5 10H11" /></>,
+  sidebar: <><rect x="2.25" y="3" width="11.5" height="10" rx="1.75" /><path d="M6.25 3v10" /></>,
   steady: <path d="M8 2.5v11M4.5 10L8 13.5 11.5 10" />,
   fast: <path d="M4.5 3.5L8 7l3.5-3.5M4.5 9L8 12.5 11.5 9" />,
   idle: <path d="M6 3.5v9M10 3.5v9" />,
