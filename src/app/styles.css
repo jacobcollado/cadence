@@ -619,7 +619,8 @@ svg { display: block; flex: none; }
 .term-file-body .line[data-add] { background: var(--add-bg); }
 .gutter { display: inline-block; width: 28px; text-align: center; color: var(--ink-3); user-select: none; }
 .line[data-add] .gutter { color: var(--good); }
-.tok-prompt { color: var(--ink-3); margin-right: 1ch; user-select: none; }
+/* The prompt: a chevron, centered on the line like a glyph would sit. */
+.tok-prompt { display: inline-block; vertical-align: -1px; color: var(--ink-3); margin-right: 1ch; }
 .tok-cmd { color: var(--ink); font-weight: 600; }
 .tok-kw { color: var(--ink-3); }
 .tok-str { color: var(--ink); }

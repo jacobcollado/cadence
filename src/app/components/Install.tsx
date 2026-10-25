@@ -59,7 +59,7 @@ export function Install() {
           </div>
           <CopyButton text={() => cmd} label="Copy" className="tag-btn code-copy" />
         </div>
-        <pre className="term-body"><code><span className="tok-prompt" aria-hidden="true">$</span>{highlightShell(cmd)}</code></pre>
+        <pre className="term-body"><code><svg className="tok-prompt" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3.5 2.5L7 6L3.5 9.5" /></svg>{highlightShell(cmd)}</code></pre>
       </div>
 
       <div className="term">
