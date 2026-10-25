@@ -244,6 +244,7 @@ export function Home() {
             ); })}
           </div>
         )}
+        {runs.length > 0 && <p className="note runs-foot">Saved in this browser. Report links open on any device.</p>}
       </section>
 
       {dragging && <div className="drop-veil">Drop a run to open it</div>}

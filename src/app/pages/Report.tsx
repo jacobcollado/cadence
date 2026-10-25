@@ -10,7 +10,7 @@ import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
 import { reportMarkdown } from "../markdown";
 import { ADVICE, CAUSE_LABEL, scrollTip } from "../../shared/advice";
-import { decodeRun, download, pathOf, saveRun, when } from "../lib";
+import { decodeRun, dismissSavedNote, download, pathOf, saveRun, savedNoteSeen, when } from "../lib";
 
 type State = { run: Run; stats: RunStats } | { error: string } | null;
 
@@ -94,6 +94,8 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         </div>
       </header>
 
+      <SavedNote />
+
       <div className="enter">
         <Overview run={run} stats={stats} metrics={metrics} mem={mem} tab={tab} onPick={pick} />
       </div>
@@ -126,6 +128,39 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         )}
       </div>
     </>
+  );
+}
+
+/**
+ * Shown once, on the first report: runs live in this browser only, and the
+ * link is the way to keep one. Folds open on arrival and away when dismissed.
+ */
+function SavedNote() {
+  const [shown] = useState(() => !savedNoteSeen());
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!shown) return;
+    const id = requestAnimationFrame(() => setOpen(true));
+    return () => cancelAnimationFrame(id);
+  }, [shown]);
+  if (!shown) return null;
+  const close = () => {
+    setOpen(false);
+    dismissSavedNote();
+  };
+  return (
+    <div className="saved-fold" data-open={open || undefined} aria-hidden={!open}>
+      <div>
+        <div className="saved-note" role="note">
+          <span className="saved-icon"><Icon name="info" size={16} /></span>
+          <p>Saved in this browser only. Copy the link to keep it anywhere.</p>
+          <div className="saved-actions">
+            <CopyButton text={() => location.href} className="tag-btn" />
+            <button className="icon-btn" aria-label="Dismiss" onClick={close}><Icon name="close" size={14} /></button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

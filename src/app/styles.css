@@ -1037,3 +1037,15 @@ svg { display: block; flex: none; }
 }
 /* With the banner above, the docs sidebar still fits the window, so its controls stay in view. */
 #root:has(.banner) .doc-side { height: calc(100dvh - 40px); }
+
+/* Where runs are saved: a one-time note on the first report. */
+.saved-fold { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out); }
+.saved-fold[data-open] { grid-template-rows: 1fr; opacity: 1; }
+.saved-fold > div { min-height: 0; overflow: hidden; }
+.saved-note { display: flex; align-items: flex-start; gap: 10px; margin-top: 24px; padding: 6px 6px 6px 12px; border-radius: 6px; background: var(--recess); }
+.saved-icon { height: 32px; display: flex; align-items: center; color: var(--ink-2); }
+.saved-note p { flex: 1; min-width: 0; padding: 6px 0; font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.saved-actions { display: flex; align-items: center; gap: 2px; height: 32px; }
+.runs-foot { margin-top: 12px; text-align: center; }
+/* Phones: the header's Copy link sits right above, so the note keeps only its close button. */
+@media (max-width: 600px) { .saved-actions .tag-btn { display: none; } }

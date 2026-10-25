@@ -301,6 +301,8 @@ loadCadence();`}</Code>
               </div>
               <p>Share report links the way you'd share a screenshot of your site.</p>
             </div>
+            <h3 className="doc-h3">Where runs are saved</h3>
+            <p>Opening a report saves the run to that browser's run list, on that device only. Clearing site data or a private window removes it, and Safari clears it after seven days without a visit. The report link keeps the whole run, so copy it to keep a run for good or to open it elsewhere.</p>
           </Section>
         </article>
 
