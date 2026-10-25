@@ -40,13 +40,18 @@ export function ScrollPanes() {
 // Which refreshes a short run drew (1) and missed (0).
 const RUN = [1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1];
 
-/** A report's verdict in miniature: frames in glass, the misses in gray. */
-export function MiniFrames() {
+/** A short run of frames in glass: tinted where drawn, gray where missed. */
+export function GlassRow({ run, from = 0, to = 1, className = "how-frames" }: { run: number[]; from?: number; to?: number; className?: string }) {
   return (
-    <span className="how-frames" aria-hidden="true">
-      {RUN.map((drawn, i) => (
-        <span key={i} className="glass how-frame" data-off={!drawn || undefined} style={{ "--c": drawn ? tint(0.5 + (i / RUN.length) * 0.5) : undefined } as CSSProperties} />
+    <span className={className} aria-hidden="true">
+      {run.map((drawn, i) => (
+        <span key={i} className="glass how-frame" data-off={!drawn || undefined} style={{ "--c": drawn ? tint(from + (i / run.length) * (to - from)) : undefined } as CSSProperties} />
       ))}
     </span>
   );
+}
+
+/** A report's verdict in miniature: frames in glass, the misses in gray. */
+export function MiniFrames() {
+  return <GlassRow run={RUN} from={0.5} />;
 }

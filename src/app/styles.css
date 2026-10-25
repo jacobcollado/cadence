@@ -1073,11 +1073,11 @@ svg { display: block; flex: none; }
 /* Examples: a real report and the slow demo, side by side. */
 .example-cards { display: grid; gap: 16px; margin-top: 16px; }
 @media (min-width: 760px) { .example-cards { grid-template-columns: 1fr 1fr; } }
-.example { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 20px; transition: background-color var(--dur-fast) var(--ease-out); }
+.example { display: flex; flex-direction: column; justify-content: flex-start; gap: 16px; padding: 20px; transition: background-color var(--dur-fast) var(--ease-out); }
 .example:hover { background: var(--hover); }
 .example-copy { display: flex; flex-direction: column; gap: 4px; }
 .example-title { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); }
-.example-go { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; line-height: 1; font-weight: 500; color: var(--ink); }
+.example-go { margin-top: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; line-height: 1; font-weight: 500; color: var(--ink); }
 .example-go svg { color: var(--ink-3); transition: transform var(--dur-fast) var(--ease-out); }
 .example:hover .example-go svg { transform: translateX(2px); }
 
@@ -1129,13 +1129,15 @@ svg { display: block; flex: none; }
 
 /* The demo's mistakes, as tags. */
 .example-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-.example-tag { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; background: var(--recess); color: var(--ink-2); font-size: 12px; line-height: 1; }
+.example-tag { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; box-shadow: inset 0 0 0 1px var(--ring-firm); color: var(--ink-2); font-size: 12px; line-height: 1; }
 
 /* Why it's free: four short facts, icon beside each. */
-.free-grid { list-style: none; display: grid; gap: 12px 24px; }
+.free-grid { list-style: none; display: grid; gap: 12px; }
 @media (min-width: 600px) { .free-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 860px) { .free-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.free { display: flex; align-items: center; gap: 12px; }
+.free { display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 16px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); }
+/* Each fact's icon sits on a pane of the page's glass, stepping through the spectrum. */
+.free-tile { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 
 /* Run a test: the setup row, then the two ways to open a page. */
 .test-stack { display: flex; flex-direction: column; gap: 16px; }
@@ -1161,7 +1163,7 @@ svg { display: block; flex: none; }
   .rails .example-go { font-size: 15px; }
   .rails .runs .h2 { font-size: 19px; }
   .rails .setup-btn { font-size: 15px; }
-  .rails .free-grid { gap: 16px 32px; }
+  .rails .free-grid { gap: 16px; }
   #root:has(.rails) .topbar { height: 72px; }
   #root:has(.rails) .topbar-link { font-size: 15px; }
   #root:has(.rails) .brand-word { font-size: 19px; }
@@ -1227,6 +1229,10 @@ svg { display: block; flex: none; }
   .glass-shadow { width: 300px; margin-left: -150px; bottom: 26px; }
 }
 @media (min-width: 1024px) { .rails .start-top { grid-template-columns: minmax(0, 1fr) 400px; } }
+
+/* The example cards open on a short run in glass: clean for the real site, broken for the demo. */
+.example-run { display: flex; align-items: flex-end; gap: 4px; height: 32px; }
+.example-run .how-frame { width: 6px; }
 
 /* Glass: the material the home page is drawn in, from the hero's fan down.
    A pane is tinted by --c, densest at the top and clearing toward its base,

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../components/ui";
-import { MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
+import { GlassRow, MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
+import { tint } from "../components/GlassFrames";
 import { GlassFrames } from "../components/GlassFrames";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
@@ -15,6 +16,10 @@ import { INERTIA_RUN } from "../examples";
 const TARGET = "cadence.target";
 
 type IconName = ComponentProps<typeof Icon>["name"];
+
+// The example cards' runs: the studio site scrolls clean, the demo keeps missing frames.
+const SMOOTH = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+const SLOW = [1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1];
 
 // What the slow demo gets wrong, one mistake per section.
 const MISTAKES = ["Glowing canvas", "Forced layout", "Blocking tracker", "Script animation", "Resizing form"];
@@ -166,6 +171,7 @@ export function Home() {
       <Reveal split title="See it in action" lede="A real report, and a page that's slow on purpose.">
         <div className="example-cards">
           <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
+            <GlassRow run={SMOOTH} className="example-run" />
             <span className="example-copy">
               <span className="example-title">Inertia, our studio's site</span>
               <span className="meta">Smooth scrolling, but the largest paint takes {"5.4 s"}.</span>
@@ -173,6 +179,7 @@ export function Home() {
             <span className="example-go">Open report<Icon name="forward" size={14} /></span>
           </a>
           <a className="card example" href="/demo.html" target="_blank" rel="noopener">
+            <GlassRow run={SLOW} className="example-run" />
             <span className="example-copy">
               <span className="example-title">A page that's slow on purpose</span>
               <span className="example-tags">
@@ -186,9 +193,9 @@ export function Home() {
 
       <Reveal title="Free, open and private">
         <ul className="free-grid">
-          {FREE.map((f) => (
+          {FREE.map((f, i) => (
             <li key={f.title} className="free">
-              <span className="setup-icon"><Icon name={f.icon} size={16} /></span>
+              <span className="glass free-tile" style={{ "--c": tint(i / (FREE.length - 1)) } as CSSProperties}><Icon name={f.icon} size={16} /></span>
               <span className="example-title">{f.title}</span>
             </li>
           ))}
