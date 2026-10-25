@@ -1096,7 +1096,10 @@ svg { display: block; flex: none; }
 @media (min-width: 720px) {
   #root:has(.rails)::before {
     content: ""; position: absolute; inset: 0; max-width: var(--page, 960px); margin: 0 auto; pointer-events: none;
-    box-shadow: inset 1px 0 0 var(--grid), inset -1px 0 0 var(--grid);
+    --rail: linear-gradient(var(--grid), var(--grid));
+    background:
+      var(--rail) 0 0 / 1px 100% no-repeat, var(--rail) 4px 0 / 1px 100% no-repeat,
+      var(--rail) 100% 0 / 1px 100% no-repeat, var(--rail) calc(100% - 4px) 0 / 1px 100% no-repeat;
   }
 }
 .rails { margin: 0 calc(var(--gutter) * -1); box-shadow: inset 0 1px 0 var(--grid); }
@@ -1184,14 +1187,14 @@ svg { display: block; flex: none; }
   .rails .runs-hint { font-size: 15px; }
 }
 
-/* Open corners: on wide screens the hairlines stop short of the rails, so
-   each section reads as a panel resting inside the frame. Phones have no
-   side rails, so their hairlines run edge to edge. */
+/* Double rails: each side is two hairlines 4px apart, like a track. The
+   hairlines between sections run to the inner line. Phones have no side
+   rails, so their hairlines run edge to edge. */
 .rails, .rails > section { position: relative; }
 @media (min-width: 720px) {
   .rails, .rails > section + section, #root:has(.rails) .footer { box-shadow: none; }
   #root:has(.rails) .footer { position: relative; }
   .rails::before, .rails > section + section::before, #root:has(.rails) .footer::before {
-    content: ""; position: absolute; top: 0; left: 12px; right: 12px; height: 1px; background: var(--grid); pointer-events: none;
+    content: ""; position: absolute; top: 0; left: 5px; right: 5px; height: 1px; background: var(--grid); pointer-events: none;
   }
 }
