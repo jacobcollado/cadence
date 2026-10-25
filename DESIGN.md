@@ -46,7 +46,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 ## Layout
 
 - On the home page, two rails on the shell's edges run the full height of the page, so the top bar, every section and the footer sit between them. A hairline separates each. Content keeps the shell's content edge. Phones drop the side rails and keep the hairlines.
-- Where a hairline meets a rail, a small cross marks the corner, in the rail's own color (`--grid`), never brighter. The rails carry nothing else: no live data or scroll traces.
+- Open corners: on wide screens the hairlines stop 12px short of each rail, so sections read as panels resting inside the frame. No marks at the joints, and the rails carry nothing else: no ticks, live data or scroll traces.
 - Home sections alternate: most put the heading and one short line above the content; a few (copy beside a chart or a pair of cards) split into a heading column and content. Never all one layout. Sections get real room: 96px above and below on desktop, 56px on phones. One heading, one line, one visual per section; no paragraphs.
 - From 1024px the home page widens to 1200px and steps its type up: 40 hero title, 30 section headings, 17 ledes and card titles, 15 body, meta, nav and footer, 13 chart labels and tags. These sizes are for the home page on desktop only.
 - Every other page uses the same `.shell` (960px, 16 or 32px gutters). The scrollbar takes room only when the page scrolls; no gutter is reserved, so full-width bars reach the window edge.

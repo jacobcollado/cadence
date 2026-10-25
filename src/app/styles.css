@@ -1184,19 +1184,14 @@ svg { display: block; flex: none; }
   .rails .runs-hint { font-size: 15px; }
 }
 
-/* Where a hairline meets a rail, a small cross in the rail's color, like the
-   ticks on a ruler. Wide screens only, where the side rails show. */
+/* Open corners: on wide screens the hairlines stop short of the rails, so
+   each section reads as a panel resting inside the frame. Phones have no
+   side rails, so their hairlines run edge to edge. */
 .rails, .rails > section { position: relative; }
 @media (min-width: 720px) {
-  .rails::before, .rails::after,
-  .rails > section + section::before, .rails > section + section::after,
-  #root:has(.rails) .footer::before, #root:has(.rails) .footer::after {
-    content: ""; position: absolute; top: -4px; width: 9px; height: 9px; pointer-events: none; z-index: 1;
-    background:
-      linear-gradient(var(--grid), var(--grid)) center / 9px 1px no-repeat,
-      linear-gradient(var(--grid), var(--grid)) center / 1px 9px no-repeat;
-  }
-  .rails::before, .rails > section + section::before, #root:has(.rails) .footer::before { left: -4px; }
-  .rails::after, .rails > section + section::after, #root:has(.rails) .footer::after { right: -4px; }
+  .rails, .rails > section + section, #root:has(.rails) .footer { box-shadow: none; }
   #root:has(.rails) .footer { position: relative; }
+  .rails::before, .rails > section + section::before, #root:has(.rails) .footer::before {
+    content: ""; position: absolute; top: 0; left: 12px; right: 12px; height: 1px; background: var(--grid); pointer-events: none;
+  }
 }
