@@ -237,8 +237,8 @@ svg { display: block; flex: none; }
 /* Hero: the line and lede beside the frame clock. The test cards sit lower,
    under Run a test, and share a top edge. Phones get only the first; there's
    nothing to scan with. */
-.start { display: flex; flex-direction: column; gap: 32px; padding: 48px 0 24px; }
-@media (min-width: 760px) { .start { padding: 72px 0 32px; } }
+.start { display: flex; flex-direction: column; gap: 32px; padding: 48px 0; }
+@media (min-width: 760px) { .start { padding: 64px 0; } }
 .start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 780px; }
 .start-copy .lede { max-width: 640px; }
 .start-cards { display: grid; gap: 16px; align-items: stretch; }
@@ -1086,40 +1086,57 @@ svg { display: block; flex: none; }
 .spark-title + .spark-wrap { margin-top: 8px; }
 .mem-note { margin-top: 16px; }
 
-/* Home sections: a centered heading and lede, then the content. Each rises
-   into place the first time it scrolls into view. */
-.home-sec { padding: 56px 0; }
-@media (min-width: 760px) { .home-sec { padding: 72px 0; } }
-.home-head { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 32px; text-align: center; }
-.home-head .lede { max-width: 600px; }
+/* Home: the sections sit between two rails on the shell's edges, with a
+   hairline between each. The content keeps the shell's edges, so it lines up
+   with the top bar. Phones drop the side rails and keep the hairlines. */
+.shell:has(.rails) { padding-bottom: 0; }
+.rails { margin: 0 calc(var(--gutter) * -1); }
+.rails > section { padding-left: var(--gutter); padding-right: var(--gutter); }
+.rails > section + section { box-shadow: inset 0 1px 0 var(--grid); }
+@media (min-width: 720px) {
+  .rails { box-shadow: inset 1px 0 0 var(--grid), inset -1px 0 0 var(--grid), inset 0 1px 0 var(--grid); }
+}
+/* The rails end on the footer's hairline. */
+#root:has(.rails) .footer-inner { box-shadow: none; }
+#root:has(.rails) .footer { box-shadow: inset 0 1px 0 var(--grid); max-width: 960px; padding: 0 var(--gutter); }
+
+/* Each section: its heading in a column on the left, the content beside it.
+   Sections with tools (data-wide) put the heading above. */
+.home-sec { padding-top: 40px; padding-bottom: 40px; display: grid; gap: 20px; }
+@media (min-width: 760px) { .home-sec { padding-top: 56px; padding-bottom: 56px; } }
+@media (min-width: 860px) { .home-sec:not([data-wide]) { grid-template-columns: 240px minmax(0, 1fr); gap: 32px; } }
+.home-head { display: flex; flex-direction: column; gap: 8px; }
+.home-body { min-width: 0; }
 .home-sec > * { transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
 .home-sec > :nth-child(2) { transition-delay: 60ms; }
-.home-sec > :nth-child(3) { transition-delay: 120ms; }
-.home-sec:not([data-shown]) > * { opacity: 0; transform: translateY(12px) scale(0.99); }
+.home-sec[data-shown] > *, .runs > * { transition: none; }
+.home-sec:not([data-shown]):not(.runs) > * { opacity: 0; transform: translateY(12px) scale(0.99); }
 /* The chart's bars grow from the baseline once it's in view. */
-.why-chart { max-width: 640px; margin: 0 auto; }
-.why-chart .cmp-bar { transform-origin: bottom; transition: transform var(--dur-slow) var(--ease-out); }
-.why-chart .cmp-group:nth-child(3) .cmp-bar { transition-delay: 120ms; }
-.why-chart .cmp-group:nth-child(4) .cmp-bar { transition-delay: 240ms; }
+.home-body .cmp-bar { transform-origin: bottom; transition: transform var(--dur-slow) var(--ease-out); }
+.home-body .cmp-group:nth-child(3) .cmp-bar { transition-delay: 120ms; }
+.home-body .cmp-group:nth-child(4) .cmp-bar { transition-delay: 240ms; }
 .home-sec:not([data-shown]) .cmp-bar { transform: scaleY(0); }
 
 /* How it works: three steps, each with a small picture on top. */
 .how-grid { list-style: none; display: grid; gap: 16px; }
-@media (min-width: 760px) { .how-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.how-step { padding: 20px; display: flex; flex-direction: column; }
+@media (min-width: 600px) { .how-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.how-step { padding: 16px; display: flex; flex-direction: column; }
 .how-visual { height: 76px; border-radius: 4px; background: var(--recess); display: flex; align-items: center; justify-content: center; gap: 8px; }
 .how-visual .pass { background: var(--paper); box-shadow: inset 0 0 0 1px var(--ring); }
 .how-visual .strip { width: 100%; height: 100%; padding: 16px; background: none; }
-.how-code { flex-direction: column; align-items: flex-start; gap: 4px; padding: 0 16px; font: 400 12px/16px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink); }
-.how-title { margin: 16px 0 4px; font-size: 15px; line-height: 20px; font-weight: 500; }
+.how-code { flex-direction: column; align-items: flex-start; gap: 4px; padding: 0 12px; font: 400 12px/16px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink); white-space: nowrap; overflow: hidden; }
+.how-title { margin: 14px 0 2px; font-size: 15px; line-height: 20px; font-weight: 500; }
 
-/* What it catches, and why it's free: icon beside a title and a line. */
-.catch-grid, .free-grid { list-style: none; display: grid; gap: 24px 32px; }
-@media (min-width: 600px) { .catch-grid, .free-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.catch-grid { margin-bottom: 40px; }
-.catch, .free { display: flex; align-items: flex-start; gap: 12px; }
-.catch .example-title, .free .example-title { line-height: 20px; padding-top: 6px; }
+/* The demo's mistakes, as tags. */
+.example-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.example-tag { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; background: var(--recess); color: var(--ink-2); font-size: 12px; line-height: 1; }
+
+/* Why it's free: four short facts, icon beside each. */
+.free-grid { list-style: none; display: grid; gap: 12px 24px; }
+@media (min-width: 600px) { .free-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.free { display: flex; align-items: center; gap: 12px; }
 
 /* Run a test: the setup row, then the two ways to open a page. */
 .test-stack { display: flex; flex-direction: column; gap: 16px; }
-.runs { padding: 24px 0 0; }
+.runs { display: block; }
+.nowrap { white-space: nowrap; }

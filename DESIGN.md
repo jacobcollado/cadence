@@ -45,6 +45,8 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 
 ## Layout
 
+- Home sections sit between two rails on the shell's edges, with a hairline between each and the footer's hairline closing them. Content keeps the shell's content edge, so it lines up with the top bar. Phones drop the side rails and keep the hairlines.
+- Each home section puts its heading and one short line in a left column, the content beside it, so the page has one left edge. Sections with tools (Run a test) put the heading above. One heading, one line, one visual per section; no paragraphs.
 - Every page uses the same `.shell` (960px, 16 or 32px gutters). The scrollbar takes room only when the page scrolls; no gutter is reserved, so full-width bars reach the window edge.
 
 ## Components

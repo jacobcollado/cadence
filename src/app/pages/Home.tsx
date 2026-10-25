@@ -15,18 +15,14 @@ const TARGET = "cadence.target";
 
 type IconName = ComponentProps<typeof Icon>["name"];
 
-const CATCHES: { icon: IconName; title: string; about: string }[] = [
-  { icon: "drawing", title: "Effects painted every frame", about: "Glows, blurs and canvas backgrounds that redraw while the page scrolls." },
-  { icon: "layout", title: "Scroll handlers that force layout", about: "Code that measures and moves elements on every scroll event." },
-  { icon: "code", title: "Heavy third-party scripts", about: "Trackers and widgets that hold up the page when it should be scrolling." },
-  { icon: "layers", title: "Layout animated in script", about: "Heights and positions changed frame by frame instead of with transforms." },
-];
+// What the slow demo gets wrong, one mistake per section.
+const MISTAKES = ["Glowing canvas", "Forced layout", "Blocking tracker", "Script animation", "Resizing form"];
 
-const FREE: { icon: IconName; title: string; about: string }[] = [
-  { icon: "check", title: "Free to use", about: "Every feature, on every device, with no account." },
-  { icon: "lock", title: "Private", about: "A run travels inside its own report link. No server ever sees it." },
-  { icon: "device", title: "Off for visitors", about: "The probe only loads on pages opened with ?perf." },
-  { icon: "code", title: "Open source", about: "MIT licensed. Read it, fork it, or send a fix on GitHub." },
+const FREE: { icon: IconName; title: string }[] = [
+  { icon: "check", title: "Free, with no account" },
+  { icon: "lock", title: "Runs never reach a server" },
+  { icon: "device", title: "Off for your visitors" },
+  { icon: "code", title: "Open source under MIT" },
 ];
 
 function withPerf(base: string): string {
@@ -125,12 +121,13 @@ export function Home() {
     <div className="shell">
       <TopBar />
 
+      <div className="rails">
       <section className="start enter">
         <div className="start-top">
           <div className="start-copy">
             <h1 className="title">Stress test your site on the devices your customers use.</h1>
             <p className="lede">
-              Cadence is a free, open source tool that scrolls your pages on real phones and laptops, records every frame, and shows which section stutters and why.
+              A free, open source probe that scrolls your pages on real devices and shows which section stutters, and why.
             </p>
             <div className="start-actions">
               <a href="/docs" className="btn btn-lg btn-primary" onClick={(e) => { e.preventDefault(); navigate("/docs"); }}>Get started</a>
@@ -141,102 +138,68 @@ export function Home() {
         </div>
       </section>
 
-      <Reveal>
-        <div className="home-head">
-          <h2 className="subtitle">Fast on your laptop, choppy on their phone</h2>
-          <p className="lede">
-            Sites are built on fast machines and judged on load time. Your customers scroll them on phones that are years older, where heavy effects and busy scripts drop frames. Load scores never see that. Cadence measures the scroll.
-          </p>
-        </div>
-        <div className="why-chart"><CompareSpecimen /></div>
+      <Reveal title="Fast on your laptop, choppy on their phone" lede="Load scores never see the scroll. Cadence does.">
+        <CompareSpecimen />
       </Reveal>
 
-      <Reveal>
-        <div className="home-head">
-          <h2 className="subtitle">How it works</h2>
-          <p className="lede">Two lines of code, then any page of your site can be tested on any device.</p>
-        </div>
+      <Reveal title="How it works" lede="Two lines of code, then test any page.">
         <ol className="how-grid">
           <li className="card how-step">
             <div className="how-visual how-code" aria-hidden="true">
-              <span><span className="muted">$ </span>npm i cadence-probe</span>
+              <span>npm i cadence-probe</span>
               <span>{"<Cadence />"}</span>
             </div>
             <h3 className="how-title">Add the probe</h3>
-            <p className="meta">Install the package and add one component to your root layout. Visitors never load it.</p>
+            <p className="meta">One component in your root layout.</p>
           </li>
           <li className="card how-step">
             <div className="how-visual" aria-hidden="true">
               {(["steady", "fast", "idle", "manual"] as const).map((p) => <PassMeter key={p} pass={p} />)}
             </div>
-            <h3 className="how-title">Open a page with ?perf</h3>
-            <p className="meta">A small panel appears on the page. Pick a pass: steady, fast, idle, or scroll it yourself.</p>
+            <h3 className="how-title">Open with <span className="nowrap">?perf</span></h3>
+            <p className="meta">Pick a pass in the panel.</p>
           </li>
           <li className="card how-step">
             <div className="how-visual"><FrameStrip kind="freeze" /></div>
             <h3 className="how-title">Read the report</h3>
-            <p className="meta">See which section stuttered, what the browser was busy with, and what to change first.</p>
+            <p className="meta">Which section stuttered, and why.</p>
           </li>
         </ol>
       </Reveal>
 
-      <Reveal>
-        <div className="home-head">
-          <h2 className="subtitle">What it catches</h2>
-          <p className="lede">The mistakes that look fine on a fast laptop and stutter everywhere else.</p>
-        </div>
-        <ul className="catch-grid">
-          {CATCHES.map((c) => (
-            <li key={c.title} className="catch">
-              <span className="setup-icon"><Icon name={c.icon} size={16} /></span>
-              <span className="example-copy">
-                <span className="example-title">{c.title}</span>
-                <span className="meta">{c.about}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
+      <Reveal title="See it in action" lede="A real report, and a page that's slow on purpose.">
         <div className="example-cards">
           <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
             <span className="example-copy">
               <span className="example-title">Inertia, our studio's site</span>
-              <span className="meta">Smooth scrolling, but the largest paint takes 5.4 s.</span>
+              <span className="meta">Smooth scrolling, but the largest paint takes {"5.400a0s"}.</span>
             </span>
             <span className="example-go">Open report<Icon name="forward" size={14} /></span>
           </a>
           <a className="card example" href="/demo.html" target="_blank" rel="noopener">
             <span className="example-copy">
               <span className="example-title">A page that's slow on purpose</span>
-              <span className="meta">Five common mistakes. Run Cadence on it from your own device.</span>
+              <span className="example-tags">
+                {MISTAKES.map((m) => <span key={m} className="example-tag">{m}</span>)}
+              </span>
             </span>
             <span className="example-go">Open demo<Icon name="external" size={14} /></span>
           </a>
         </div>
       </Reveal>
 
-      <Reveal>
-        <div className="home-head">
-          <h2 className="subtitle">Free, open and private</h2>
-          <p className="lede">No account, no plan, and no server watching your runs.</p>
-        </div>
+      <Reveal title="Free, open and private">
         <ul className="free-grid">
           {FREE.map((f) => (
             <li key={f.title} className="free">
               <span className="setup-icon"><Icon name={f.icon} size={16} /></span>
-              <span className="example-copy">
-                <span className="example-title">{f.title}</span>
-                <span className="meta">{f.about}</span>
-              </span>
+              <span className="example-title">{f.title}</span>
             </li>
           ))}
         </ul>
       </Reveal>
 
-      <Reveal>
-        <div className="home-head">
-          <h2 className="subtitle">Run a test</h2>
-          <p className="lede">With the probe on your site, open any of its pages here or on a phone.</p>
-        </div>
+      <Reveal wide title="Run a test" lede="Install once, then open any page here or on a phone.">
         <div className="test-stack">
           <Setup />
           <div className="start-cards">
@@ -271,7 +234,7 @@ export function Home() {
         </div>
       </Reveal>
 
-      <section className="runs" id="runs">
+      <section className="home-sec runs" id="runs">
         <div className="runs-head">
           <h2 className="h2">
             Runs {runs.length > 0 && <span className="muted num">{runs.length}</span>}
@@ -366,6 +329,7 @@ export function Home() {
           </div>
         )}
       </section>
+      </div>
 
       {dragging && <div className="drop-veil">Drop a run to open it</div>}
     </div>
@@ -406,8 +370,9 @@ function Setup() {
   );
 }
 
-/** A home section that rises into place the first time it scrolls into view. */
-function Reveal({ children }: { children: ReactNode }) {
+/** A home section: its heading beside the content (above it when wide), rising
+    into place the first time it scrolls into view. */
+function Reveal({ title, lede, wide, children }: { title: string; lede?: string; wide?: boolean; children: ReactNode }) {
   const el = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(reducedMotion);
   useEffect(() => {
@@ -420,5 +385,13 @@ function Reveal({ children }: { children: ReactNode }) {
     io.observe(el.current!);
     return () => io.disconnect();
   }, []);
-  return <section ref={el} className="home-sec" data-shown={shown || undefined}>{children}</section>;
+  return (
+    <section ref={el} className="home-sec" data-wide={wide || undefined} data-shown={shown || undefined}>
+      <div className="home-head">
+        <h2 className="subtitle">{title}</h2>
+        {lede && <p className="lede">{lede}</p>}
+      </div>
+      <div className="home-body">{children}</div>
+    </section>
+  );
 }
