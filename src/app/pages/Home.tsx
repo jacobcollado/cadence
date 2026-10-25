@@ -19,6 +19,8 @@ type IconName = ComponentProps<typeof Icon>["name"];
 
 // The example cards' runs: the studio site scrolls clean, the demo keeps missing frames.
 const SMOOTH = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+// Nothing recorded yet: every pane gray.
+const NONE = Array(12).fill(0);
 const SLOW = [1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1];
 
 // What the slow demo gets wrong, one mistake per section.
@@ -208,8 +210,11 @@ export function Home() {
           <div className="start-cards">
             <div className="card start-card">
               <div className="start-card-head">
-                <h3 className="h2">Test on this device</h3>
-                <p className="meta">Opens the page with the probe on.</p>
+                <span className="glass free-tile" style={{ "--c": tint(1 / 3) } as CSSProperties}><Icon name="device" size={16} /></span>
+                <span>
+                  <h3 className="h2">Test on this device</h3>
+                  <p className="meta">Opens the page with the probe on.</p>
+                </span>
               </div>
               <label className="field-label" htmlFor="target">Page</label>
               <div className="link-row">
@@ -228,8 +233,11 @@ export function Home() {
             </div>
             <div className="card start-card qr-card">
               <div className="start-card-head">
-                <h3 className="h2">Test on a phone</h3>
-                <p className="meta">Scan to open it there.</p>
+                <span className="glass free-tile" style={{ "--c": tint(2 / 3) } as CSSProperties}><Icon name="phone" size={16} /></span>
+                <span>
+                  <h3 className="h2">Test on a phone</h3>
+                  <p className="meta">Scan to open it there.</p>
+                </span>
               </div>
               {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
             </div>
@@ -266,7 +274,8 @@ export function Home() {
         {error && <p className="note" style={{ marginBottom: 12, color: "var(--bad)" }}>{error}</p>}
 
         {runs.length === 0 ? (
-          <div className="recess empty">
+          <div className="runs-empty">
+            <GlassRow run={NONE} className="runs-empty-row" />
             <strong>No runs yet</strong>
             Finish a run on any device and open its report. It lands here, ready to compare.
           </div>
@@ -356,7 +365,7 @@ function Setup() {
   return (
     <div className="card setup" id="setup" ref={el} data-open={open || undefined}>
       <button className="setup-btn" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className="setup-icon"><Icon name="terminal" size={16} /></span>
+        <span className="glass free-tile" style={{ "--c": tint(0) } as CSSProperties}><Icon name="terminal" size={16} /></span>
         <span className="setup-title">Add Cadence to your site</span>
         <span className="setup-peek">npm install cadence-probe</span>
         <Icon name="chevron" size={16} />
