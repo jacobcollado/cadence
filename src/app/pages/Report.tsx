@@ -22,7 +22,8 @@ export function Report() {
     if (!data) return setState({ error: "This link doesn't include a run." });
     decodeRun(data)
       .then((run) => {
-        saveRun(run, data);
+        // Example reports from the home page stay out of the visitor's own runs.
+        if (!new URLSearchParams(location.search).has("example")) saveRun(run, data);
         setState({ run, stats: computeStats(run) });
       })
       .catch(() => setState({ error: "This link doesn't hold a readable run. It may have been cut short when it was copied." }));
@@ -136,7 +137,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
  * link is the way to keep one. Folds open on arrival and away when dismissed.
  */
 function SavedNote() {
-  const [shown] = useState(() => !savedNoteSeen());
+  const [shown] = useState(() => !savedNoteSeen() && !new URLSearchParams(location.search).has("example"));
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!shown) return;
@@ -243,7 +244,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
   return (
     <>
       <StatRow items={[
-        { label: "Dropped frames", value: `${stats.dropped}`, sub: `Of ${stats.frames.toLocaleString()} frames`, level: stats.dropped ? "warn" : "good" },
+        { label: "Dropped frames", value: `${stats.dropped}`, sub: `Of ${(stats.frames + stats.dropped).toLocaleString()} frames`, level: stats.dropped ? "warn" : "good" },
         { label: "Freezes", value: `${stats.freezes}`, sub: `Frames over ${FREEZE} ms`, level: stats.freezes ? "bad" : "good" },
         { label: "Longest frame", value: `${Math.round(stats.worst)}`, unit: "ms", sub: `Each frame has ${Math.round(stats.interval)} ms`, level: stats.worst >= FREEZE ? "bad" : stats.worst > stats.interval * 1.5 ? "warn" : "good" },
         { label: "Smooth sections", value: `${smoothCount}`, unit: `of ${judged.length}`, sub: judged.length ? "Rated on frame rate" : "None long enough to rate", level: judged.length && smoothCount === judged.length ? "good" : smoothCount ? "warn" : "bad" },

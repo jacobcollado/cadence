@@ -171,9 +171,14 @@ export function computeStats(run: Run): RunStats {
     ? judged.reduce((a, b) => (b.fps < a.fps ? b : a))
     : undefined;
 
+  // A run is only as smooth as its roughest section: one that wasn't smooth
+  // makes the run uneven, though never choppy on its own.
+  let rating = rate(fps, onTime, worst, hz);
+  if (rating === "smooth" && judged.some((s) => s.rating !== "smooth")) rating = "uneven";
+
   const stats: RunStats = {
     hz, interval, time, frames: n, fps, dropped, worst, p95, onTime, late, freezes,
-    rating: rate(fps, onTime, worst, hz), sections, judged, worstSection, sentence: "", times,
+    rating, sections, judged, worstSection, sentence: "", times,
   };
   stats.sentence = sentence(stats);
   return stats;
