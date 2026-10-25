@@ -1,53 +1,53 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { reducedMotion } from "../../shared/motion";
-import { tier } from "../../shared/stats";
 import { DeviceIcon, type Device } from "./DeviceIcon";
 import { CountUp } from "./ui";
 
 // The hero's glass, standing in rows: half a second of the same scroll on
-// three devices, one slab per frame. On time, the slabs stand evenly and run
-// through the spectrum; a dropped frame leaves a gap, and a freeze stands as
-// one wide red slab. The first time the rows come into view, each slab rises
-// when its frame landed.
+// three devices, one pane per screen refresh. A refresh that got a new frame
+// is a tinted pane, running through the spectrum; one the page missed is a
+// gray pane, so every chop shows exactly where it happened. The first time
+// the rows come into view, each pane rises when its refresh passed.
 
 const SPAN = 500;           // ms shown
 const BUDGET = 1000 / 60;   // one refresh at 60 Hz
+const SLOTS = Math.round(SPAN / BUDGET);
 const LEAD = 300;           // ms before the rows start
-const SLAB = 0.62;          // share of a frame's width the slab fills
-// Cool end of the hero's spectrum, so red is left for freezes.
-const TINTS = ["#7c5ce6", "#3d6fe0", "#1fa2c9", "#2fb67c"];
+// Cool end of the hero's spectrum.
+export const TINTS = ["#7c5ce6", "#3d6fe0", "#1fa2c9", "#2fb67c"];
 
-type Row = { name: string; device: Device; frames: number[] };
-
-/** A repeatable run of frame durations: mostly on time, some a refresh late, and freezes where given. */
-function run(seed: number, late: number, freezes: number[]): number[] {
-  let s = seed;
-  const rand = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-  const out: number[] = [];
-  let t = 0;
-  for (;;) {
-    const at = freezes.findIndex((f) => t >= f * SPAN);
-    const d = at >= 0 ? 84 + rand() * 20 : rand() < late ? BUDGET * 2 : BUDGET;
-    if (t + d > SPAN + 0.5) break;
-    if (at >= 0) freezes = freezes.filter((_, i) => i !== at);
-    t += d;
-    out.push(d);
-  }
-  return out;
-}
-
-const ROWS: Row[] = [
-  { name: "Laptop", device: "laptop", frames: run(7, 0, []) },
-  { name: "iPhone", device: "apple", frames: run(11, 0.08, []) },
-  { name: "Android", device: "android", frames: run(23, 0.16, [0.42]) },
-];
+type Row = { name: string; device: Device; drawn: boolean[] };
 
 /** A color a fraction of the way through the tints. */
-function tint(f: number): string {
+export function tint(f: number): string {
   const x = Math.min(f, 0.999) * (TINTS.length - 1);
   const i = Math.floor(x);
   return `color-mix(in oklab, ${TINTS[i]} ${Math.round((1 - (x - i)) * 100)}%, ${TINTS[i + 1]})`;
 }
+
+/**
+ * A repeatable run as refresh slots: true where a frame was drawn, false
+ * where the page missed one. Some frames run a refresh late; a freeze
+ * misses several in a row.
+ */
+function run(seed: number, late: number, freezes: { at: number; slots: number }[]): boolean[] {
+  let s = seed;
+  const rand = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const out: boolean[] = [];
+  while (out.length < SLOTS) {
+    const freeze = freezes.find((f) => f.at === out.length);
+    const missed = freeze ? freeze.slots : out.length > 0 && rand() < late ? 1 : 0;
+    for (let i = 0; i < missed && out.length < SLOTS - 1; i++) out.push(false);
+    out.push(true);
+  }
+  return out.slice(0, SLOTS);
+}
+
+const ROWS: Row[] = [
+  { name: "Laptop", device: "laptop", drawn: run(7, 0, []) },
+  { name: "iPhone", device: "apple", drawn: run(11, 0.08, []) },
+  { name: "Android", device: "android", drawn: run(23, 0.16, [{ at: 12, slots: 5 }]) },
+];
 
 export function GlassFrames() {
   const el = useRef<HTMLElement>(null);
@@ -68,41 +68,30 @@ export function GlassFrames() {
   }, []);
 
   return (
-    <figure ref={el} className="frames" data-play={play || undefined} aria-label="Half a second of the same scroll on a laptop, an iPhone and an Android phone, one glass slab per frame">
-      {ROWS.map((row) => {
-        let t = 0;
-        return (
-          <div key={row.name} className="frames-row">
-            <div className="frames-name">
-              <DeviceIcon device={row.device} />
-              <span className="frames-fps num"><CountUp value={done ? Math.round(row.frames.length * 1000 / SPAN) : 0} /><span className="frames-unit">fps</span></span>
-            </div>
-            <div className="frames-track" aria-hidden="true">
-              <span className="frames-shadow" />
-              {row.frames.map((d, i) => {
-                t += d;
-                const freeze = tier(d, BUDGET) === 2;
-                // A late frame's slab stands where it landed, leaving the missed slot empty.
-                const slot = freeze ? d : BUDGET;
-                const at = t - slot;
-                return (
-                  <span
-                    key={i}
-                    className="frames-slab"
-                    data-freeze={freeze || undefined}
-                    style={{
-                      left: `${(at / SPAN) * 100}%`,
-                      width: `${((slot - BUDGET * (1 - SLAB)) / SPAN) * 100}%`,
-                      "--c": freeze ? "#e5484d" : tint(at / SPAN),
-                      "--t": `${LEAD + t}ms`,
-                    } as CSSProperties}
-                  />
-                );
-              })}
-            </div>
+    <figure ref={el} className="frames" data-play={play || undefined} aria-label="Half a second of the same scroll on a laptop, an iPhone and an Android phone, one glass pane per screen refresh, gray where the page missed one">
+      {ROWS.map((row) => (
+        <div key={row.name} className="frames-row">
+          <div className="frames-name">
+            <DeviceIcon device={row.device} />
+            <span className="frames-fps num"><CountUp value={done ? Math.round(row.drawn.filter(Boolean).length * 1000 / SPAN) : 0} /><span className="frames-unit">fps</span></span>
           </div>
-        );
-      })}
+          <div className="frames-track" aria-hidden="true">
+            <span className="frames-shadow" />
+            {row.drawn.map((drawn, i) => (
+              <span
+                key={i}
+                className="glass frames-slab"
+                data-off={!drawn || undefined}
+                style={{
+                  left: `${(i / SLOTS) * 100}%`,
+                  "--c": drawn ? tint(i / SLOTS) : undefined,
+                  "--t": `${LEAD + (i + 1) * BUDGET}ms`,
+                } as CSSProperties}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </figure>
   );
 }

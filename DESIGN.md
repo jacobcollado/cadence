@@ -64,6 +64,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - **Disclosure**: only for reference material that isn't graded.
 - **Footer**: under a hairline, on the page's content edges: the logo with who makes it and the license, then link groups (Product, Follow) with a 13px heading in ink and links in ink-2.
 - **Device marks**: where a chart names devices, each name carries its platform's mark (Apple, Android) in ink, beside the name and always visible. A device with no single platform, like a laptop, gets a plain solid drawing at the same weight. This overrides "logos on hover only" for device names.
+- **Glass** (`.glass`, home page): the home page's visuals share one material, from the hero's fan down. A pane is tinted by `--c` from the cool end of the hero's spectrum (violet, blue, cyan, green), densest at the top, with a colored edge and a lit top, on plain paper (never a recessed tray). A frame the page missed is the same pane in gray (`data-off`), never red, so a chop shows exactly where it happened.
 - **Charts**: the frame timeline and memory spark are canvas or SVG, gray data, status color only for problems, hover tooltips as white raised cards.
 
 ## Writing

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../components/ui";
-import { FrameStrip, PassMeter } from "../components/DocVisuals";
+import { MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
 import { GlassFrames } from "../components/GlassFrames";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
@@ -146,22 +146,17 @@ export function Home() {
       <Reveal title="How it works" lede="Two lines of code, then test any page.">
         <ol className="how-grid">
           <li className="card how-step">
-            <div className="how-visual how-code" aria-hidden="true">
-              <span>npm i cadence-probe</span>
-              <span>{"<Cadence />"}</span>
-            </div>
+            <div className="how-visual"><ProbePane /></div>
             <h3 className="how-title">Add the probe</h3>
             <p className="meta">One component in your root layout.</p>
           </li>
           <li className="card how-step">
-            <div className="how-visual" aria-hidden="true">
-              {(["steady", "fast", "idle", "manual"] as const).map((p) => <PassMeter key={p} pass={p} />)}
-            </div>
+            <div className="how-visual"><ScrollPanes /></div>
             <h3 className="how-title">Open with <span className="nowrap">?perf</span></h3>
             <p className="meta">Pick a pass in the panel.</p>
           </li>
           <li className="card how-step">
-            <div className="how-visual"><FrameStrip kind="freeze" /></div>
+            <div className="how-visual"><MiniFrames /></div>
             <h3 className="how-title">Read the report</h3>
             <p className="meta">Which section stuttered, and why.</p>
           </li>
