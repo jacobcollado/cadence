@@ -182,10 +182,18 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
     setDone(true);
     setTimeout(() => setDone(false), 1600);
   };
+  // Both states stay stacked in place, so the button keeps its width; the
+  // new one rises in as the old one leaves.
   return (
-    <button className={className} onClick={copy} disabled={disabled}>
-      <Icon name={done ? "check" : icon} size={14} />
-      <Flip text={done ? "Copied" : label} />
+    <button className={className} onClick={copy} disabled={disabled} data-done={done || undefined}>
+      <span className="copy-swap copy-icon" aria-hidden="true">
+        <Icon name={icon} size={14} />
+        <Icon name="check" size={14} />
+      </span>
+      <span className="copy-swap copy-text">
+        <span aria-hidden={done || undefined}>{label}</span>
+        <span aria-hidden={!done || undefined}>Copied</span>
+      </span>
     </button>
   );
 }

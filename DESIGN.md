@@ -79,3 +79,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - Say what wasn't measured and why, never show a zero for it.
 - No em dashes, no uppercase labels.
 - No separator glyphs (dots, pipes, slashes, decorative marks) between facts. Facts that sit together get structure instead: labeled fields (`Fields`, a small muted label over each value) in headers, and a column header row in lists. A device name from the probe ("iPhone · Safari 26.0") is split with `splitName` into device and browser; in a sentence it reads as plain words.
+
+## Copy buttons
+
+A copy button keeps its width when it confirms: both states (icon and label) stay stacked in place, and "Copied" rises 4px into view with a light blur clearing while the old state leaves upward, over the base duration. The icon grows from half size, never from zero. Nothing beside the button moves.
