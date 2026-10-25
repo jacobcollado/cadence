@@ -95,32 +95,75 @@ export function pageLoad(run: Run): Metric[] {
   }));
 }
 
-export interface MemoryReport {
-  /** [ms from start, MB] */
+export interface Series {
+  /** [ms from start, value] */
   samples: [number, number][];
   start: number;
   end: number;
   peak: number;
   change: number;
+  grew: boolean;
+}
+
+export interface MemoryReport {
+  /** The JavaScript heap in MB, or null when it couldn't be measured. */
+  heap: Series | null;
+  /** Why the heap is missing, when it is. */
+  heapNote: string;
+  /** Elements on the page. Missing on runs from before it was recorded. */
+  nodes: Series | null;
   level: Level;
   text: string;
 }
 
-/** Growth past this, and past a fifth of where it started, is worth a look. */
+/** Heap growth past this, and past a fifth of where it started, is worth a look. */
 const GROWTH_MB = 10;
+/** Element growth past this, and past a fifth of where it started. */
+const GROWTH_NODES = 500;
 
-export function memory(run: Run): MemoryReport | null {
-  if (!run.support.memory || run.mem.length < 2) return null;
-  const samples = run.mem.map(([t, v]) => [t, v / 10] as [number, number]);
+function series(samples: [number, number][], min: number): Series {
   const start = samples[0][1], end = samples[samples.length - 1][1];
-  const peak = Math.max(...samples.map(([, v]) => v));
   const change = end - start;
-  const grew = change > GROWTH_MB && change / start > 0.2;
   return {
-    samples, start, end, peak, change,
-    level: grew ? "warn" : "good",
-    text: grew
-      ? `Grew ${change.toFixed(1)} MB during the run. Run it again: if it keeps climbing, something is holding on to memory.`
-      : "Held steady during the run, with nothing building up.",
+    samples, start, end, change,
+    peak: Math.max(...samples.map(([, v]) => v)),
+    grew: change > min && change / start > 0.2,
   };
+}
+
+/** Why this run has no heap figure worth showing, or "" when it has one. */
+export function heapMissing(run: Run): string {
+  if (!run.support.memory) return `${run.device.browser} doesn't expose memory use to pages. Chrome and Edge do.`;
+  if (run.mem.length < 2) return "The heap wasn't measured on this run.";
+  if (run.mem.every(([, v]) => v === run.mem[0][1])) {
+    return "Chrome only gives pages a rounded heap figure that it rarely refreshes, and it didn't change during this run, so it isn't shown. Page elements are the leak signal to watch instead.";
+  }
+  return "";
+}
+
+/**
+ * Memory over the run, only from numbers that are real. Most pages can read
+ * just a rounded heap figure that Chrome rarely refreshes, so a heap that
+ * never moved is left out rather than called steady. Page elements are exact
+ * everywhere, and elements that pile up are the most common leak.
+ */
+export function memory(run: Run): MemoryReport | null {
+  const nodes = run.dom && run.dom.length >= 2 ? series(run.dom, GROWTH_NODES) : null;
+
+  const heapNote = heapMissing(run);
+  const heap: MemoryReport["heap"] = heapNote
+    ? null
+    : series(run.mem.map(([t, v]) => [t, v / 10]), GROWTH_MB);
+
+  if (!heap && !nodes) return null;
+  const grew = !!heap?.grew || !!nodes?.grew;
+  const parts: string[] = [];
+  if (heap?.grew) parts.push(`the heap grew ${heap.change.toFixed(1)} MB`);
+  if (nodes?.grew) parts.push(`the page gained ${nodes.change.toLocaleString()} elements`);
+  const text = grew
+    ? `During the run ${parts.join(" and ")}. Lazy loading can explain some of it. Run it again: if it keeps climbing, something is holding on.`
+    : heap
+      ? "Held steady during the run, with nothing building up."
+      : "The page kept the same elements during the run, with nothing building up.";
+  return { heap, heapNote, nodes, level: grew ? "warn" : "good", text };
 }

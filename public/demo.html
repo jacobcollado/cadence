@@ -84,7 +84,7 @@
 
   <section data-cadence="Customers">
     <div class="wrap">
-      <span class="mistake">Mistake: a tracking script that blocks the page every half second</span>
+      <span class="mistake">Mistake: a tracking script that blocks the page and leaves its pixels behind</span>
       <h2>Loved by teams</h2>
       <div class="quotes">
         <div class="quote">"We moved everything to Brightloop in a weekend."<strong>A happy customer</strong></div>
@@ -172,7 +172,12 @@
   // slow way.
   const customers = document.querySelectorAll("section")[2];
   watch(customers);
+  const pixels = document.createElement("div");
+  pixels.hidden = true;
+  document.body.appendChild(pixels);
   function trackEverything() {
+    // Every tick leaves 120 tracking pixels on the page, and none are removed.
+    for (let i = 0; i < 120; i++) pixels.appendChild(document.createElement("img"));
     if (!visible(customers)) return;
     busy(150);
   }

@@ -1080,3 +1080,8 @@ svg { display: block; flex: none; }
 .example-go { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; line-height: 1; font-weight: 500; color: var(--ink); }
 .example-go svg { color: var(--ink-3); transition: transform var(--dur-fast) var(--ease-out); }
 .example:hover .example-go svg { transform: translateX(2px); }
+
+/* Memory: a labeled chart per measure, and why the heap is missing when it is. */
+.spark-title { margin-top: 20px; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.spark-title + .spark-wrap { margin-top: 8px; }
+.mem-note { margin-top: 16px; }
