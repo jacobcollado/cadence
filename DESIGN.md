@@ -14,7 +14,7 @@ All live in `src/app/styles.css` (`:root`) and are mirrored in `src/probe/styles
 
 | Role | Token | Value |
 |---|---|---|
-| Text | `--ink`, `--ink-2`, `--ink-3` | `#1a1a1a`, `#52514e`, `#8a8a85` |
+| Text | `--ink`, `--ink-2`, `--ink-3` | `#1a1a1a`, `#52514e`, `#6e6d68` (all pass AA on paper and recess) |
 | Surfaces | `--paper`, `--recess`, `--hover` | `#fff`, `#f4f4f2`, `#f7f7f5` |
 | Outlines | `--ring`, `--ring-firm` | 8% and 14% black, always inset |
 | Hairlines | `--grid` | `#ecebe6` |
@@ -22,7 +22,7 @@ All live in `src/app/styles.css` (`:root`) and are mirrored in `src/probe/styles
 | Status | `--good`, `--warn`, `--warn-ink`, `--bad` | `#0ca30c`, `#f5a623`, `#d38900`, `#d03b3b` |
 | Motion | `--dur-*`, `--ease-*` | from `src/shared/motion.ts` |
 
-Type is Satoshi. Sizes in use: 28 title, 24 subtitle, 17 card heading and hero sentence, 15 and 14 body, 13 meta, 12 labels and tags, 11 axis ticks. Don't add new ones.
+Type is Satoshi. Sizes in use: 28 title, 24 subtitle, 17 card heading and hero sentence, 15 and 14 body and buttons, 13 meta, 12 labels, tags and axis ticks. Nothing goes under 12. Fields are 16 on phones so iOS doesn't zoom in. Don't add new sizes.
 
 ## Themes
 

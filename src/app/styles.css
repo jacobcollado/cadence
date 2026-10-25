@@ -8,7 +8,7 @@
 :root {
   --ink: #1a1a1a;
   --ink-2: #52514e;
-  --ink-3: #8a8a85;
+  --ink-3: #6e6d68;
   --paper: #ffffff;
   --recess: #f4f4f2;
   --hover: #f7f7f5;
@@ -58,7 +58,7 @@
 :root[data-theme="dark"] {
   --ink: #ecebe7;
   --ink-2: #b4b3ad;
-  --ink-3: #85847e;
+  --ink-3: #8f8e88;
   --paper: #141413;
   --recess: #1f1f1d;
   --hover: #1a1a19;
@@ -100,6 +100,17 @@ body {
   overflow-x: hidden;
 }
 button, input { font: inherit; letter-spacing: inherit; color: inherit; }
+/* iOS zooms into any field under 16px when it's tapped. */
+@media (max-width: 600px) { input, textarea, select { font-size: 16px; } }
+
+/* Scrollbars: a slim thumb in the data gray on no track. */
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--data) transparent; }
+}
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--data); background-clip: padding-box; border: 3px solid transparent; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--data-line); }
 button { background: none; border: 0; cursor: pointer; }
 a { color: inherit; text-decoration: none; }
 svg { display: block; flex: none; }
@@ -124,10 +135,10 @@ svg { display: block; flex: none; }
 .btn {
   height: 36px; padding: 0 14px; border-radius: 6px;
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  font-size: 13px; font-weight: 500; line-height: 1; white-space: nowrap;
+  font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap;
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
-.btn-lg { height: 44px; padding: 0 18px; font-size: 14px; }
+.btn-lg { height: 44px; padding: 0 18px; font-size: 15px; }
 .btn-icon-l { padding-left: 11px; }
 .btn-lg.btn-icon-l { padding-left: 14px; }
 .btn-primary {
@@ -326,11 +337,11 @@ svg { display: block; flex: none; }
 .group:first-child { box-shadow: none; }
 .group-label { font-size: 13px; line-height: 18px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .group-bars { display: flex; flex-direction: column; gap: 2px; position: relative; }
-.gbar-row { display: flex; align-items: center; gap: 8px; height: 12px; font-size: 11px; color: var(--ink-2); position: relative; }
+.gbar-row { display: flex; align-items: center; gap: 8px; height: 12px; font-size: 12px; color: var(--ink-2); position: relative; }
 .gbar { height: 10px; width: 0; border-radius: 0 4px 4px 0; transition: width var(--dur-slow) var(--ease-out); }
 .gbar-hit { position: absolute; inset: -1px 0; }
 .axis { display: grid; grid-template-columns: 128px 1fr; gap: 16px; margin-top: 4px; }
-.axis-ticks { position: relative; height: 16px; font-size: 11px; color: var(--ink-3); }
+.axis-ticks { position: relative; height: 16px; font-size: 12px; color: var(--ink-3); }
 .axis-ticks span { position: absolute; transform: translateX(-50%); }
 
 /* Page enter: content rises into place. */
@@ -372,7 +383,7 @@ svg { display: block; flex: none; }
 .scale { position: relative; height: 28px; }
 .scale-track { height: 8px; border-radius: 4px; background: var(--recess); overflow: hidden; }
 .scale-track .bar { border-radius: 4px; }
-.scale-tick { position: absolute; top: 14px; transform: translateX(-50%); font-size: 11px; line-height: 14px; color: var(--ink-3); white-space: nowrap; }
+.scale-tick { position: absolute; top: 14px; transform: translateX(-50%); font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; }
 .scale-tick::before { content: ""; position: absolute; left: 50%; top: -16px; width: 1px; height: 12px; background: var(--ink-3); opacity: 0.5; }
 .bar[data-level="warn"] { background: var(--warn); }
 .bar[data-level="bad"] { background: var(--bad); }
@@ -444,7 +455,19 @@ svg { display: block; flex: none; }
 .tile-unit { line-height: 1; }
 /* The popover anchors to the whole action row: its right edge on desktop, its full width on phones. */
 .report-head > .actions .popover-wrap { position: static; }
-@media (max-width: 600px) { .report-head > .actions { width: 100%; } }
+@media (max-width: 600px) {
+  .report-head > .actions { width: 100%; }
+  /* Three buttons never fit one row on a phone, so each row fills the width. */
+  .report-head > .actions > * { flex: 1 1 auto; }
+  .report-head > .actions .popover-wrap > .btn { width: 100%; }
+}
+/* Small phones: the tiles stack as rows, label on the left and number on the right. */
+@media (max-width: 420px) {
+  .overview { grid-template-columns: 1fr; }
+  .tile { flex-direction: row; align-items: center; justify-content: space-between; padding: 0 12px; height: 48px; }
+  .tile-value, .tile-none { font-size: 22px; line-height: 28px; height: 28px; }
+  .tile-none { font-size: 15px; }
+}
 
 /* Theme toggle: the icon turns in as it changes. */
 .theme-icon { display: inline-flex; animation: turn var(--dur-slow) var(--ease-out) both; }
@@ -483,21 +506,21 @@ svg { display: block; flex: none; }
 
 /* Zone bar: thresholds in color, inside a note. */
 .zone { position: relative; margin: 4px 0 2px; }
-.zone[data-marked] { padding-top: 22px; }
+.zone[data-marked] { padding-top: 24px; }
 .zone-track { display: flex; gap: 2px; height: 8px; }
 .zone-seg { border-radius: 2px; background: var(--good); }
 .zone-seg[data-level="warn"] { background: var(--warn); }
 .zone-seg[data-level="bad"] { background: var(--bad); }
 .zone-seg:first-child { border-radius: 4px 2px 2px 4px; }
 .zone-seg:last-child { border-radius: 2px 4px 4px 2px; }
-.zone-words { display: flex; gap: 2px; margin-top: 6px; font-size: 11px; line-height: 14px; color: var(--ink-2); }
+.zone-words { display: flex; gap: 2px; margin-top: 6px; font-size: 12px; line-height: 16px; color: var(--ink-2); }
 .zone-words span { text-align: center; white-space: nowrap; overflow: hidden; }
-.zone-ticks { position: relative; height: 14px; margin-top: 2px; font-size: 11px; line-height: 14px; color: var(--ink-3); }
+.zone-ticks { position: relative; height: 16px; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
 .zone-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
-.zone-marker { position: absolute; top: 18px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; box-shadow: 0 0 0 2px var(--paper); z-index: 1; }
+.zone-marker { position: absolute; top: 20px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; box-shadow: 0 0 0 2px var(--paper); z-index: 1; }
 .zone-marker-label {
   position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
-  font-size: 11px; line-height: 14px; font-weight: 600; color: var(--ink); white-space: nowrap;
+  font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink); white-space: nowrap;
 }
 .zone-marker[data-edge="start"] .zone-marker-label { transform: none; left: -1px; }
 .zone-marker[data-edge="end"] .zone-marker-label { transform: none; left: auto; right: -1px; }
@@ -510,7 +533,7 @@ svg { display: block; flex: none; }
   position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
   background: var(--ink); box-shadow: 0 0 0 2px var(--paper); pointer-events: none;
 }
-.spark-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; line-height: 14px; color: var(--ink-3); }
+.spark-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
 
 /* Labeled fields: the structure between facts, instead of a separator glyph. */
 .fields { display: flex; flex-wrap: wrap; gap: 12px 32px; margin-top: 12px; }
@@ -884,11 +907,11 @@ svg { display: block; flex: none; }
 .cmp-key .num { color: var(--ink-3); }
 .cmp-plot { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; height: 160px; margin-top: 24px; padding-top: 28px; box-shadow: inset 0 -1px 0 var(--ring-firm); }
 .cmp-target { position: absolute; left: 0; right: 0; top: 28px; border-top: 1px dashed var(--ring-firm); pointer-events: none; }
-.cmp-target span { position: absolute; right: 0; top: -18px; font-size: 11px; line-height: 14px; color: var(--ink-3); }
+.cmp-target span { position: absolute; right: 0; top: -18px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
 .cmp-group { display: flex; justify-content: center; align-items: flex-end; }
 .cmp-bars { height: 100%; display: flex; align-items: flex-end; gap: 4px; width: 100%; max-width: 88px; }
 .cmp-bar { position: relative; flex: 1; border-radius: 4px 4px 0 0; min-height: 2px; }
-.cmp-bar span { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); font-size: 11px; line-height: 14px; color: var(--ink-2); }
+.cmp-bar span { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); font-size: 12px; line-height: 16px; color: var(--ink-2); }
 .cmp-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; text-align: center; font-size: 12px; line-height: 16px; color: var(--ink-2); }
 .cmp-note { margin-top: 20px; padding-top: 14px; box-shadow: inset 0 1px 0 var(--grid); font-size: 14px; line-height: 22px; color: var(--ink-2); }
 
@@ -978,7 +1001,7 @@ svg { display: block; flex: none; }
 .fix-list li { position: relative; counter-increment: fix; padding-left: 32px; display: flex; flex-direction: column; gap: 2px; }
 .fix-list li::before {
   content: counter(fix); position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%;
-  display: grid; place-items: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+  display: grid; place-items: center; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
   background: var(--recess); color: var(--ink-2);
 }
 .fix-title { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ink); }

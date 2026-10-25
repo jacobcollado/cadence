@@ -219,7 +219,7 @@ function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
 
   // Frame time scale: the budget (one refresh), the freeze line, and 100 ms
   // when the run went that far.
-  ctx.font = `400 11px Satoshi, system-ui, sans-serif`;
+  ctx.font = `400 12px Satoshi, system-ui, sans-serif`;
   ctx.textAlign = "right";
   const ticks: number[] = [];
   for (const v of [stats.interval, FREEZE, 100, 200, 500, 1000]) {

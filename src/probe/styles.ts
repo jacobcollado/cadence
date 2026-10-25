@@ -14,7 +14,7 @@ export const STYLES = `
   ${MOTION_CSS}
   --ink: #1a1a1a;
   --ink-2: #52514e;
-  --ink-3: #8a8a85;
+  --ink-3: #6e6d68;
   --paper: #ffffff;
   --recess: #f2f2f0;
   --ring: rgba(0, 0, 0, 0.08);
@@ -35,7 +35,7 @@ export const STYLES = `
   :host {
     --ink: #ecebe7;
     --ink-2: #b4b3ad;
-    --ink-3: #85847e;
+    --ink-3: #8f8e88;
     --paper: #1a1a19;
     --recess: #262624;
     --ring: rgba(255, 255, 255, 0.08);
@@ -227,14 +227,14 @@ svg { display: block; flex: none; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
 .stat { padding: 8px 10px; border-radius: 6px; background: var(--recess); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .stat-value { font-size: 15px; font-weight: 600; line-height: 20px; letter-spacing: -0.02em; white-space: nowrap; }
-.stat-value span { font-size: 11px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); margin-left: 2px; }
-.stat-label { font-size: 11px; line-height: 14px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-value span { font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); margin-left: 2px; }
+.stat-label { font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cause { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; box-shadow: inset 0 1px 0 var(--ring); }
 .cause-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--ink-3); }
 .cause-kind { height: 24px; padding: 0 8px 0 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; background: var(--recess); color: var(--ink); font-size: 12px; font-weight: 500; line-height: 1; white-space: nowrap; }
 .cause-kind svg { color: var(--ink-2); }
 .cause-top { font-size: 12px; line-height: 16px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cause-top code { font: 500 11px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink); }
+.cause-top code { font: 500 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink); }
 .fix { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 6px; background: var(--recess); }
 .fix svg { color: var(--good); margin-top: 1px; }
 .fix-title { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink); }
