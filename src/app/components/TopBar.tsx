@@ -28,6 +28,7 @@ export function TopBar({ back, children }: { back?: boolean; children?: ReactNod
       )}
       <span className="spacer" />
       {children}
+      <a href="/docs" className="topbar-link" aria-current={location.pathname.startsWith("/docs") ? "page" : undefined} onClick={(e) => { e.preventDefault(); navigate("/docs"); }}>Docs</a>
       <GitHubStar />
       <button className="theme-btn" aria-label={`Switch to ${next} theme`} title={`Switch to ${next} theme`} onClick={() => setTheme(next)}>
         <span className="theme-icon" key={theme}><Icon name={theme === "dark" ? "sun" : "moon"} /></span>

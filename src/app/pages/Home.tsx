@@ -113,6 +113,9 @@ export function Home() {
             <p className="lede">
               A slow site makes a fast product look slow. Cadence shows which section stutters, and why.
             </p>
+            <div className="start-actions">
+              <a href="/docs" className="btn btn-lg btn-primary" onClick={(e) => { e.preventDefault(); navigate("/docs"); }}>Get started</a>
+            </div>
           </div>
           <FrameClock />
         </div>
