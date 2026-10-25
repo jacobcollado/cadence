@@ -4,7 +4,7 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Fields, Flip, Icon, Info, RatingTag, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
 import { LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
@@ -54,16 +54,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   const cause = diagnose(run, stats);
   const metrics = pageLoad(run);
   const mem = memory(run);
-  const loadName = LOADS.find((l) => l.ms === run.load)?.label;
   const name = splitName(run.device.name);
-  const fields: [string, string][] = [
-    ["Browser", name.browser],
-    ["Mode", MODE_LABEL[run.mode]],
-    ["Page", pathOf(run.url)],
-    ["Time", when(run.at)],
-    ["Screen", `${run.hz} Hz`],
-  ];
-  if (run.load) fields.push(["Added load", loadName ?? `${run.load} ms`]);
 
   // Context that changes how to read every tab, so it sits above them.
   const notes = deviceNotes(run);
@@ -79,14 +70,12 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
     history.replaceState(null, "", url);
   };
 
-  const lede = tab === "smooth" ? stats.sentence : tab === "load" ? loadSentence(metrics, run) : mem?.text ?? memoryMissing(run);
-
   return (
     <>
       <header className="report-head enter">
         <div className="report-title">
           <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{name.device}</h1>
-          <Fields items={fields.filter(([, v]) => v)} />
+          <p className="report-page">{pathOf(run.url)}</p>
         </div>
         <div className="actions">
           <DeviceButton run={run} />
@@ -99,8 +88,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
 
       <div className="enter">
         <Overview run={run} stats={stats} metrics={metrics} mem={mem} tab={tab} onPick={pick} />
-        <p className="lede-sentence" aria-live="polite"><Flip text={lede} className="flip-wrap" /></p>
-        {notes.map((n) => <p key={n} className="note">{n}</p>)}
+        {notes.length > 0 && <div className="report-notes">{notes.map((n) => <p key={n} className="note">{n}</p>)}</div>}
       </div>
 
       <div className="tab-panel enter" key={tab} role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
@@ -346,24 +334,6 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
   );
 }
 
-function loadSentence(metrics: Metric[], run: Run): string {
-  const graded = metrics.filter((m) => m.level);
-  if (!graded.length) return `${run.device.browser} didn't report page load timing for this visit.`;
-  const named = (list: Metric[]) =>
-    list.map((m, i) => `${i ? m.name.toLowerCase() : m.name} at ${m.display}`).join(list.length > 2 ? ", " : " and ");
-  const bad = graded.filter((m) => m.level === "bad");
-  const warn = graded.filter((m) => m.level === "warn");
-  if (!bad.length && !warn.length) return "Every load metric was good.";
-  const parts: string[] = [];
-  if (bad.length) parts.push(`${named(bad)} ${bad.length > 1 ? "were" : "was"} poor`);
-  if (warn.length) {
-    const w = named(warn);
-    parts.push(`${bad.length ? w.charAt(0).toLowerCase() + w.slice(1) : w} ${warn.length > 1 ? "need" : "needs"} work`);
-  }
-  const rest = graded.length - bad.length - warn.length;
-  return `${parts.join(", and ")}.${rest ? " Everything else was good." : ""}`;
-}
-
 function memoryMissing(run: Run): string {
   return `${run.device.browser} doesn't expose memory use to pages. Chrome and Edge do.`;
 }
@@ -386,10 +356,10 @@ function DeviceButton({ run }: { run: Run }) {
   return (
     <div className="popover-wrap" ref={wrap}>
       <button className="btn btn-secondary btn-icon-l" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <Icon name="device" size={14} />Device
+        <Icon name="info" size={14} />Details
       </button>
       {open && (
-        <div className="popover" role="dialog" aria-label="Device">
+        <div className="popover" role="dialog" aria-label="Details">
           <DevicePanel run={run} />
         </div>
       )}
@@ -608,7 +578,14 @@ function deviceNotes(run: Run): string[] {
 
 function DevicePanel({ run }: { run: Run }) {
   const d = run.device;
+  const loadName = LOADS.find((l) => l.ms === run.load)?.label;
   const groups: [string, [string, string | undefined][]][] = [
+    ["Run", [
+      ["Page", pathOf(run.url)],
+      ["Pass", MODE_LABEL[run.mode]],
+      ["Time", when(run.at)],
+      ["Added load", run.load ? loadName ?? `${run.load} ms` : "None"],
+    ]],
     ["System", [
       ["Operating system", [d.os, d.osVersion].filter(Boolean).join(" ")],
       ["Browser", [d.browser, d.browserVersion].filter(Boolean).join(" ")],
@@ -633,7 +610,7 @@ function DevicePanel({ run }: { run: Run }) {
   return (
     <>
       <div className="popover-head">
-        <h2 className="h2">Device</h2>
+        <h2 className="h2">Details</h2>
       </div>
       <div className="device-groups">
         {groups.map(([title, items]) => {

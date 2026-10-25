@@ -984,3 +984,8 @@ svg { display: block; flex: none; }
 .cause-where { font-size: 12px; line-height: 16px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cause-time { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 14px; line-height: 20px; color: var(--ink); white-space: nowrap; }
 .cause-count { font-size: 12px; line-height: 16px; color: var(--ink-3); }
+
+/* Report header: the device, and the page under it. The rest is in Details. */
+.report-page { font-size: 14px; line-height: 20px; color: var(--ink-3); margin-top: 2px; }
+.report-notes { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.tab-panel { margin-top: 20px; }
