@@ -874,3 +874,68 @@ svg { display: block; flex: none; }
 .doc-contains-title { font-size: 15px; line-height: 22px; font-weight: 600; color: var(--ink); }
 .doc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
 .doc-tag { height: 28px; padding: 0 10px; border-radius: 6px; display: inline-flex; align-items: center; background: var(--recess); color: var(--ink-2); font-size: 13px; line-height: 1; }
+
+/* Pass meter: a little page with the viewport window travelling down it. */
+.pass { position: relative; width: 32px; height: 32px; border-radius: 6px; background: var(--recess); overflow: hidden; display: block; flex: none; }
+.pass-page { position: absolute; left: 8px; right: 8px; top: 5px; bottom: 5px; display: flex; flex-direction: column; justify-content: space-between; }
+.pass-page i { display: block; height: 2px; border-radius: 1px; background: var(--data); }
+.pass-page i:nth-child(2n) { width: 70%; }
+.pass-window { position: absolute; left: 5px; right: 5px; height: 9px; top: 4px; border-radius: 3px; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.pass[data-pass="steady"] .pass-window { animation: pass-steady 4s linear infinite; }
+.pass[data-pass="fast"] .pass-window { animation: pass-steady 1s linear infinite; }
+.pass[data-pass="idle"] .pass-window { top: 11px; }
+.pass[data-pass="manual"] .pass-window { animation: pass-manual 3.2s var(--ease-in-out) infinite; }
+@keyframes pass-steady { from { top: 4px; } to { top: 19px; } }
+@keyframes pass-manual { 0% { top: 4px; } 25% { top: 12px; } 45% { top: 12px; } 60% { top: 7px; } 80% { top: 19px; } 100% { top: 4px; } }
+
+/* Report tiles, small. */
+.specimen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; padding: 3px; border-radius: 8px; background: var(--recess); }
+.specimen-tile { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 6px; min-width: 0; }
+.specimen-tile[data-selected] { background: var(--raised); box-shadow: inset 0 0 0 1px var(--ring), 0 1px 2px rgba(0,0,0,.06); }
+.specimen-label { display: flex; align-items: center; gap: 5px; font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; }
+.specimen-value { font-size: 20px; line-height: 24px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); }
+.specimen-value span { font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); margin-left: 3px; }
+.specimen-detail { font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 480px) { .specimen-detail { display: none; } }
+.doc-parts dt { font-weight: 500; }
+
+/* Key terms, each with its own picture. */
+.doc-terms { display: flex; flex-direction: column; }
+.doc-term { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 20px; align-items: start; padding: 16px 0; }
+.doc-term + .doc-term { box-shadow: inset 0 1px 0 var(--grid); }
+.doc-term-title { font-size: 15px; line-height: 22px; font-weight: 600; color: var(--ink); }
+.doc-term p { margin-top: 2px; }
+@media (max-width: 480px) { .doc-term { grid-template-columns: 1fr; gap: 10px; } }
+.strip { display: flex; align-items: flex-end; gap: 2px; height: 32px; padding: 6px 8px; border-radius: 6px; background: var(--recess); box-sizing: content-box; width: 96px; margin-top: 2px; }
+.strip i { flex: 1; border-radius: 1px; background: var(--data); }
+.strip i.gap { background: none; box-shadow: inset 0 -2px 0 var(--warn); height: 100% !important; }
+.strip i.freeze { background: var(--bad); }
+.causes { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+.causes span { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; background: var(--recess); color: var(--ink-2); font-size: 12px; line-height: 1; }
+.causes svg { color: var(--ink-3); }
+
+/* Compare, small. */
+.cmp { padding: 16px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); display: flex; flex-direction: column; gap: 8px; }
+.cmp-head { display: flex; justify-content: space-between; font-size: 12px; line-height: 16px; color: var(--ink-3); }
+.cmp-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 24px; align-items: center; gap: 12px; }
+.cmp-name { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; color: var(--ink-2); }
+.cmp-name i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.cmp-track { height: 8px; }
+.cmp-track span { display: block; height: 100%; border-radius: 0 4px 4px 0; }
+.cmp-value { font-size: 13px; text-align: right; color: var(--ink); }
+.cmp-note { margin-top: 4px; font-size: 13px; line-height: 20px; color: var(--ink-2); }
+
+/* Options as a reference table. */
+.props { border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); overflow: hidden; }
+.props-row { display: grid; grid-template-columns: 96px 80px minmax(0, 1fr); column-gap: 16px; row-gap: 4px; padding: 12px 16px; align-items: baseline; }
+.props-row + .props-row { box-shadow: inset 0 1px 0 var(--grid); }
+.props-head { background: var(--recess); padding-top: 8px; padding-bottom: 8px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
+.props-row > p { grid-column: 1 / -1; margin: 0; font-size: 14px; line-height: 22px; }
+.doc-body .props-row > code:first-child { background: none; padding: 0; font-weight: 600; }
+.doc-body .props-type { background: none; padding: 0; color: var(--ink-3); }
+.doc-body .props-default { justify-self: start; }
+
+@media (prefers-reduced-motion: reduce) { .pass-window { animation: none !important; } }
+.doc-code code { font: inherit; }
+.props-plain { font-size: 13px; color: var(--ink-2); }
+.pass-window { background: color-mix(in srgb, var(--paper) 70%, transparent); }

@@ -2,7 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { Brand, ThemeToggle } from "../components/TopBar";
 import { GitHubStar } from "../components/GitHubStar";
 import { Install } from "../components/Install";
-import { Icon, StatusIcon } from "../components/ui";
+import { Icon } from "../components/ui";
+import { CauseTags, CompareSpecimen, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
 import { reducedMotion } from "../../shared/motion";
 
 // The guide: one centered column in plain words, with the section list beside
@@ -222,51 +223,73 @@ loadCadence();`}</Code>
 
           <Section id="test" title="Running a test" lede="The panel shows the frame rate right now and which section of the page is in the middle of the screen. Choose one of four passes.">
             <div className="doc-cards">
-              <Card icon={<Icon name="steady" />} title="Steady">Scrolls the whole page at one screen per second, like someone reading. Start here.</Card>
-              <Card icon={<Icon name="fast" />} title="Fast">Scrolls at four screens per second. The hardest test, and the one most sites fail first.</Card>
-              <Card icon={<Icon name="idle" />} title="Idle">Holds still for ten seconds. Catches animations and videos that keep the page busy even when nobody scrolls.</Card>
-              <Card icon={<Icon name="manual" />} title="Manual">Records while you scroll and tap yourself, for up to two minutes. Use it for menus, forms and anything a script can't reach.</Card>
+              <Card icon={<PassMeter pass="steady" />} title="Steady">Scrolls the whole page at one screen per second, like someone reading. Start here.</Card>
+              <Card icon={<PassMeter pass="fast" />} title="Fast">Scrolls at four screens per second. The hardest test, and the one most sites fail first.</Card>
+              <Card icon={<PassMeter pass="idle" />} title="Idle">Holds still for ten seconds. Catches animations and videos that keep the page busy even when nobody scrolls.</Card>
+              <Card icon={<PassMeter pass="manual" />} title="Manual">Records while you scroll and tap yourself, for up to two minutes. Use it for menus, forms and anything a script can't reach.</Card>
             </div>
             <p><strong>Added load</strong> gives the device extra work on every frame, so a fast laptop behaves more like a slower phone. Light adds a little, Heavy adds more. A real slower phone is still the better test.</p>
             <p>To turn Cadence off in a tab, close its panel, or open the page with <code>?perf=off</code>.</p>
           </Section>
 
           <Section id="report" title="Reading a report" lede="A report opens on three tiles. Each one is a part of the result, and each has a verdict. Select a tile to see its detail.">
-            <div className="doc-cards doc-cards-3">
-              <Card icon={<StatusIcon level="good" size={16} />} title="Smoothness">Rated Smooth, Uneven or Choppy, for the whole page and for each section, so you can see where it slowed down.</Card>
-              <Card icon={<StatusIcon level="warn" size={16} />} title="Page load">How fast the page appeared, graded on the thresholds Google uses for Core Web Vitals.</Card>
-              <Card icon={<StatusIcon level="bad" size={16} />} title="Memory">How much memory the page used during the run, and whether it kept growing.</Card>
-            </div>
-            <p>Every number has an <strong>i</strong> beside it that explains what it means and what counts as good. Three terms matter most:</p>
-            <dl className="doc-list">
-              <div><dt>Dropped frame</dt><dd>The screen was ready to show a new frame, but the page wasn't. The scroll visibly skips.</dd></div>
-              <div><dt>Freeze</dt><dd>A single frame that took 50 ms or longer. The page stops for a moment you can see.</dd></div>
-              <div><dt>Why it slowed down</dt><dd>When frames froze, Cadence checks what the browser was doing: running a script (named, with its file), working out layout, or drawing. That tells you where to start fixing.</dd></div>
+            <TilesSpecimen />
+            <dl className="doc-list doc-parts">
+              <div><dt>Smoothness</dt><dd>Rated Smooth, Uneven or Choppy, for the whole page and for each section, so you can see where it slowed down.</dd></div>
+              <div><dt>Page load</dt><dd>How fast the page appeared, graded on the thresholds Google uses for Core Web Vitals.</dd></div>
+              <div><dt>Memory</dt><dd>How much memory the page used during the run, and whether it kept growing.</dd></div>
             </dl>
+            <p>Every number has an <strong>i</strong> beside it that explains what it means and what counts as good. Three terms matter most:</p>
+            <div className="doc-terms">
+              <div className="doc-term">
+                <FrameStrip kind="dropped" />
+                <div><div className="doc-term-title">Dropped frame</div><p>The screen was ready to show a new frame, but the page wasn't. The scroll visibly skips.</p></div>
+              </div>
+              <div className="doc-term">
+                <FrameStrip kind="freeze" />
+                <div><div className="doc-term-title">Freeze</div><p>A single frame that took 50 ms or longer. The page stops for a moment you can see.</p></div>
+              </div>
+              <div className="doc-term">
+                <CauseTags />
+                <div><div className="doc-term-title">Why it slowed down</div><p>When frames froze, Cadence checks what the browser was doing: running a script (named, with its file), working out layout, or drawing. That tells you where to start fixing.</p></div>
+              </div>
+            </div>
           </Section>
 
           <Section id="compare" title="Comparing devices" lede="Every report you open is saved to the list of runs on the home page. Tick two or more and press Compare to see them side by side, section by section, with a sentence that names the biggest gap.">
+            <CompareSpecimen />
             <p>A good set to compare: a recent iPhone, a mid-range Android, and a laptop.</p>
           </Section>
 
           <Section id="tips" title="Tips for useful results">
             <div className="doc-cards">
-              <Card icon={<Icon name="check" />} title="Test on a real, slower phone">A mid-range Android tells you more than the newest iPhone, because most of your visitors don't have the newest phone.</Card>
-              <Card icon={<Icon name="check" />} title="Run each pass twice">The first run can include the page still loading images and fonts. The second shows how it scrolls once it's settled.</Card>
-              <Card icon={<Icon name="check" />} title="Turn off Low Power Mode">On iPhone it limits Safari to 30 frames per second. The report tells you when it spots this.</Card>
-              <Card icon={<Icon name="check" />} title="Use Chrome for the why">Chrome and Edge report which script caused a freeze. Safari and Firefox show where it slowed down, but not the script behind it.</Card>
-              <Card icon={<Icon name="check" />} title="Close other apps and tabs">They compete for the same processor and can make your site look slower than it is.</Card>
-              <Card icon={<Icon name="check" />} title="Name your sections">Cadence names sections from their headings. To choose a name, add <code>data-cadence="Pricing"</code> to the section's element.</Card>
+              <Card icon={<Icon name="phone" />} title="Test on a real, slower phone">A mid-range Android tells you more than the newest iPhone, because most of your visitors don't have the newest phone.</Card>
+              <Card icon={<Icon name="repeat" />} title="Run each pass twice">The first run can include the page still loading images and fonts. The second shows how it scrolls once it's settled.</Card>
+              <Card icon={<Icon name="battery" />} title="Turn off Low Power Mode">On iPhone it limits Safari to 30 frames per second. The report tells you when it spots this.</Card>
+              <Card icon={<Icon name="code" />} title="Use Chrome for the why">Chrome and Edge report which script caused a freeze. Safari and Firefox show where it slowed down, but not the script behind it.</Card>
+              <Card icon={<Icon name="layers" />} title="Close other apps and tabs">They compete for the same processor and can make your site look slower than it is.</Card>
+              <Card icon={<Icon name="tag" />} title="Name your sections">Cadence names sections from their headings. To choose a name, add <code>data-cadence="Pricing"</code> to the section's element.</Card>
             </div>
           </Section>
 
           <Section id="options" title="Options" lede={<>Both <code>{"<Cadence />"}</code> and <code>loadCadence()</code> take the same options.</>}>
-            <dl className="doc-list">
-              <div><dt><code>param</code></dt><dd>The word that turns Cadence on in the address. The default is <code>"perf"</code>, as in <code>?perf</code>.</dd></div>
-              <div><dt><code>enabled</code></dt><dd>Set to <code>false</code> to never load Cadence, for example on your live site if you only test on staging.</dd></div>
-              <div><dt><code>app</code></dt><dd>Where reports open. The default is this site.</dd></div>
-            </dl>
-            <Code>{`<Cadence param="test" enabled={process.env.NODE_ENV !== "production"} />`}</Code>
+            <div className="props">
+              <div className="props-row props-head"><span>Option</span><span>Type</span><span>Default</span></div>
+              <div className="props-row">
+                <code>param</code><code className="props-type">string</code><code className="props-default">"perf"</code>
+                <p>The word that turns Cadence on in the address, as in <code>?perf</code>.</p>
+              </div>
+              <div className="props-row">
+                <code>enabled</code><code className="props-type">boolean</code><code className="props-default">true</code>
+                <p>Set to <code>false</code> to never load Cadence, for example on your live site if you only test on staging.</p>
+              </div>
+              <div className="props-row">
+                <code>app</code><code className="props-type">string</code><span className="props-plain">This site</span>
+                <p>Where reports open.</p>
+              </div>
+            </div>
+            <Code>{`// Only on staging, turned on with ?test
+<Cadence param="test" enabled={process.env.NODE_ENV !== "production"} />`}</Code>
           </Section>
 
           <Section id="privacy" title="Privacy" lede="Cadence has no server and collects nothing. A run travels inside its own report link.">
