@@ -23,9 +23,9 @@ export function Banner() {
   return (
     <div className="banner" role="note">
       <p>
-        Cadence is an early build. I'd love your{" "}
+        Cadence is an early build by <span className="banner-sign">Jacob</span>. I'd love your{" "}
         <a href={`${REPO}/issues`} target="_blank" rel="noopener">feedback</a>, and a{" "}
-        <a href={REPO} target="_blank" rel="noopener">star</a> if you like it. <span className="banner-sign">Jacob</span>
+        <a href={REPO} target="_blank" rel="noopener">star</a> if you like it.
       </p>
       <button className="banner-close" aria-label="Dismiss" onClick={close}><Icon name="close" size={14} /></button>
     </div>

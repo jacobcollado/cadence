@@ -1048,7 +1048,7 @@ svg { display: block; flex: none; }
 }
 .banner a { color: var(--ink); font-weight: 500; box-shadow: inset 0 -1px 0 var(--ring-firm); transition: box-shadow var(--dur-fast) var(--ease-out); }
 .banner a:hover { box-shadow: inset 0 -1px 0 var(--ink); }
-.banner-sign { color: var(--ink); font-weight: 500; margin-left: 2px; }
+.banner-sign { color: var(--ink); font-weight: 500; }
 .banner-close {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   width: 24px; height: 24px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;
