@@ -1323,12 +1323,12 @@ svg { display: block; flex: none; }
   transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
 .doc-nav a:hover { color: var(--ink); background: var(--hover); }
+/* The current section: plain ink, nothing else. */
 .doc-nav a[aria-current] { color: var(--ink); font-weight: 500; }
+.doc-nav a[aria-current]:hover { background: none; }
 @media (min-width: 1024px) { .doc-nav a { font-size: 15px; } }
 /* The top bar sits above the docs now, so only phones need the fade under their pinned list. */
 .doc-fade-wide { display: none !important; }
-/* The current section is marked in its own tint. */
-.doc-frame .doc-nav a[aria-current] { background: color-mix(in srgb, var(--c) 12%, transparent); box-shadow: inset 2px 0 0 var(--c); }
 
 .doc-frame .doc-head { padding: 40px var(--gutter) 32px; gap: 8px; }
 .doc-frame .doc-section { padding: 40px var(--gutter); }
@@ -1341,15 +1341,8 @@ svg { display: block; flex: none; }
 .doc-frame .doc-toc { margin: 0; }
 .doc-frame .doc-fade { margin-left: 0; margin-right: 0; }
 
-/* A section's heading leads with its glass tile. */
-.doc-h2-row { display: flex; align-items: center; gap: 12px; }
 
 /* The docs' pictures, in the same glass as the home page. */
-.glass.doc-card-icon { color: var(--ink); }
-.doc-card:nth-child(4n+1) .doc-card-icon { --c: #7c5ce6; }
-.doc-card:nth-child(4n+2) .doc-card-icon { --c: #3d6fe0; }
-.doc-card:nth-child(4n+3) .doc-card-icon { --c: #1fa2c9; }
-.doc-card:nth-child(4n+4) .doc-card-icon { --c: #2fb67c; }
 .doc-card-icon .pass { background: none; }
 .pass-page i { background: color-mix(in srgb, var(--ink) 30%, transparent); }
 .pass-window { box-shadow: none; border: 1.5px dashed var(--ink); background: none; }

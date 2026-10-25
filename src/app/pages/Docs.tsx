@@ -1,39 +1,28 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
 import { Icon } from "../components/ui";
 import { CauseTags, CompareSpecimen, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
 import { reducedMotion } from "../../shared/motion";
-import { tint } from "../glass";
 
 // The docs, in the same frame as the rest of the site: the section list in
 // its own lane on wide screens, marking where you are, and the sections as
-// cells beside it. Each section has a glass tint, stepping through the
-// spectrum, shared by its heading and its place in the list.
+// cells beside it. Color stays in the pictures; the text and list are ink.
 
-const SECTIONS: { id: string; title: string; icon: IconName }[] = [
-  { id: "start", title: "Get started", icon: "terminal" },
-  { id: "test", title: "Running a test", icon: "steady" },
-  { id: "report", title: "Reading a report", icon: "file" },
-  { id: "compare", title: "Comparing devices", icon: "compare" },
-  { id: "tips", title: "Tips for useful results", icon: "info" },
-  { id: "options", title: "Options", icon: "code" },
-  { id: "privacy", title: "Privacy", icon: "lock" },
+const SECTIONS = [
+  { id: "start", title: "Get started" },
+  { id: "test", title: "Running a test" },
+  { id: "report", title: "Reading a report" },
+  { id: "compare", title: "Comparing devices" },
+  { id: "tips", title: "Tips for useful results" },
+  { id: "options", title: "Options" },
+  { id: "privacy", title: "Privacy" },
 ];
 
-type IconName = ComponentProps<typeof Icon>["name"];
-
-/** A section's tint, by its place in the list. */
-const sectionTint = (id: string) => tint(SECTIONS.findIndex((s) => s.id === id) / (SECTIONS.length - 1));
-
 function Section({ id, title, lede, children }: { id: string; title: string; lede?: ReactNode; children: ReactNode }) {
-  const icon = SECTIONS.find((s) => s.id === id)!.icon;
   return (
     <section id={id} className="doc-section">
-      <div className="doc-h2-row">
-        <span className="glass free-tile" style={{ "--c": sectionTint(id) } as CSSProperties}><Icon name={icon} size={16} /></span>
-        <h2 className="doc-h2">{title}</h2>
-      </div>
+      <h2 className="doc-h2">{title}</h2>
       {lede && <p className="doc-lede">{lede}</p>}
       {children}
     </section>
@@ -48,7 +37,7 @@ function Code({ children }: { children: string }) {
 function Card({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
     <div className="doc-card">
-      <span className="glass doc-card-icon">{icon}</span>
+      <span className="doc-card-icon">{icon}</span>
       <div className="doc-card-title">{title}</div>
       <p>{children}</p>
     </div>
@@ -135,7 +124,7 @@ export function Docs() {
         <aside className="doc-side">
           <nav id="doc-nav" className="doc-nav" aria-label="On this page">
             {SECTIONS.map((s) => (
-              <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined} style={{ "--c": sectionTint(s.id) } as CSSProperties}>{s.title}</a>
+              <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined}>{s.title}</a>
             ))}
           </nav>
         </aside>
