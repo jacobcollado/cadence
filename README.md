@@ -45,3 +45,9 @@ Frame timing works everywhere. Chromium browsers also report slow tasks with the
 - `scripts/site-test.mjs <url> <out> <mode> <desktop|phone>`: injects the probe into a live site with analytics blocked. Set `THROTTLE=6` to slow the CPU.
 - `scripts/flow-test.mjs [base]`: the real `?perf` loading flow against a local Inertia.
 - `scripts/app-shots.mjs`, `scripts/compare-shots.mjs`: screenshots of the app.
+
+## Releasing the npm package
+
+1. Bump and build: `npm run release:package -- patch` (fixes), `minor` (new features) or `major` (breaking changes).
+2. Publish from your own PowerShell: `cd packages\cadence-probe`, then `npm publish`, and approve with Windows Hello.
+3. Commit the version bump on a branch and open a PR.

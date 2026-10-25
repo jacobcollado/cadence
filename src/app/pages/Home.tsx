@@ -268,7 +268,6 @@ function Setup() {
         <span className="setup-icon"><Icon name="terminal" size={16} /></span>
         <span className="setup-title">Add Cadence to your site</span>
         <span className="setup-peek">npm install cadence-probe</span>
-        <span className="tag-soon">Not published yet</span>
         <Icon name="chevron" size={16} />
       </button>
       <div className="disclosure-body" data-open={open || undefined}>

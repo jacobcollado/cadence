@@ -591,7 +591,6 @@ svg { display: block; flex: none; }
 
 /* Install: the first step, as code to copy. */
 .install-card .start-card-head { margin-bottom: 16px; }
-.tag-soon { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; margin-left: 8px; background: var(--recess); color: var(--ink-3); font-size: 12px; font-weight: 500; line-height: 1; }
 .install-steps { display: grid; gap: 12px; }
 
 
@@ -639,11 +638,11 @@ svg { display: block; flex: none; }
 .setup-icon { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: var(--recess); color: var(--ink-2); flex: none; }
 .setup-title { font-weight: 500; white-space: nowrap; }
 .setup-peek { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); font: 400 12px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; }
-.setup-btn .tag-soon { margin-left: auto; }
 .setup-btn > svg { color: var(--ink-3); transition: transform var(--dur-slow) var(--ease-out); }
 .setup-btn[aria-expanded="true"] > svg { transform: rotate(180deg); }
 .setup-body { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px; }
-@media (max-width: 600px) { .setup-peek, .setup-btn .tag-soon { display: none; } .setup-btn > svg { margin-left: auto; } }
+.setup-btn > svg { margin-left: auto; }
+@media (max-width: 600px) { .setup-peek { display: none; } }
 
 /* Footer: one quiet line, centered, no rule above it. */
 .footer { padding: 32px var(--gutter) 40px; text-align: center; font-size: 13px; line-height: 20px; color: var(--ink-3); }
