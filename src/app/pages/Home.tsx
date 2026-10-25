@@ -172,7 +172,7 @@ export function Home() {
           <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
             <span className="example-copy">
               <span className="example-title">Inertia, our studio's site</span>
-              <span className="meta">Smooth scrolling, but the largest paint takes {"5.400a0s"}.</span>
+              <span className="meta">Smooth scrolling, but the largest paint takes {"5.4 s"}.</span>
             </span>
             <span className="example-go">Open report<Icon name="forward" size={14} /></span>
           </a>
