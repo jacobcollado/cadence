@@ -83,3 +83,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 ## Step visuals
 
 How it works shows each step's picture in its own recessed panel, with the title and line sitting below it, unboxed. Don't wrap a step's picture and words in one card. Each picture shows the mechanism, not just the idea: the probe drops into the layout file, sections light up only inside the ?perf window, and the report's frames stand against a dashed 16.7 ms budget line, with the ones over it in gray.
+
+## Device rows
+
+Each device row in the frames comparison is headed by a line: the device's mark in a 28px recessed tile (32px on desktop), its name, and its frame rate right-aligned in ink with the unit in gray. The panes run the full width below it. Don't stack a loose icon and a small gray fps beside the panes.

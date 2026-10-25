@@ -1174,12 +1174,14 @@ svg { display: block; flex: none; }
 /* Glass frames: a row per device, one pane per screen refresh, standing
    flat like the hero's. Each rises when its refresh passed. The device's
    mark and frame rate lead each row. */
-.frames { margin: 0; display: flex; flex-direction: column; gap: 28px; }
-.frames-row { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; align-items: end; }
-.frames-name { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: 6px; color: var(--ink); }
-.frames-name svg { width: 18px; height: 18px; }
-.frames-fps { font-size: 13px; line-height: 16px; color: var(--ink-2); white-space: nowrap; }
-.frames-unit { margin-left: 3px; color: var(--ink-3); }
+.frames { margin: 0; display: flex; flex-direction: column; gap: 24px; }
+.frames-row { display: flex; flex-direction: column; gap: 4px; }
+.frames-head { display: flex; align-items: center; gap: 10px; height: 28px; }
+.frames-icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; background: var(--recess); box-shadow: inset 0 0 0 1px var(--ring); color: var(--ink); }
+.frames-icon svg { width: 14px; height: 14px; }
+.frames-device { flex: 1; font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.frames-fps { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.frames-unit { margin-left: 4px; font-weight: 400; color: var(--ink-3); }
 .frames-track { position: relative; height: 88px; }
 .frames-slab { position: absolute; bottom: 10px; height: 72px; width: calc(100% / 30 * .62); transform-origin: 50% 100%; transform: scaleY(0); }
 .frames[data-play] .frames-slab { animation: frames-rise var(--dur-base) var(--ease-out) var(--t) both; }
@@ -1188,10 +1190,11 @@ svg { display: block; flex: none; }
 .frames-shadow { position: absolute; left: 0; right: 0; bottom: 2px; height: 16px; border-radius: 50%; background: radial-gradient(closest-side, var(--shadow), transparent); opacity: .35; }
 @media (prefers-reduced-motion: reduce) { .frames-slab { transform: none; animation: none !important; } }
 @media (min-width: 1024px) {
-  .frames { gap: 32px; }
-  .frames-row { grid-template-columns: 56px minmax(0, 1fr); gap: 24px; }
-  .frames-name svg { width: 20px; height: 20px; }
-  .rails .frames-fps { font-size: 15px; line-height: 20px; }
+  .frames { gap: 28px; }
+  .frames-head { height: 32px; gap: 12px; }
+  .frames-icon { width: 32px; height: 32px; }
+  .frames-icon svg { width: 16px; height: 16px; }
+  .rails .frames-device, .rails .frames-fps { font-size: 17px; line-height: 24px; }
   .frames-track { height: 104px; }
   .frames-slab { height: 88px; }
 }
