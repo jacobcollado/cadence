@@ -1232,51 +1232,28 @@ svg { display: block; flex: none; }
 }
 @media (min-width: 1024px) { .rails .start-top { grid-template-columns: minmax(0, 1fr) 400px; } }
 
-/* Frame lanes: three devices over the same two seconds, every frame to
-   scale. A lane is the device and its frame rate, then the track. The
-   playhead sweeps the tracks in real time; each bar rises as its frame ends. */
-.lanes { --name: 112px; margin: 0; padding: 20px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); }
-.lanes-plot { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
-.lane, .lanes-axis { display: grid; grid-template-columns: var(--name) minmax(0, 1fr); gap: 16px; align-items: center; }
-.lane-name { display: flex; flex-direction: column; gap: 2px; font-size: 13px; line-height: 20px; color: var(--ink); }
-.lane-name > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
-.lane-icon { width: 16px; height: 20px; display: flex; align-items: center; justify-content: center; flex: none; color: var(--ink); }
-.lane-icon svg { width: 16px; height: 16px; }
-.lane-fps { padding-left: 24px; color: var(--ink-3); }
-.lane-track { position: relative; height: 56px; border-radius: 4px; background: var(--recess); overflow: hidden; }
-.lane-budget { position: absolute; left: 0; right: 0; bottom: calc(100% * 16.667 / 60); border-top: 1px dashed var(--ring-firm); }
-.lane-bar {
-  position: absolute; bottom: 0; box-sizing: border-box; border-left: 1px solid var(--recess);
-  background: var(--data); transform-origin: bottom; transform: scaleY(0);
-}
-.lane-bar[data-tier="1"] { background: var(--warn); }
-.lane-bar[data-tier="2"] { background: var(--bad); }
-.lanes[data-play] .lane-bar { animation: lane-grow var(--dur-fast) var(--ease-out) var(--t) both; }
-@keyframes lane-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-.lanes-key { display: inline-flex; align-items: center; gap: 8px; }
-.lanes-key i { width: 14px; border-top: 1px dashed var(--ink-3); }
-.lanes-ticks { display: flex; justify-content: space-between; font-size: 12px; line-height: 16px; color: var(--ink-3); }
-.lanes-head { position: absolute; top: 0; bottom: 28px; left: calc(var(--name) + 16px); right: 0; pointer-events: none; transform: translateX(-2px); opacity: 0; }
-.lanes-head::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: var(--ink); }
-.lanes[data-play] .lanes-head { animation: lane-sweep var(--span) linear var(--lead) both; }
-@keyframes lane-sweep {
-  0% { transform: translateX(0); opacity: 1; }
-  96% { opacity: 1; }
-  100% { transform: translateX(100%); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .lane-bar { transform: none; animation: none !important; }
-  .lanes-head { display: none; }
-}
-@media (max-width: 480px) { .lanes { --name: 96px; padding: 16px; } }
+/* Strobe arcs: three half circles sharing a center, one imprint per frame.
+   Each imprint pops in when its frame lands. Below, a key per arc. */
+.strobe { margin: 0; padding: 24px 20px 20px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); display: flex; flex-direction: column; gap: 20px; }
+.strobe-plot { width: 100%; height: auto; overflow: visible; }
+.strobe-guide { fill: none; stroke: var(--grid); stroke-width: 1; }
+.strobe-dot { fill: var(--data-line); transform-box: fill-box; transform-origin: center; transform: scale(0); }
+.strobe-dot[data-tier="1"] { fill: var(--warn); }
+.strobe-dot[data-tier="2"] { fill: var(--bad); }
+.strobe[data-play] .strobe-dot { animation: strobe-pop var(--dur-base) var(--ease-out) var(--t) both; }
+@keyframes strobe-pop { from { transform: scale(0); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .strobe-dot { transform: none; animation: none !important; } }
+/* The arcs' ends sit on the baseline: each device's mark under its left
+   end, its frame rate under its right end. */
+.strobe-stage { position: relative; padding-bottom: 28px; }
+.strobe-end { position: absolute; top: calc(100% - 28px); transform: translateX(-50%); height: 28px; display: flex; align-items: center; color: var(--ink); white-space: nowrap; }
+.strobe-end svg { width: 16px; height: 16px; }
+.strobe-fps { font-size: 13px; line-height: 20px; color: var(--ink-2); }
+.strobe-unit { margin-left: 4px; color: var(--ink-3); }
 @media (min-width: 1024px) {
-  .lanes { --name: 128px; padding: 24px; }
-  .lanes-plot { gap: 16px; }
-  .lane-track { height: 64px; }
-  .rails .lane-name { font-size: 15px; line-height: 24px; }
-  .rails .lane-icon { height: 24px; }
-  .rails .lane-icon svg { width: 18px; height: 18px; }
-  .rails .lane-icon { width: 18px; }
-  .rails .lane-fps { padding-left: 26px; }
-  .rails .lanes-ticks { font-size: 13px; line-height: 20px; }
+  .strobe { padding: 32px 24px 24px; gap: 24px; }
+  .strobe-stage { padding-bottom: 32px; }
+  .strobe-end { top: calc(100% - 32px); height: 32px; }
+  .strobe-end svg { width: 18px; height: 18px; }
+  .rails .strobe-fps { font-size: 15px; }
 }

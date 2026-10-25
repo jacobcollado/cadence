@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../components/ui";
 import { FrameStrip, PassMeter } from "../components/DocVisuals";
-import { FrameLanes } from "../components/FrameLanes";
+import { StrobeArcs } from "../components/StrobeArcs";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
@@ -140,7 +140,7 @@ export function Home() {
       </section>
 
       <Reveal split title="Fast on your laptop, choppy on their phone" lede="Load scores never see the scroll. Cadence does.">
-        <FrameLanes />
+        <StrobeArcs />
       </Reveal>
 
       <Reveal title="How it works" lede="Two lines of code, then test any page.">
