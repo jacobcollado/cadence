@@ -17,3 +17,9 @@ export const smooth = (s = 12) => svg(s, `<circle cx="8" cy="8" r="6.25"/><path 
 export const uneven = (s = 12) => svg(s, `<path d="M7.13 2.75a1 1 0 011.74 0l5.2 9a1 1 0 01-.87 1.5H2.8a1 1 0 01-.87-1.5z"/><path d="M8 6.75v2.5M8 11.5h.01"/>`);
 export const choppy = (s = 12) => svg(s, `<circle cx="8" cy="8" r="6.25"/><path d="M8 5v3.5M8 11h.01"/>`);
 export const locate = (s = 12) => svg(s, `<circle cx="8" cy="8" r="2"/><path d="M8 1.5v2.5M8 12v2.5M1.5 8H4M12 8h2.5"/>`);
+export const code = (s = 12) => svg(s, `<path d="M5.5 4.5L2 8l3.5 3.5M10.5 4.5L14 8l-3.5 3.5"/>`);
+export const layout = (s = 12) => svg(s, `<rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M2.5 6.5h11M6.5 6.5v7"/>`);
+export const drawing = (s = 12) => svg(s, `<path d="M10.5 2.5l3 3-7.5 7.5H3V10z"/><path d="M9 4l3 3"/>`);
+export const steady = (s = 12) => svg(s, `<path d="M3 7.5a5 5 0 019-3l1 1M13 8.5a5 5 0 01-9 3l-1-1"/><path d="M13 2.75v2.75h-2.75M3 13.25V10.5h2.75"/>`);
+export const info = (s = 12) => svg(s, `<circle cx="8" cy="8" r="6.25"/><path d="M8 7.25v3.5M8 5.25h.01"/>`);
+export const bulb = (s = 14) => svg(s, `<path d="M6 12.5h4M6.5 14.25h3M8 1.75a4.25 4.25 0 00-2.5 7.7c.4.3.75.8.75 1.3v.25h3.5v-.25c0-.5.35-1 .75-1.3A4.25 4.25 0 008 1.75z"/>`);
