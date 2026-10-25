@@ -20,13 +20,31 @@
       "require": "./dist/react.cjs"
     }
   },
-  "files": ["dist", "types", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "types",
+    "README.md",
+    "LICENSE"
+  ],
   "peerDependencies": {
     "react": ">=18"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true }
+    "react": {
+      "optional": true
+    }
   },
-  "keywords": ["performance", "fps", "frame rate", "jank", "web vitals", "mobile", "testing"],
-  "repository": { "type": "git", "url": "https://github.com/jacobcollado/cadence" }
+  "keywords": [
+    "performance",
+    "fps",
+    "frame rate",
+    "jank",
+    "web vitals",
+    "mobile",
+    "testing"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jacobcollado/cadence.git"
+  }
 }
