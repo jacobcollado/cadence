@@ -39,9 +39,9 @@ The rules live in `src/shared/stats.ts`, so the panel and the report always agre
 - Every report has a score out of 100, like Lighthouse, and each category has its own: 90 and up is good, 50 to 89 needs work, under 50 is poor. Each measurement is scored on Lighthouse's log-normal curve, pinned so Cadence's good threshold scores 90 and its poor threshold 50. The overall score weighs smoothness 50, page load 30 and memory 20, counting only what was measured. The rules live in `src/shared/score.ts`.
 - Each freeze is traced to a slow script, to style and layout, or to drawing, based on what the browser reported during it. Browsers only report frames with 50 ms of work or more, so a freeze within one refresh of that line with no report stays untraced rather than being put down to drawing. The report says when most dropped frames couldn't be traced.
 
-Frame timing and page elements work in every browser. Chromium also reports slow scripts, layout shift and input delay. Safari and Firefox show those as not reported, never as zero.
+Cadence runs in any modern browser. Frame timing and page elements work everywhere. Chromium browsers (Chrome, Edge, Arc, Dia, Aside, Helium and others) also report slow scripts, layout shift and input delay. Safari and Firefox show those as not reported, never as zero.
 
-Chrome only gives pages a rounded heap figure that it rarely refreshes. Cadence shows the heap only when it moved during the run, and watches page elements for leaks everywhere.
+Chromium browsers only give pages a rounded heap figure that they rarely refresh. Cadence shows the heap only when it moved during the run, and watches page elements for leaks everywhere.
 
 A report is a link. The run is compressed into the part after the `#`, which browsers don't send to the server.
 

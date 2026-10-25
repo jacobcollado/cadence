@@ -190,6 +190,8 @@ loadCadence();`}</Code>
             </div>
             <p><strong>Added load</strong> gives the device extra work on every frame, so a fast laptop behaves more like a slower phone. Light adds a little, Heavy adds more. A real slower phone is still the better test.</p>
             <p>To turn Cadence off in a tab, close its panel, or open the page with <code>?perf=off</code>.</p>
+            <h3 className="doc-h3">Browsers</h3>
+            <p>Cadence runs in any modern browser. Chromium browsers, like Chrome, Edge, Arc, Dia, Aside and Helium, report the most: which script caused each freeze, layout shift, input delay and memory. Safari and Firefox measure every frame and page element too, and show the rest as not reported, never as zero.</p>
           </Section>
 
           <Section id="report" title="Reading a report" lede="A report opens on three tiles. Each one is a part of the result, and each has a verdict. Select a tile to see its detail.">
@@ -228,7 +230,7 @@ loadCadence();`}</Code>
               <Card icon={<Icon name="phone" />} title="Test on a real, slower phone">A mid-range Android tells you more than the newest iPhone, because most of your visitors don't have the newest phone.</Card>
               <Card icon={<Icon name="repeat" />} title="Run each pass twice">The first run can include the page still loading images and fonts. The second shows how it scrolls once it's settled.</Card>
               <Card icon={<Icon name="battery" />} title="Turn off Low Power Mode">On iPhone it limits Safari to 30 frames per second. The report tells you when it spots this.</Card>
-              <Card icon={<Icon name="code" />} title="Use Chrome for the why">Chrome and Edge report which script caused a freeze. Safari and Firefox show where it slowed down, but not the script behind it.</Card>
+              <Card icon={<Icon name="code" />} title="Use a Chromium browser for the why">Chrome, Edge, Arc, Dia, Helium and other Chromium browsers report which script caused a freeze. Safari and Firefox show where it slowed down, but not the script behind it.</Card>
               <Card icon={<Icon name="layers" />} title="Close other apps and tabs">They compete for the same processor and can make your site look slower than it is.</Card>
               <Card icon={<Icon name="tag" />} title="Name your sections">Cadence names sections from their headings. To choose a name, add <code>data-cadence="Pricing"</code> to the section's element.</Card>
             </div>

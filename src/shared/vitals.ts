@@ -133,17 +133,17 @@ function series(samples: [number, number][], min: number): Series {
 
 /** Why this run has no heap figure worth showing, or "" when it has one. */
 export function heapMissing(run: Run): string {
-  if (!run.support.memory) return `${run.device.browser} doesn't expose memory use to pages. Chrome and Edge do.`;
+  if (!run.support.memory) return `${run.device.browser} doesn't expose memory use to pages. Chromium browsers, like Chrome, Edge, Arc and Dia, do.`;
   if (run.mem.length < 2) return "The heap wasn't measured on this run.";
   if (run.mem.every(([, v]) => v === run.mem[0][1])) {
-    return "Chrome only gives pages a rounded heap figure that it rarely refreshes, and it didn't change during this run, so it isn't shown. Page elements are the leak signal to watch instead.";
+    return "Chromium browsers only give pages a rounded heap figure that they rarely refresh, and it didn't change during this run, so it isn't shown. Page elements are the leak signal to watch instead.";
   }
   return "";
 }
 
 /**
  * Memory over the run, only from numbers that are real. Most pages can read
- * just a rounded heap figure that Chrome rarely refreshes, so a heap that
+ * just a rounded heap figure that Chromium browsers rarely refresh, so a heap that
  * never moved is left out rather than called steady. Page elements are exact
  * everywhere, and elements that pile up are the most common leak.
  */

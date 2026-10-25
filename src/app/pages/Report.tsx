@@ -619,7 +619,7 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
           <Info title="Memory">
             <p>Two signs of a leak, sampled twice a second: the JavaScript heap, which is what the page's scripts hold on to, and the number of elements on the page.</p>
             <p>Some rise and fall is normal. Memory that only climbs is a leak, and on phones it ends with the tab reloading. Growing means the heap rose more than 10 MB, or the page gained more than 500 elements, and either rose by more than a fifth.</p>
-            <p>Most pages can only read a rounded heap figure from Chrome that it rarely refreshes. When it doesn't move, Cadence leaves it out rather than call it steady.</p>
+            <p>Chromium browsers give pages only a rounded heap figure that they rarely refresh. When it doesn't move, Cadence leaves it out rather than call it steady.</p>
           </Info>
         </div>
         {m && <StatusTag level={m.level} label={m.level === "good" ? "Steady" : "Growing"} />}

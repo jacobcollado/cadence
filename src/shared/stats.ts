@@ -304,7 +304,7 @@ export function diagnose(run: Run, s: RunStats): Cause {
   if (s.rating === "smooth" && !s.freezes) {
     text = "";
   } else if (!run.support.loaf) {
-    text = `${run.device.browser} doesn't report which scripts were running, so this run can't say what held frames up. A run in Chrome on the same page can.`;
+    text = `${run.device.browser} doesn't report which scripts were running, so this run can't say what held frames up. A run in a Chromium browser, like Chrome, Edge, Arc or Dia, on the same page can.`;
   } else if (n && found.length > 1) {
     const parts = found.map(([c, what], i) => (i ? `${c} from ${what}` : `${c} came from ${what}`));
     text = `Of the ${n} freezes ${over}, ${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}.`;
