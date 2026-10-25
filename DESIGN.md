@@ -95,3 +95,7 @@ A recessed panel (step visuals, icon tiles) is the recess fill alone, with no ou
 ## The ?perf window
 
 The window in How it works is a clear glass lens: a firm hairline, a lit top edge and a soft shadow, with the sections gray outside it and in color inside it. No dashed or marching outline.
+
+## Run a test
+
+The two ways to open a page (this device, a phone) share one panel, divided by a hairline, not two cards. Under the field, the exact address that will open is shown in mono with the added ?perf in a glass tag (gray until a page is entered).

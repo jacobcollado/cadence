@@ -241,10 +241,7 @@ svg { display: block; flex: none; }
 @media (min-width: 760px) { .start { padding: 64px 0; } }
 .start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 780px; }
 .start-copy .lede { max-width: 640px; }
-.start-cards { display: grid; gap: 16px; align-items: stretch; }
 @media (min-width: 760px) and (pointer: fine) { .start-card-head { padding-right: 8px; } }
-@media (min-width: 760px) and (pointer: fine) { .start-cards { grid-template-columns: minmax(0, 1fr) 264px; } }
-.start-card { padding: 20px; display: flex; flex-direction: column; }
 .start-card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
 .start-card-head > span:last-child { display: flex; flex-direction: column; gap: 2px; }
 .field-label { font-size: 12px; line-height: 16px; color: var(--ink-3); margin-bottom: 6px; }
@@ -255,7 +252,6 @@ svg { display: block; flex: none; }
 .qr-card { align-items: stretch; }
 .qr-card .qr { width: 100%; max-width: 112px; align-self: center; margin-top: auto; }
 /* The controls sit on the card's bottom edge, level with the QR beside it. */
-.start-card .field-label { margin-top: auto; }
 .runs-head { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 12px; }
 .runs-head .h2 { flex: 1; }
 .runs-hint { font-size: 13px; line-height: 20px; color: var(--ink-3); margin-right: 8px; }
@@ -1067,6 +1063,18 @@ svg { display: block; flex: none; }
 .free-tile { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 
 /* Run a test: the setup row, then the two ways to open a page. */
+.test-card { display: grid; }
+.test-pane { padding: 20px; display: flex; flex-direction: column; min-width: 0; }
+@media (min-width: 760px) and (pointer: fine) {
+  .test-card { grid-template-columns: minmax(0, 1fr) 264px; }
+  .test-card .qr-card { box-shadow: inset 1px 0 0 var(--ring); }
+}
+/* The address that will open, with ?perf marked in glass. */
+.test-link { display: flex; align-items: center; gap: 2px; min-width: 0; margin-top: 12px; font: 400 13px/24px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink-2); }
+.test-link-url { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.test-link-perf { flex: none; display: flex; align-items: center; height: 24px; padding: 0 6px; color: var(--ink); }
+.test-link[data-empty] { color: var(--ink-3); }
+.test-link[data-empty] .test-link-perf { --c: var(--data-line); color: var(--ink-3); }
 .test-stack { display: flex; flex-direction: column; gap: 16px; }
 .runs { display: block; }
 .nowrap { white-space: nowrap; }
@@ -1082,8 +1090,8 @@ svg { display: block; flex: none; }
   .rails .subtitle { font-size: 30px; line-height: 38px; letter-spacing: -0.025em; }
   .rails .home-head .lede { max-width: 640px; }
   .home-sec[data-split] { grid-template-columns: 320px minmax(0, 1fr); gap: 48px; }
-  .rails .home-body .meta, .rails .start-card .meta { font-size: 15px; line-height: 24px; }
-  .rails .example-title, .rails .how-title, .rails .start-card .h2 { font-size: 17px; line-height: 24px; }
+  .rails .home-body .meta, .rails .test-pane .meta { font-size: 15px; line-height: 24px; }
+  .rails .example-title, .rails .how-title, .rails .test-pane .h2 { font-size: 17px; line-height: 24px; }
   .rails .example { padding: 24px; }
   .rails .how-visual { height: 200px; }
   .rails .how-visual > * { scale: 1.25; }
