@@ -9,6 +9,7 @@ import { copyText } from "../lib";
 const paths = {
   back: <path d="M10 3.5L5.5 8l4.5 4.5" />,
   chevron: <path d="M4 6l4 4 4-4" />,
+  forward: <path d="M6 4l4 4-4 4" />,
   link: <path d="M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1" />,
   check: <path d="M3.5 8.5l3 3 6-7" />,
   external: <path d="M6 3.5H3.5v9h9V10M9 3h4v4M13 3L7.5 8.5" />,
@@ -168,11 +169,12 @@ export function Qr({ text }: { text: string }) {
 }
 
 /** A button whose label confirms the action for a moment. */
-export function CopyButton({ text, label = "Copy link", className = "btn btn-secondary btn-icon-l", icon = "link" }: {
+export function CopyButton({ text, label = "Copy link", className = "btn btn-secondary btn-icon-l", icon = "link", disabled }: {
   text: () => string | Promise<string>;
   label?: string;
   className?: string;
   icon?: keyof typeof paths;
+  disabled?: boolean;
 }) {
   const [done, setDone] = useState(false);
   const copy = async () => {
@@ -181,7 +183,7 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
     setTimeout(() => setDone(false), 1600);
   };
   return (
-    <button className={className} onClick={copy}>
+    <button className={className} onClick={copy} disabled={disabled}>
       <Icon name={done ? "check" : icon} size={14} />
       <Flip text={done ? "Copied" : label} />
     </button>

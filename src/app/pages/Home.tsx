@@ -8,11 +8,13 @@ import { FrameClock } from "../components/FrameClock";
 import { OPEN_SETUP } from "../components/Footer";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
+import { INERTIA_RUN } from "../examples";
 
 const TARGET = "cadence.target";
 
 function withPerf(base: string): string {
-  const raw = base.trim() || "https://byinertia.com";
+  const raw = base.trim();
+  if (!raw) return "";
   try {
     const u = new URL(/^https?:\/\//.test(raw) ? raw : `https://${raw}`);
     return `${u.origin}${u.pathname}${u.search ? `${u.search}&perf` : "?perf"}`;
@@ -24,9 +26,9 @@ function withPerf(base: string): string {
 export function Home() {
   const [base, setBase] = useState(() => {
     try {
-      return localStorage.getItem(TARGET) ?? "https://byinertia.com";
+      return localStorage.getItem(TARGET) ?? "";
     } catch {
-      return "https://byinertia.com";
+      return "";
     }
   });
   const [runs, setRuns] = useState<Saved[]>(listRuns);
@@ -136,8 +138,8 @@ export function Home() {
                 autoCapitalize="off"
                 placeholder="https://example.com"
               />
-              <CopyButton text={() => link} label="Copy link" className="btn btn-lg btn-secondary btn-icon-l" />
-              <a className="btn btn-lg btn-primary" href={link} target="_blank" rel="noopener">Open</a>
+              <CopyButton text={() => link} label="Copy link" className="btn btn-lg btn-secondary btn-icon-l" disabled={!link} />
+              <a className="btn btn-lg btn-primary" href={link || undefined} aria-disabled={!link || undefined} target="_blank" rel="noopener">Open</a>
             </div>
           </div>
           <div className="card start-card qr-card">
@@ -145,10 +147,30 @@ export function Home() {
               <h2 className="h2">Test on a phone</h2>
               <p className="meta">Scan to open it there.</p>
             </div>
-            <Qr text={link} />
+            {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
           </div>
         </div>
         <Setup />
+      </section>
+
+      <section className="enter examples">
+        <h2 className="h2">See it in action</h2>
+        <div className="example-cards">
+          <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
+            <span className="example-copy">
+              <span className="example-title">Inertia, our studio's site</span>
+              <span className="meta">Smooth scrolling, but the largest paint takes 5.4 s.</span>
+            </span>
+            <span className="example-go">Open report<Icon name="forward" size={14} /></span>
+          </a>
+          <a className="card example" href="/demo.html" target="_blank" rel="noopener">
+            <span className="example-copy">
+              <span className="example-title">A page that's slow on purpose</span>
+              <span className="meta">Five common mistakes. Run Cadence on it from your own device.</span>
+            </span>
+            <span className="example-go">Open demo<Icon name="external" size={14} /></span>
+          </a>
+        </div>
       </section>
 
       <section className="enter">
@@ -242,6 +264,7 @@ export function Home() {
                 </button>
               </div>
             ); })}
+            <p className="run-foot"><span className="run-foot-icon"><Icon name="info" size={14} /></span>Saved in this browser. Report links open on any device.</p>
           </div>
         )}
       </section>

@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /r
+Disallow: /compare
+
+Sitemap: https://cad-ence.dev/sitemap.xml

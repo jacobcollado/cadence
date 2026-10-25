@@ -69,6 +69,23 @@ export function saveRun(run: Run, data: string): Saved[] {
   return runs;
 }
 
+// Whether the note about where runs are saved was dismissed.
+const NOTE = "cadence.savedNote";
+
+export function savedNoteSeen(): boolean {
+  try {
+    return localStorage.getItem(NOTE) === "seen";
+  } catch {
+    return true;
+  }
+}
+
+export function dismissSavedNote() {
+  try {
+    localStorage.setItem(NOTE, "seen");
+  } catch {}
+}
+
 export function removeRun(id: string): Saved[] {
   const runs = listRuns().filter((r) => r.id !== id);
   write(runs);
