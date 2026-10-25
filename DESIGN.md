@@ -91,3 +91,7 @@ Each device row in the frames comparison is headed by a line: the device's mark 
 ## Recessed panels and dark mode
 
 A recessed panel (step visuals, icon tiles) is the recess fill alone, with no outline: the fill already sets it apart, and an outline on top makes it read as a card. Dark mode's page is near-black (#0b0b0a), never pure #000: pure black smears on OLED phones when scrolling and makes light text glow. The recess, raised, grid and data steps sit just above it so every level stays visible.
+
+## The ?perf window
+
+The window in How it works is a clear glass lens: a firm hairline, a lit top edge and a soft shadow, with the sections gray outside it and in color inside it. No dashed or marching outline.

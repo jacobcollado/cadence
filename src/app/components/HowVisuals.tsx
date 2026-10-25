@@ -35,10 +35,8 @@ export function ScrollPanes() {
     <span className="how-scroll" aria-hidden="true">
       {track(false)}
       <span className="how-scroll-lit">{track(true)}</span>
-      {/* The panel's window, drawn as a dashed marquee whose dashes march, like a selection being worked on. */}
-      <svg className="how-window" aria-hidden="true">
-        <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="6" />
-      </svg>
+      {/* The panel's window: a clear lens the sections pass under. */}
+      <span className="how-window" />
     </span>
   );
 }
