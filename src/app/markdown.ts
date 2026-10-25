@@ -2,30 +2,33 @@ import type { Run } from "../shared/run";
 import { LAYOUT, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats } from "../shared/stats";
 import { ADVICE, CAUSE_LABEL, scrollTip } from "../shared/advice";
 import { LEVEL_LABEL, type MemoryReport, type Metric } from "../shared/vitals";
+import { scoreLevel, type Scores } from "../shared/score";
 import { pathOf } from "./lib";
 
 /**
  * A report as Markdown, for pasting into a pull request or an issue: the
  * verdicts, the sections, the cause and the first fix, and a link back.
  */
-export function reportMarkdown(run: Run, stats: RunStats, cause: Cause, metrics: Metric[], mem: MemoryReport | null, link: string): string {
+export function reportMarkdown(run: Run, stats: RunStats, cause: Cause, metrics: Metric[], mem: MemoryReport | null, sc: Scores, link: string): string {
   const [device, browser] = run.device.name.split(" · ");
   const lines: string[] = [];
   lines.push(`### Cadence: ${device} on ${pathOf(run.url)}`);
   lines.push("");
   lines.push(`${browser}, ${MODE_LABEL[run.mode].toLowerCase()}, ${run.hz} Hz screen${run.load ? `, ${run.load} ms added load` : ""}`);
   lines.push("");
+  lines.push(`**Score: ${sc.overall} / 100** (${LEVEL_LABEL[scoreLevel(sc.overall)].toLowerCase()})`);
+  lines.push("");
 
   const graded = metrics.filter((m) => m.level);
   const worst = graded.find((m) => m.level === "bad") ?? graded.find((m) => m.level === "warn") ?? metrics.find((m) => m.key === "lcp");
-  lines.push(`- **Smoothness:** ${RATING_LABEL[stats.rating]}, ${Math.round(stats.fps)} fps out of ${run.hz}, ${stats.dropped} dropped frames, longest frame ${Math.round(stats.worst)} ms`);
-  if (worst?.value !== undefined) lines.push(`- **Page load:** ${worst.name} ${worst.display}${worst.level ? ` (${LEVEL_LABEL[worst.level].toLowerCase()})` : ""}`);
+  lines.push(`- **Smoothness ${sc.smooth}:** ${RATING_LABEL[stats.rating]}, ${Math.round(stats.fps)} fps out of ${run.hz}, ${stats.dropped} dropped frames, longest frame ${Math.round(stats.worst)} ms`);
+  if (worst?.value !== undefined) lines.push(`- **Page load${sc.load !== null ? ` ${sc.load}` : ""}:** ${worst.name} ${worst.display}${worst.level ? ` (${LEVEL_LABEL[worst.level].toLowerCase()})` : ""}`);
   if (mem) {
     const what = [
       mem.heap ? `${mem.heap.peak.toFixed(1)} MB heap at its peak` : "heap not measured",
       mem.nodes ? `${mem.nodes.end.toLocaleString()} page elements` : "",
     ].filter(Boolean).join(", ");
-    lines.push(`- **Memory:** ${mem.level === "good" ? "Steady" : "Growing"}, ${what}`);
+    lines.push(`- **Memory${sc.memory !== null ? ` ${sc.memory}` : ""}:** ${mem.level === "good" ? "Steady" : "Growing"}, ${what}`);
   }
   lines.push("");
 

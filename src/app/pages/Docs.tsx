@@ -1,13 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { Brand, ThemeToggle } from "../components/TopBar";
-import { GitHubStar } from "../components/GitHubStar";
+import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
 import { Icon } from "../components/ui";
-import { CauseTags, CompareSpecimen, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
+import { CauseTags, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
+import { GlassFrames } from "../components/GlassFrames";
 import { reducedMotion } from "../../shared/motion";
 
-// The docs: one centered column, with a section list beside it on wide
-// screens that marks where you are.
+// The docs, in the same frame as the rest of the site: the section list in
+// its own lane on wide screens, marking where you are, and the sections as
+// cells beside it. Color stays in the pictures; the text and list are ink.
 
 const SECTIONS = [
   { id: "start", title: "Get started" },
@@ -43,8 +44,6 @@ function Card({ icon, title, children }: { icon: ReactNode; title: string; child
     </div>
   );
 }
-
-const NAV_KEY = "cadence.docs.nav";
 
 const CIPHER = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 const LENGTH = 72;
@@ -93,37 +92,23 @@ function CipherLink() {
 
 export function Docs() {
   const [active, setActive] = useState(SECTIONS[0].id);
-  // The section list on wide screens, shown unless it was put away.
-  const [listOpen, setListOpen] = useState(() => {
-    try {
-      return localStorage.getItem(NAV_KEY) !== "closed";
-    } catch {
-      return true;
-    }
-  });
   // The pinned list on phones, closed until tapped.
   const [tocOpen, setTocOpen] = useState(false);
-  const toggleList = () => {
-    setListOpen((o) => {
-      try {
-        localStorage.setItem(NAV_KEY, o ? "closed" : "open");
-      } catch {}
-      return !o;
-    });
-  };
-
-  // Mark the section nearest the top of the screen.
+  // Mark the last section whose top has passed the upper part of the screen.
   useEffect(() => {
     const els = SECTIONS.map((s) => document.getElementById(s.id)!);
-    const io = new IntersectionObserver(
-      (entries) => {
-        const seen = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (seen[0]) setActive(seen[0].target.id);
-      },
-      { rootMargin: "0px 0px -70% 0px" },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const line = innerHeight * 0.25;
+      let current = els[0];
+      for (const el of els) if (el.getBoundingClientRect().top <= line) current = el;
+      setActive(current.id);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    addEventListener("scroll", onScroll, { passive: true });
+    return () => { removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, []);
 
   const go = (id: string) => (e: React.MouseEvent) => {
@@ -134,40 +119,15 @@ export function Docs() {
   };
 
   return (
-    <>
-      {/* Phones have no sidebar, so the logo and controls get a slim bar. */}
-      <div className="doc-bar">
-        <Brand />
-        <span className="spacer" />
-        <GitHubStar />
-        <ThemeToggle />
-      </div>
-      <div className="doc-layout enter">
-        <aside className="doc-side" data-collapsed={!listOpen || undefined}>
-          <div className="doc-side-head">
-            <Brand />
-            <button
-              className="doc-side-toggle"
-              aria-expanded={listOpen}
-              aria-controls="doc-nav"
-              aria-label={listOpen ? "Hide the section list" : "Show the section list"}
-              title={listOpen ? "Hide sections" : "Show sections"}
-              onClick={toggleList}
-            >
-              <Icon name="sidebar" />
-            </button>
-          </div>
-          <div className="doc-nav-fold" data-open={listOpen || undefined}>
-            <nav id="doc-nav" className="doc-nav" aria-label="On this page">
-              {SECTIONS.map((s) => (
-                <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined} tabIndex={listOpen ? undefined : -1}>{s.title}</a>
-              ))}
-            </nav>
-          </div>
-          <div className="doc-side-foot">
-            <GitHubStar compact={!listOpen} />
-            <ThemeToggle />
-          </div>
+    <div className="shell docs">
+      <TopBar />
+      <div className="rails doc-frame enter">
+        <aside className="doc-side">
+          <nav id="doc-nav" className="doc-nav" aria-label="On this page">
+            {SECTIONS.map((s) => (
+              <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined}>{s.title}</a>
+            ))}
+          </nav>
         </aside>
 
         <article className="doc-body">
@@ -230,11 +190,16 @@ loadCadence();`}</Code>
             </div>
             <p><strong>Added load</strong> gives the device extra work on every frame, so a fast laptop behaves more like a slower phone. Light adds a little, Heavy adds more. A real slower phone is still the better test.</p>
             <p>To turn Cadence off in a tab, close its panel, or open the page with <code>?perf=off</code>.</p>
+            <h3 className="doc-h3">Browsers</h3>
+            <p>Cadence runs in any modern browser. Chromium browsers, like Chrome, Edge, Arc, Dia, Aside and Helium, report the most: which script caused each freeze, layout shift, input delay and memory. Safari and Firefox measure every frame and page element too, and show the rest as not reported, never as zero.</p>
           </Section>
 
           <Section id="report" title="Reading a report" lede="A report opens on three tiles. Each one is a part of the result, and each has a verdict. Select a tile to see its detail.">
             <TilesSpecimen />
             <p>Every number in a report has an <strong>i</strong> beside it that explains what it means and what counts as good.</p>
+            <h3 className="doc-h3">Scores</h3>
+            <p>Like Lighthouse, a report has a score out of 100, and each tile has its own. 90 and up is good, 50 to 89 needs work, under 50 is poor: the same three levels as every other grade in Cadence, so a score never disagrees with its word.</p>
+            <p>Each measurement is scored on Lighthouse's curve, set so that Cadence's good threshold scores 90 and its poor threshold scores 50. <strong>Smoothness</strong> weighs the frame rate at half, then the share of frames on time and the longest frame. <strong>Page load</strong> weighs largest paint and layout shift most, as Lighthouse does. <strong>Memory</strong> scores how much the heap and the page's elements grew. The overall score weighs smoothness at half, page load at 30 and memory at 20, counting only what was measured.</p>
             <h3 className="doc-h3">Three terms that matter most</h3>
             <div className="doc-cards doc-cards-3">
               <div className="doc-term">
@@ -256,7 +221,7 @@ loadCadence();`}</Code>
           </Section>
 
           <Section id="compare" title="Comparing devices" lede="Every report you open is saved to the list of runs on the home page. Tick two or more and press Compare to see them side by side, section by section, with a sentence that names the biggest gap.">
-            <CompareSpecimen />
+            <GlassFrames />
             <p>A good set to compare: a recent iPhone, a mid-range Android, and a laptop.</p>
           </Section>
 
@@ -265,7 +230,7 @@ loadCadence();`}</Code>
               <Card icon={<Icon name="phone" />} title="Test on a real, slower phone">A mid-range Android tells you more than the newest iPhone, because most of your visitors don't have the newest phone.</Card>
               <Card icon={<Icon name="repeat" />} title="Run each pass twice">The first run can include the page still loading images and fonts. The second shows how it scrolls once it's settled.</Card>
               <Card icon={<Icon name="battery" />} title="Turn off Low Power Mode">On iPhone it limits Safari to 30 frames per second. The report tells you when it spots this.</Card>
-              <Card icon={<Icon name="code" />} title="Use Chrome for the why">Chrome and Edge report which script caused a freeze. Safari and Firefox show where it slowed down, but not the script behind it.</Card>
+              <Card icon={<Icon name="code" />} title="Use a Chromium browser for the why">Chrome, Edge, Arc, Dia, Helium and other Chromium browsers report which script caused a freeze. Safari and Firefox show where it slowed down, but not the script behind it.</Card>
               <Card icon={<Icon name="layers" />} title="Close other apps and tabs">They compete for the same processor and can make your site look slower than it is.</Card>
               <Card icon={<Icon name="tag" />} title="Name your sections">Cadence names sections from their headings. To choose a name, add <code>data-cadence="Pricing"</code> to the section's element.</Card>
             </div>
@@ -306,9 +271,7 @@ loadCadence();`}</Code>
             <p>Opening a report saves the run to that browser's run list, on that device only. Clearing site data or a private window removes it, and Safari clears it after seven days without a visit. The report link keeps the whole run, so copy it to keep a run for good or to open it elsewhere.</p>
           </Section>
         </article>
-
-        <span aria-hidden="true" />
       </div>
-    </>
+    </div>
   );
 }

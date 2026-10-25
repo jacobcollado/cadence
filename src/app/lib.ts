@@ -1,6 +1,8 @@
 import { flushSync } from "react-dom";
 import { decodeRun, encodeRun, type Run } from "../shared/run";
 import { computeStats, type Rating } from "../shared/stats";
+import { scores } from "../shared/score";
+import { memory, pageLoad } from "../shared/vitals";
 import { reducedMotion } from "../shared/motion";
 
 // Routing: three pages, so a tiny history-based router is enough.
@@ -44,6 +46,8 @@ export interface Saved {
   hz: number;
   /** Missing on runs saved before ratings existed; opening one again fills it in. */
   rating?: Rating;
+  /** The overall score out of 100. Missing on runs saved before scores; opening one again fills it in. */
+  score?: number;
   url: string;
   data: string;
 }
@@ -64,6 +68,7 @@ export function saveRun(run: Run, data: string): Saved[] {
   runs.unshift({
     id: run.id, at: run.at, name: run.device.name, mode: run.mode,
     fps: stats.fps, hz: run.hz, rating: stats.rating, url: run.url, data,
+    score: scores(stats, pageLoad(run), memory(run)).overall,
   });
   write(runs);
   return runs;

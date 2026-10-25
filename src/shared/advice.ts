@@ -74,8 +74,8 @@ export const ADVICE: Record<CauseKind, Tip[]> = {
   ],
   unknown: [
     {
-      title: "Run the same pass in Chrome or Edge",
-      detail: "They report which script was running during each freeze, so the report can name the cause and the fix.",
+      title: "Run the same pass in a Chromium browser",
+      detail: "Chrome, Edge, Arc, Dia, Helium and other Chromium browsers report which script was running during each freeze, so the report can name the cause and the fix.",
     },
     {
       title: "Start with the slowest section",

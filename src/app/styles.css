@@ -234,24 +234,26 @@ svg { display: block; flex: none; }
 .disclosure-inner { padding: 0 0 24px; }
 
 /* Home */
-/* Hero: the line and lede, then the two ways to start a run as cards that
-   share a top edge. Phones get only the first; there's nothing to scan with. */
-.start { display: flex; flex-direction: column; gap: 32px; padding: 48px 0 64px; }
-@media (min-width: 760px) { .start { padding: 72px 0 80px; } }
+/* Hero: the line and lede beside the frame clock. The test cards sit lower,
+   under Run a test, and share a top edge. Phones get only the first; there's
+   nothing to scan with. */
+.start { display: flex; flex-direction: column; gap: 32px; padding: 48px 0; }
+@media (min-width: 760px) { .start { padding: 64px 0; } }
 .start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 780px; }
 .start-copy .lede { max-width: 640px; }
 .start-cards { display: grid; gap: 16px; align-items: stretch; }
 @media (min-width: 760px) and (pointer: fine) { .start-card-head { padding-right: 8px; } }
 @media (min-width: 760px) and (pointer: fine) { .start-cards { grid-template-columns: minmax(0, 1fr) 264px; } }
 .start-card { padding: 20px; display: flex; flex-direction: column; }
-.start-card-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; }
+.start-card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+.start-card-head > span:last-child { display: flex; flex-direction: column; gap: 2px; }
 .field-label { font-size: 12px; line-height: 16px; color: var(--ink-3); margin-bottom: 6px; }
 .link-row { display: flex; gap: 8px; }
 .link-row .field { flex: 1; min-width: 0; }
 @media (max-width: 480px) { .link-row { flex-wrap: wrap; } .link-row .field { flex-basis: 100%; } .link-row .btn { flex: 1; } }
 @media (max-width: 759px), (pointer: coarse) { .qr-card { display: none !important; } }
 .qr-card { align-items: stretch; }
-.qr-card .qr { width: 100%; max-width: 136px; align-self: center; margin-top: auto; }
+.qr-card .qr { width: 100%; max-width: 112px; align-self: center; margin-top: auto; }
 /* The controls sit on the card's bottom edge, level with the QR beside it. */
 .start-card .field-label { margin-top: auto; }
 .runs-head { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 12px; }
@@ -543,8 +545,9 @@ svg { display: block; flex: none; }
 
 /* Runs table: one header row of labels, every value in its column. */
 .run-list .run-row, .run-head-row {
-  grid-template-columns: 16px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1fr) 104px 56px 32px;
+  grid-template-columns: 16px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1fr) 104px 40px 56px 32px;
 }
+.col-score { display: flex; justify-content: center; }
 .run-head-row {
   display: grid; align-items: center; gap: 16px; height: 36px; padding: 0 8px 0 16px;
   font-size: 12px; line-height: 16px; color: var(--ink-3); box-shadow: inset 0 -1px 0 var(--grid);
@@ -556,12 +559,12 @@ svg { display: block; flex: none; }
 .run-list .run-row + .run-row, .run-head-row + .run-row { box-shadow: inset 0 1px 0 var(--grid); }
 .run-head-row + .run-row { box-shadow: none; }
 @media (max-width: 860px) {
-  .run-list .run-row, .run-head-row { grid-template-columns: 16px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr) 104px 56px 32px; }
+  .run-list .run-row, .run-head-row { grid-template-columns: 16px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr) 104px 40px 56px 32px; }
   .col-mode, .col-when { display: none; }
 }
 @media (max-width: 600px) {
   .run-head-row { display: none; }
-  .run-list .run-row { grid-template-columns: 16px minmax(0, 1fr) auto 32px; gap: 12px; }
+  .run-list .run-row { grid-template-columns: 16px minmax(0, 1fr) auto auto 32px; gap: 12px; }
   .col-browser, .col-page { display: none; }
   .run-row .run-sub { display: block; font-size: 13px; line-height: 20px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
@@ -686,10 +689,10 @@ svg { display: block; flex: none; }
 /* Hero top: the line and lede beside the orbit field; on phones the field
    sits under the lede, scaled to the width. */
 .start-top { display: grid; align-items: center; gap: 24px; }
-.frame-clock { display: block; justify-self: center; }
+.glass-fan { justify-self: center; }
 @media (min-width: 860px) {
   .start-top { grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; }
-  .frame-clock { justify-self: end; }
+  .glass-fan { justify-self: end; }
 }
 
 /* Top bar text link. */
@@ -703,51 +706,6 @@ svg { display: block; flex: none; }
    centered. */
 /* Phones: a slim bar with the logo and controls. Wide screens: they live in
    the sidebar instead. */
-.doc-bar { display: flex; align-items: center; gap: 20px; height: 64px; padding: 0 var(--gutter); }
-.doc-layout {
-  display: grid; gap: 0 56px; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter) 80px;
-  grid-template-columns: minmax(0, 1fr);
-}
-.doc-side { display: none; }
-@media (min-width: 900px) {
-  .doc-bar { display: none; }
-  .doc-layout { grid-template-columns: 184px minmax(0, 680px); justify-content: center; }
-  .doc-side { display: flex; }
-  .doc-layout > span { display: none; }
-}
-@media (min-width: 1180px) {
-  .doc-layout { grid-template-columns: minmax(184px, 1fr) minmax(0, 680px) minmax(184px, 1fr); }
-  .doc-layout > span { display: block; }
-}
-/* The sidebar runs the height of the window: logo at the top, the section
-   list, then the controls at the bottom. */
-.doc-side {
-  flex-direction: column; position: sticky; top: 0; align-self: start; justify-self: end;
-  width: 184px; height: 100vh; height: 100dvh; padding: 22px 0 24px;
-}
-.doc-side > .brand { height: 20px; }
-.doc-side-head { display: flex; align-items: center; justify-content: space-between; height: 20px; }
-.doc-side-toggle {
-  position: relative; width: 28px; height: 28px; margin-right: -6px; border-radius: 6px;
-  display: inline-flex; align-items: center; justify-content: center; color: var(--ink-3);
-  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
-}
-.doc-side-toggle:hover, .doc-side-toggle[aria-expanded="false"] { color: var(--ink); background: var(--recess); }
-/* The list folds away to the left and comes back the same way. */
-.doc-nav-fold { display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateX(-8px); margin-top: 108px;
-  transition: grid-template-rows var(--dur-slow) var(--ease-out), opacity var(--dur-base) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
-.doc-nav-fold[data-open] { grid-template-rows: 1fr; opacity: 1; transform: none; }
-.doc-side-foot { margin-top: auto; display: flex; align-items: center; gap: 20px; }
-.doc-nav-fold > nav { overflow: hidden; }
-.doc-nav { display: flex; flex-direction: column; gap: 2px; margin: 0 -10px; padding: 0 0 2px; }
-.doc-nav a {
-  height: 32px; display: flex; align-items: center; padding: 0 10px; border-radius: 6px;
-  font-size: 14px; color: var(--ink-3);
-  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-base) var(--ease-out);
-}
-.doc-nav a:hover { color: var(--ink); background: var(--hover); }
-.doc-nav a[aria-current] { color: var(--ink); font-weight: 500; background: var(--recess); }
-
 /* Phones: the pinned section list. */
 .doc-toc {
   position: sticky; top: 0; z-index: 20; margin: 0 calc(var(--gutter) * -1) 0; padding: 0 var(--gutter);
@@ -807,19 +765,6 @@ svg { display: block; flex: none; }
 .doc-card-title { margin-top: 12px; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--ink); }
 .doc-card p { margin-top: 4px; font-size: 14px; line-height: 22px; }
 
-.doc-bar .spacer { flex: 1; }
-
-/* Collapsed: the sidebar shrinks to a slim rail of icons beside the text,
-   which stays centered. */
-.doc-side { transition: width var(--dur-slow) var(--ease-out); }
-.doc-side .brand-word { transition: opacity var(--dur-base) var(--ease-out); }
-.doc-side[data-collapsed] { width: 28px; }
-.doc-side[data-collapsed] .brand-word { opacity: 0; width: 0; overflow: hidden; }
-.doc-side[data-collapsed] .brand { gap: 0; }
-.doc-side[data-collapsed] .doc-side-head { flex-direction: column; align-items: center; height: auto; gap: 16px; }
-.doc-side[data-collapsed] .doc-side-toggle { margin-right: 0; }
-.doc-side[data-collapsed] .doc-side-foot { flex-direction: column; gap: 16px; }
-.doc-side[data-collapsed] .doc-nav-fold { visibility: hidden; }
 .gh-star[data-compact] { width: 28px; padding: 0; justify-content: center; box-shadow: none; color: var(--ink-3); }
 .gh-star[data-compact]:hover { color: var(--ink); background: var(--recess); }
 
@@ -911,22 +856,6 @@ svg { display: block; flex: none; }
 .causes span { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; background: var(--paper); color: var(--ink-2); font-size: 12px; line-height: 1; box-shadow: inset 0 0 0 1px var(--ring); }
 .causes svg { color: var(--ink-3); }
 
-/* Compare, small: grouped bars per section against the target line. */
-.cmp { margin: 0; padding: 20px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); display: flex; flex-direction: column; }
-.cmp-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; }
-.cmp-key { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; color: var(--ink); }
-.cmp-key i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
-.cmp-key .num { color: var(--ink-3); }
-.cmp-plot { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; height: 160px; margin-top: 24px; padding-top: 28px; box-shadow: inset 0 -1px 0 var(--ring-firm); }
-.cmp-target { position: absolute; left: 0; right: 0; top: 28px; border-top: 1px dashed var(--ring-firm); pointer-events: none; }
-.cmp-target span { position: absolute; right: 0; top: -18px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
-.cmp-group { display: flex; justify-content: center; align-items: flex-end; }
-.cmp-bars { height: 100%; display: flex; align-items: flex-end; gap: 4px; width: 100%; max-width: 88px; }
-.cmp-bar { position: relative; flex: 1; border-radius: 4px 4px 0 0; min-height: 2px; }
-.cmp-bar span { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); font-size: 12px; line-height: 16px; color: var(--ink-2); }
-.cmp-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; text-align: center; font-size: 12px; line-height: 16px; color: var(--ink-2); }
-.cmp-note { margin-top: 20px; padding-top: 14px; box-shadow: inset 0 1px 0 var(--grid); font-size: 14px; line-height: 22px; color: var(--ink-2); }
-
 /* Options as a reference table. */
 .props { border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); overflow: hidden; }
 .props-row { display: grid; grid-template-columns: 96px 80px minmax(0, 1fr); column-gap: 16px; row-gap: 4px; padding: 12px 16px; align-items: baseline; }
@@ -941,9 +870,6 @@ svg { display: block; flex: none; }
 .doc-code code { font: inherit; }
 .props-plain { font-size: 13px; color: var(--ink-2); }
 .pass-window { background: color-mix(in srgb, var(--paper) 70%, transparent); }
-.cmp-key-target i { width: 14px; height: 0; border-radius: 0; border-top: 1px dashed var(--ink-3); }
-.cmp-key-target { color: var(--ink-2); }
-@media (min-width: 600px) { .cmp-key-target { margin-left: auto; } }
 
 /* Report as a dashboard: a row of key numbers, then the cards in a grid. */
 .stat-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -1067,17 +993,17 @@ svg { display: block; flex: none; }
 
 /* Buttons that can't act yet: an empty page field. */
 .btn:disabled, .btn[aria-disabled] { opacity: 0.4; pointer-events: none; }
-.qr-empty { width: 100%; max-width: 136px; aspect-ratio: 1; align-self: center; margin-top: auto; display: grid; place-items: center; padding: 16px; border-radius: 4px; background: var(--recess); font-size: 12px; line-height: 16px; text-align: center; color: var(--ink-3); }
+/* Nothing to scan yet: the same dashed outline as an empty runs list. */
+.qr-empty { width: 100%; max-width: 112px; aspect-ratio: 1; align-self: center; margin-top: auto; display: grid; place-items: center; padding: 12px; border: 1px dashed var(--ring-firm); border-radius: 6px; font-size: 12px; line-height: 16px; text-align: center; color: var(--ink-3); }
 
 /* Examples: a real report and the slow demo, side by side. */
-.examples { margin-bottom: 48px; }
 .example-cards { display: grid; gap: 16px; margin-top: 16px; }
 @media (min-width: 760px) { .example-cards { grid-template-columns: 1fr 1fr; } }
-.example { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 20px; transition: background-color var(--dur-fast) var(--ease-out); }
+.example { display: flex; flex-direction: column; justify-content: flex-start; gap: 16px; padding: 20px; transition: background-color var(--dur-fast) var(--ease-out); }
 .example:hover { background: var(--hover); }
 .example-copy { display: flex; flex-direction: column; gap: 4px; }
 .example-title { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); }
-.example-go { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; line-height: 1; font-weight: 500; color: var(--ink); }
+.example-go { margin-top: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; line-height: 1; font-weight: 500; color: var(--ink); }
 .example-go svg { color: var(--ink-3); transition: transform var(--dur-fast) var(--ease-out); }
 .example:hover .example-go svg { transform: translateX(2px); }
 
@@ -1085,3 +1011,327 @@ svg { display: block; flex: none; }
 .spark-title { margin-top: 20px; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--ink); }
 .spark-title + .spark-wrap { margin-top: 8px; }
 .mem-note { margin-top: 16px; }
+
+/* Home: two rails on the shell's edges run the full height of the page, so
+   the top bar, every section and the footer sit between them. A hairline
+   separates each. Content keeps the shell's content edge. Phones drop the
+   side rails and keep the hairlines. */
+.shell:has(.rails) { padding-bottom: 0; }
+#root:has(.rails) { position: relative; }
+#root:has(.rails) > .banner { z-index: 1; }
+@media (min-width: 720px) {
+  #root:has(.rails)::before {
+    content: ""; position: absolute; inset: 0; max-width: var(--page, 960px); margin: 0 auto; pointer-events: none;
+    --rail: linear-gradient(var(--grid), var(--grid));
+    background:
+      var(--rail) 0 0 / 1px 100% no-repeat, var(--rail) 4px 0 / 1px 100% no-repeat,
+      var(--rail) 100% 0 / 1px 100% no-repeat, var(--rail) calc(100% - 4px) 0 / 1px 100% no-repeat;
+  }
+}
+.rails { margin: 0 calc(var(--gutter) * -1); box-shadow: inset 0 1px 0 var(--grid); }
+.rails > section { padding-left: var(--gutter); padding-right: var(--gutter); }
+.rails > section + section { box-shadow: inset 0 1px 0 var(--grid); }
+#root:has(.rails) .footer-inner { box-shadow: none; }
+#root:has(.rails) .footer { box-shadow: inset 0 1px 0 var(--grid); }
+
+/* Each section: the heading above the content. Split sections put it in a
+   column beside the content instead, so the page alternates. */
+.home-sec { padding-top: 56px; padding-bottom: 56px; display: grid; gap: 24px; }
+@media (min-width: 760px) { .home-sec { padding-top: 96px; padding-bottom: 96px; gap: 32px; } }
+@media (min-width: 860px) { .home-sec[data-split] { grid-template-columns: 240px minmax(0, 1fr); } }
+.home-head { display: flex; flex-direction: column; gap: 8px; }
+.home-head .lede { max-width: 560px; }
+.home-body { min-width: 0; }
+.home-sec > * { transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+.home-sec > :nth-child(2) { transition-delay: 60ms; }
+.home-sec:not([data-shown]):not(.runs) > * { opacity: 0; transform: translateY(12px) scale(0.99); }
+.runs > * { transition: none; }
+/* How it works: three steps, each with a small picture on top. */
+.how-grid { list-style: none; display: grid; gap: 16px; }
+@media (min-width: 600px) { .how-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.how-step { padding: 16px; display: flex; flex-direction: column; }
+.how-visual { height: 76px; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.how-title { margin: 14px 0 2px; font-size: 15px; line-height: 20px; font-weight: 500; }
+
+/* The demo's mistakes, as tags. */
+.example-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.example-tag { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; box-shadow: inset 0 0 0 1px var(--ring-firm); color: var(--ink-2); font-size: 12px; line-height: 1; }
+
+/* Why it's free: four short facts, icon beside each. */
+.free-grid { list-style: none; display: grid; gap: 12px; }
+@media (min-width: 600px) { .free-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 860px) { .free-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.free { display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 16px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); }
+/* Each fact's icon sits on a pane of the page's glass, stepping through the spectrum. */
+.free-tile { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+
+/* Run a test: the setup row, then the two ways to open a page. */
+.test-stack { display: flex; flex-direction: column; gap: 16px; }
+.runs { display: block; }
+.nowrap { white-space: nowrap; }
+
+/* Home on desktop: a wider page and a larger type scale, so the sections
+   have room and the text reads at a distance. Other pages keep 960. */
+@media (min-width: 1024px) {
+  #root:has(.rails) { --page: 1200px; }
+  #root:has(.rails) .shell, #root:has(.rails) .footer { max-width: var(--page); }
+  .rails .title { font-size: 40px; line-height: 48px; letter-spacing: -0.03em; }
+  .rails .start-copy { max-width: 640px; }
+  .rails .lede { font-size: 17px; line-height: 28px; }
+  .rails .subtitle { font-size: 30px; line-height: 38px; letter-spacing: -0.025em; }
+  .rails .home-head .lede { max-width: 640px; }
+  .home-sec[data-split] { grid-template-columns: 320px minmax(0, 1fr); gap: 48px; }
+  .rails .home-body .meta, .rails .start-card .meta { font-size: 15px; line-height: 24px; }
+  .rails .example-title, .rails .how-title, .rails .start-card .h2 { font-size: 17px; line-height: 24px; }
+  .rails .how-step, .rails .example { padding: 24px; }
+  .rails .how-visual { height: 96px; }
+  .rails .example-tag { height: 28px; padding: 0 10px; font-size: 13px; }
+  .rails .example-go { font-size: 15px; }
+  .rails .runs .h2 { font-size: 19px; }
+  .rails .setup-btn { font-size: 15px; }
+  .rails .free-grid { gap: 16px; }
+  #root:has(.rails) .topbar { height: 72px; }
+  #root:has(.rails) .topbar-link { font-size: 15px; }
+  #root:has(.rails) .brand-word { font-size: 19px; }
+  #root:has(.rails) .gh-star { height: 32px; font-size: 14px; }
+  #root:has(.rails) .footer { font-size: 15px; line-height: 24px; }
+  #root:has(.rails) .footer-group h2 { font-size: 15px; line-height: 24px; }
+  .rails .empty { font-size: 15px; line-height: 24px; }
+  .rails .field { font-size: 15px; }
+  .rails .field-label { font-size: 13px; line-height: 20px; }
+  .rails .runs-hint { font-size: 15px; }
+}
+
+/* Double rails: each side is two hairlines 4px apart, like a track. The
+   hairlines between sections run to the inner line. Phones have no side
+   rails, so their hairlines run edge to edge. */
+.rails, .rails > section { position: relative; }
+@media (min-width: 720px) {
+  .rails, .rails > section + section, #root:has(.rails) .footer { box-shadow: none; }
+  #root:has(.rails) .footer { position: relative; }
+  .rails::before, .rails > section + section::before, #root:has(.rails) .footer::before {
+    content: ""; position: absolute; top: 0; left: 5px; right: 5px; height: 1px; background: var(--grid); pointer-events: none;
+  }
+}
+
+/* Hero: tinted glass slabs fanning open and shut. Each slab turns about a pin
+   near its base; where they overlap, the tints deepen like stacked glass.
+   At rest under reduced motion, the fan stays open. */
+.glass-fan { position: relative; width: 320px; height: 300px; flex: none; }
+.glass-slab {
+  position: absolute; left: 50%; bottom: 36px; width: 112px; height: 216px; margin-left: -56px;
+  border-radius: 6px; transform-origin: 50% 86%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 52%, transparent), color-mix(in srgb, var(--c) 20%, transparent) 50%, color-mix(in srgb, var(--c) 2%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent), inset 0 1px 0 rgba(255,255,255,.7);
+  transform: perspective(900px) rotateX(12deg) rotateZ(var(--open));
+  animation: fan 9s var(--ease-in-out) infinite both;
+  animation-delay: calc(var(--i) * 70ms);
+  will-change: transform;
+}
+:root[data-theme="dark"] .glass-slab { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
+@keyframes fan {
+  0%, 12% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--shut)); }
+  48%, 74% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--open)); }
+  100% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--shut)); }
+}
+/* A soft shadow under the pin that widens as the fan opens. */
+.glass-shadow {
+  position: absolute; left: 50%; bottom: 20px; width: 240px; height: 28px; margin-left: -120px; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--shadow), transparent); opacity: .5;
+  animation: fan-shadow 9s var(--ease-in-out) infinite both;
+}
+@keyframes fan-shadow {
+  0%, 12% { transform: scaleX(.5); }
+  48%, 74% { transform: scaleX(1); }
+  100% { transform: scaleX(.5); }
+}
+@media (prefers-reduced-motion: reduce) { .glass-slab, .glass-shadow { animation: none; } }
+@media (min-width: 1024px) {
+  .glass-fan { width: 400px; height: 360px; }
+  .glass-slab { width: 136px; height: 264px; margin-left: -68px; bottom: 44px; }
+  .glass-shadow { width: 300px; margin-left: -150px; bottom: 26px; }
+}
+@media (min-width: 1024px) { .rails .start-top { grid-template-columns: minmax(0, 1fr) 400px; } }
+
+/* The example cards open on a short run in glass: clean for the real site, broken for the demo. */
+.example-run { display: flex; align-items: flex-end; gap: 4px; height: 32px; }
+.example-run .how-frame { width: 6px; }
+
+/* Glass: the material the home page is drawn in, from the hero's fan down.
+   A pane is tinted by --c, densest at the top and clearing toward its base,
+   with a colored edge and a lit top. A pane the page missed (data-off) is
+   the same glass in gray. */
+.glass {
+  border-radius: 4px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 56%, transparent), color-mix(in srgb, var(--c) 22%, transparent) 55%, color-mix(in srgb, var(--c) 6%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.7);
+}
+:root[data-theme="dark"] .glass { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 75%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
+.glass[data-off] { --c: var(--data-line); }
+
+/* Glass frames: a row per device, one pane per screen refresh, standing
+   flat like the hero's. Each rises when its refresh passed. The device's
+   mark and frame rate lead each row. */
+.frames { margin: 0; display: flex; flex-direction: column; gap: 28px; }
+.frames-row { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; align-items: end; }
+.frames-name { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: 6px; color: var(--ink); }
+.frames-name svg { width: 18px; height: 18px; }
+.frames-fps { font-size: 13px; line-height: 16px; color: var(--ink-2); white-space: nowrap; }
+.frames-unit { margin-left: 3px; color: var(--ink-3); }
+.frames-track { position: relative; height: 88px; }
+.frames-slab { position: absolute; bottom: 10px; height: 72px; width: calc(100% / 30 * .62); transform-origin: 50% 100%; transform: scaleY(0); }
+.frames[data-play] .frames-slab { animation: frames-rise var(--dur-base) var(--ease-out) var(--t) both; }
+@keyframes frames-rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+/* The same soft shadow the hero's fan stands on. */
+.frames-shadow { position: absolute; left: 0; right: 0; bottom: 2px; height: 16px; border-radius: 50%; background: radial-gradient(closest-side, var(--shadow), transparent); opacity: .35; }
+@media (prefers-reduced-motion: reduce) { .frames-slab { transform: none; animation: none !important; } }
+@media (min-width: 1024px) {
+  .frames { gap: 32px; }
+  .frames-row { grid-template-columns: 56px minmax(0, 1fr); gap: 24px; }
+  .frames-name svg { width: 20px; height: 20px; }
+  .rails .frames-fps { font-size: 15px; line-height: 20px; }
+  .frames-track { height: 104px; }
+  .frames-slab { height: 88px; }
+}
+
+/* How it works, in glass. */
+.how-probe { position: relative; width: 168px; height: 52px; }
+.how-probe-back { position: absolute; width: 140px; height: 40px; }
+.how-probe-back:nth-child(1) { left: 0; top: 0; }
+.how-probe-back:nth-child(2) { left: 10px; top: 6px; }
+.how-probe-front {
+  position: absolute; right: 0; bottom: 0; width: 140px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  font: 500 13px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink);
+}
+.how-scroll {
+  position: relative; width: 140px; height: 100%; overflow: hidden;
+  mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent);
+}
+.how-scroll-track { position: absolute; left: 12px; right: 12px; top: 0; display: flex; flex-direction: column; gap: 8px; animation: how-scroll 6s linear infinite; }
+.how-strip { display: block; height: 14px; flex: none; }
+@keyframes how-scroll { to { transform: translateY(calc(-50% - 4px)); } }
+.how-window { position: absolute; left: 4px; top: 50%; width: calc(100% - 8px); height: 40px; transform: translateY(-50%); overflow: visible; }
+.how-window rect { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 5 4; animation: how-march 1.2s linear infinite; }
+@keyframes how-march { to { stroke-dashoffset: -18; } }
+.how-frames { display: flex; align-items: flex-end; gap: 4px; height: 48px; }
+.how-frame { width: 8px; height: 100%; }
+@media (prefers-reduced-motion: reduce) { .how-scroll-track, .how-window rect { animation: none; } }
+
+/* No runs yet: a row of gray panes, nothing recorded, inside a dashed
+   outline like the ?perf step's window. */
+.runs-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 32px 24px;
+  border: 1px dashed var(--ring-firm); border-radius: 6px;
+  text-align: center; color: var(--ink-3); line-height: 22px;
+}
+.runs-empty strong { color: var(--ink); font-weight: 500; }
+.runs-empty-row { display: flex; align-items: flex-end; gap: 4px; height: 28px; margin-bottom: 12px; }
+.runs-empty-row .how-frame { width: 6px; }
+@media (min-width: 1024px) { .rails .runs-empty { font-size: 15px; line-height: 24px; } }
+
+/* Report in the rails: the header, the overview and the open tab are one
+   section each, with hairlines between, like the home page. */
+.report > .report-sec { padding-top: 24px; padding-bottom: 24px; }
+.report > .report-top { padding-top: 32px; }
+.report > .report-panel { padding-bottom: 56px; }
+.report .report-head { padding: 0; }
+.report .overview { margin: 0; }
+.report .tab-panel { margin-top: 0; }
+@media (min-width: 1024px) {
+  .report > .report-sec { padding-top: 32px; padding-bottom: 32px; }
+  .report > .report-top { padding-top: 40px; }
+  .report > .report-panel { padding-bottom: 72px; }
+}
+
+/* Report colors from the glass: each category has its tint (--c on its tile,
+   --cat on its tab). The selected tile is a pane of that glass; on-time
+   frames and good bars take it too, while late and poor stay amber and red. */
+.report .tile[aria-selected="true"] {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 18%, var(--raised)), var(--raised) 75%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(0,0,0,.06), 0 6px 16px -8px var(--shadow);
+}
+:root[data-theme="dark"] .report .tile[aria-selected="true"] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.12), 0 6px 16px -8px var(--shadow);
+}
+.report .bar[data-rating="smooth"], .report .bar[data-level="good"], .report .scale-track .bar:not([data-level]) { background: color-mix(in srgb, var(--cat) 70%, transparent); }
+.swatch-glass { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
+
+/* Score rings: a score out of 100 in its band's color, like Lighthouse.
+   The arc starts at the top and fills clockwise. */
+.score { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.score svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.score-track { fill: none; stroke: var(--grid); }
+.score-arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset var(--dur-slow) var(--ease-out); }
+.score[data-level="good"] .score-arc { stroke: var(--good); }
+.score[data-level="warn"] .score-arc { stroke: var(--warn); }
+.score[data-level="bad"] .score-arc { stroke: var(--bad); }
+.score[data-level="good"] { --score-fill: color-mix(in srgb, var(--good) 8%, transparent); }
+.score[data-level="warn"] { --score-fill: color-mix(in srgb, var(--warn) 10%, transparent); }
+.score[data-level="bad"] { --score-fill: color-mix(in srgb, var(--bad) 8%, transparent); }
+.score { border-radius: 50%; background: var(--score-fill); }
+.score-num { position: relative; font-size: 12px; line-height: 1; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; }
+.score[data-large] .score-num { font-size: 19px; }
+.score[data-small] .score-num { font-size: 10px; letter-spacing: -0.04em; }
+@media (prefers-reduced-motion: reduce) { .score-arc { transition: none; } }
+/* The report's overall score leads its header, beside the device and page.
+   Each overview tile carries its category's score on the right of its label. */
+.report-name { display: flex; align-items: center; gap: 16px; }
+.report .tile-label { gap: 8px; }
+
+/* Docs in the frame: the same rails as the rest of the site. On wide screens
+   the section list has its own lane, divided from the text by a double line
+   (the rails' motif), and each section is a cell whose hairline runs from
+   that line to the rail. */
+.doc-frame { display: grid; grid-template-columns: minmax(0, 1fr); }
+.doc-side { display: none; }
+@media (min-width: 900px) {
+  .doc-frame {
+    grid-template-columns: 224px minmax(0, 1fr);
+    background:
+      linear-gradient(var(--grid), var(--grid)) 219px 0 / 1px 100% no-repeat,
+      linear-gradient(var(--grid), var(--grid)) 223px 0 / 1px 100% no-repeat;
+  }
+  .doc-side { display: block; position: sticky; top: 0; align-self: start; padding: 40px 24px 40px var(--gutter); }
+}
+.doc-nav { display: flex; flex-direction: column; gap: 2px; margin: 0 -10px; }
+.doc-nav a {
+  height: 32px; display: flex; align-items: center; padding: 0 10px; border-radius: 6px;
+  font-size: 14px; color: var(--ink-3);
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.doc-nav a:hover { color: var(--ink); background: var(--hover); }
+/* The current section: plain ink, nothing else. */
+.doc-nav a[aria-current] { color: var(--ink); font-weight: 500; }
+.doc-nav a[aria-current]:hover { background: none; }
+@media (min-width: 1024px) { .doc-nav a { font-size: 15px; } }
+/* The top bar sits above the docs now, so only phones need the fade under their pinned list. */
+.doc-fade-wide { display: none !important; }
+
+.doc-frame .doc-head { padding: 40px var(--gutter) 32px; gap: 8px; }
+.doc-frame .doc-section { padding: 40px var(--gutter); }
+@media (min-width: 900px) {
+  .doc-frame .doc-head { padding: 56px 48px 40px; }
+  .doc-frame .doc-section { padding: 56px 48px; }
+}
+/* Text keeps a readable measure inside the wider cells. */
+.doc-frame .doc-head > *, .doc-frame .doc-section > * { max-width: 720px; }
+.doc-frame .doc-toc { margin: 0; }
+.doc-frame .doc-fade { margin-left: 0; margin-right: 0; }
+
+
+/* The docs' pictures, in the same glass as the home page. */
+.doc-card-icon .pass { background: none; }
+.pass-page i { background: color-mix(in srgb, var(--ink) 30%, transparent); }
+.pass-window { box-shadow: none; border: 1.5px dashed var(--ink); background: none; }
+.strip { display: flex; align-items: center; justify-content: center; height: 76px; padding: 0; background: none; }
+.causes { background: none; justify-content: center; }
+.causes .glass { color: var(--ink); }
+.causes .glass svg { color: var(--ink-2); }
+.specimen-tile[data-selected] {
+  background: linear-gradient(180deg, color-mix(in srgb, #7c5ce6 18%, var(--raised)), var(--raised) 75%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #7c5ce6 45%, transparent), 0 1px 2px rgba(0,0,0,.06);
+}
+.doc-tag { background: none; box-shadow: inset 0 0 0 1px var(--ring-firm); }
+@media (max-width: 480px) { .specimen-value span { display: none; } }
+.specimen-label { gap: 6px; }

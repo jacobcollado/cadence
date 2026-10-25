@@ -1,16 +1,18 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Run } from "../../shared/run";
 import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { scoreLevel, scores, type Scores } from "../../shared/score";
 import { heapMissing, LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
 import { reportMarkdown } from "../markdown";
 import { ADVICE, CAUSE_LABEL, scrollTip } from "../../shared/advice";
 import { decodeRun, dismissSavedNote, download, pathOf, saveRun, savedNoteSeen, when } from "../lib";
+import { CATEGORY, tint } from "../glass";
 
 type State = { run: Run; stats: RunStats } | { error: string } | null;
 
@@ -32,13 +34,17 @@ export function Report() {
   return (
     <div className="shell">
       <TopBar />
-      {state && "error" in state && (
-        <div className="recess empty enter" style={{ marginTop: 48 }}>
-          <strong>Couldn't open this report</strong>
-          {state.error}
-        </div>
-      )}
-      {state && "run" in state && <ReportBody run={state.run} stats={state.stats} />}
+      <div className="rails report">
+        {state && "error" in state && (
+          <section className="report-sec">
+            <div className="recess empty enter">
+              <strong>Couldn't open this report</strong>
+              {state.error}
+            </div>
+          </section>
+        )}
+        {state && "run" in state && <ReportBody run={state.run} stats={state.stats} />}
+      </div>
     </div>
   );
 }
@@ -57,6 +63,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   const cause = diagnose(run, stats);
   const metrics = pageLoad(run);
   const mem = memory(run);
+  const sc = scores(stats, metrics, mem);
   const name = splitName(run.device.name);
 
   // Context that changes how to read every tab, so it sits above them.
@@ -73,10 +80,16 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
 
   return (
     <>
+      <section className="report-sec report-top">
       <header className="report-head enter">
         <div className="report-title">
-          <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{name.device}</h1>
-          <p className="report-page">{pathOf(run.url)}</p>
+          <div className="report-name">
+            <ScoreRing score={sc.overall} size={56} />
+            <div>
+              <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{name.device}</h1>
+              <p className="report-page">{pathOf(run.url)}</p>
+            </div>
+          </div>
           {flags.length > 0 && (
             <div className="report-flags">
               {flags.map((f) => (
@@ -90,18 +103,22 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         </div>
         <div className="actions">
           <DeviceButton run={run} />
-          <CopyButton text={() => reportMarkdown(run, stats, cause, metrics, mem, location.href)} label="Copy as Markdown" icon="markdown" />
+          <CopyButton text={() => reportMarkdown(run, stats, cause, metrics, mem, sc, location.href)} label="Copy as Markdown" icon="markdown" />
           <CopyButton text={() => location.href} />
         </div>
       </header>
 
       <SavedNote />
+      </section>
 
-      <div className="enter">
-        <Overview run={run} stats={stats} metrics={metrics} mem={mem} tab={tab} onPick={pick} />
-      </div>
+      <section className="report-sec">
+        <div className="enter">
+          <Overview run={run} stats={stats} metrics={metrics} mem={mem} scores={sc} tab={tab} onPick={pick} />
+        </div>
+      </section>
 
-      <div className="tab-panel enter" key={tab} role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+      <section className="report-sec report-panel">
+      <div className="tab-panel enter" key={tab} role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} style={{ "--cat": tint(CATEGORY[tab]) } as CSSProperties}>
         {tab === "smooth" && (
           <SmoothTab run={run} stats={stats} cause={cause} highlight={highlight} setHighlight={setHighlight} />
         )}
@@ -136,6 +153,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
           </>
         )}
       </div>
+      </section>
     </>
   );
 }
@@ -174,31 +192,33 @@ function SavedNote() {
 }
 
 /** One tile per graded category. Each tile is also the tab for its part. */
-function Overview({ run, stats, metrics, mem, tab, onPick }: {
+function Overview({ run, stats, metrics, mem, scores: sc, tab, onPick }: {
   run: Run;
   stats: RunStats;
   metrics: Metric[];
   mem: MemoryReport | null;
+  scores: Scores;
   tab: Tab;
   onPick: (t: Tab) => void;
 }) {
   const graded = metrics.filter((m) => m.level);
   const worstLoad = graded.find((m) => m.level === "bad") ?? graded.find((m) => m.level === "warn");
-  const loadLevel: Level | undefined = graded.length ? worstLoad?.level ?? "good" : undefined;
+  // The tile's grade follows its score, like Lighthouse; the detail still names the worst metric.
+  const loadLevel: Level | undefined = sc.load !== null ? scoreLevel(sc.load) : undefined;
   const lcp = metrics.find((m) => m.key === "lcp");
   const headline = worstLoad ?? lcp;
   const loadCounts = (["bad", "warn"] as Level[])
     .map((l) => [l, graded.filter((m) => m.level === l).length] as const)
     .filter(([, n]) => n);
 
-  const tiles: { id: Tab; label: string; level?: Level; value: ReactNode; detail: string }[] = [
+  const tiles: { id: Tab; label: string; level?: Level; score: number | null; value: ReactNode; detail: string }[] = [
     {
-      id: "smooth", label: "Smoothness", level: RATING_LEVEL[stats.rating],
+      id: "smooth", label: "Smoothness", level: RATING_LEVEL[stats.rating], score: sc.smooth,
       value: <><CountUp className="num" value={stats.fps} /><span className="tile-unit">fps</span></>,
       detail: `${RATING_LABEL[stats.rating]}, out of ${run.hz}`,
     },
     {
-      id: "load", label: "Page load", level: loadLevel,
+      id: "load", label: "Page load", level: loadLevel, score: sc.load,
       value: headline?.value !== undefined
         ? <><span className="num">{headline.display}</span>{headline.key === "nodes" && <span className="tile-unit">elements</span>}</>
         : <span className="tile-none">Not reported</span>,
@@ -209,7 +229,7 @@ function Overview({ run, stats, metrics, mem, tab, onPick }: {
           : `${headline?.name ?? "Every metric"}, all good`,
     },
     {
-      id: "memory", label: "Memory", level: mem?.level,
+      id: "memory", label: "Memory", level: mem?.level, score: sc.memory,
       value: mem?.heap
         ? <><span className="num">{mem.heap.peak.toFixed(1)}</span><span className="tile-unit">MB</span></>
         : mem?.nodes
@@ -230,10 +250,12 @@ function Overview({ run, stats, metrics, mem, tab, onPick }: {
           aria-selected={tab === t.id}
           aria-controls={`panel-${t.id}`}
           className="tile"
+          style={{ "--c": tint(CATEGORY[t.id]) } as CSSProperties}
           onClick={() => onPick(t.id)}
         >
           <span className="tile-label">
-            {t.level && <StatusIcon level={t.level} />}
+            {/* The score ring carries the grade's color, so it takes the status icon's place. */}
+            {t.score !== null ? <ScoreRing score={t.score} size={28} /> : t.level && <StatusIcon level={t.level} />}
             {t.label}
           </span>
           <span className="tile-value">{t.value}</span>
@@ -252,6 +274,21 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
   setHighlight: (i: number | null) => void;
 }) {
   const rows = stats.sections.filter((s) => s.frames > 0);
+  // Where each section sits in the run, so its bar takes the same glass color
+  // as its frames in the chart above.
+  const mids = new Map<number, number>();
+  {
+    const first = new Map<number, number>(), last = new Map<number, number>();
+    run.seg.forEach((seg, i) => {
+      if (!first.has(seg)) first.set(seg, i);
+      last.set(seg, i);
+    });
+    const total = stats.time || 1;
+    for (const [seg, a] of first) {
+      const t0 = a ? stats.times[a - 1] : 0;
+      mids.set(seg, (t0 + stats.times[last.get(seg)!]) / 2 / total);
+    }
+  }
   const judged = stats.judged;
   const smoothCount = judged.filter((s) => s.rating === "smooth").length;
   const budget = Math.round(stats.interval);
@@ -276,7 +313,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
             </Info>
           </div>
           <div className="legend">
-            <span><i className="swatch" style={{ background: "var(--data)" }} />On time</span>
+            <span><i className="swatch swatch-glass" />On time</span>
             <span><i className="swatch" style={{ background: "var(--warn)" }} />Late</span>
             <span><i className="swatch" style={{ background: "var(--bad)" }} />Freeze over {FREEZE} ms</span>
             {lane && <span><i className="swatch" style={{ background: "var(--ink-2)" }} />Busy main thread</span>}
@@ -359,6 +396,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
               <tbody>
                 {rows.map((s, i) => {
                   const judged = s.time >= MIN_SECTION_TIME;
+                  const smooth = judged && s.rating === "smooth";
                   return (
                     <tr
                       key={s.index}
@@ -370,7 +408,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                       <td>{judged ? <RatingTag rating={s.rating} /> : <span className="brief">Too brief</span>}</td>
                       <td>
                         <div className="fps-cell">
-                          <Bar value={s.fps / run.hz} rating={judged ? s.rating : undefined} delay={i * 40} />
+                          <Bar value={s.fps / run.hz} rating={judged ? s.rating : undefined} delay={i * 40} color={smooth ? `color-mix(in srgb, ${tint(mids.get(s.index) ?? 0)} 70%, transparent)` : undefined} />
                           <span className="num r">{Math.round(s.fps)}</span>
                         </div>
                       </td>
@@ -581,7 +619,7 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
           <Info title="Memory">
             <p>Two signs of a leak, sampled twice a second: the JavaScript heap, which is what the page's scripts hold on to, and the number of elements on the page.</p>
             <p>Some rise and fall is normal. Memory that only climbs is a leak, and on phones it ends with the tab reloading. Growing means the heap rose more than 10 MB, or the page gained more than 500 elements, and either rose by more than a fifth.</p>
-            <p>Most pages can only read a rounded heap figure from Chrome that it rarely refreshes. When it doesn't move, Cadence leaves it out rather than call it steady.</p>
+            <p>Chromium browsers give pages only a rounded heap figure that they rarely refresh. When it doesn't move, Cadence leaves it out rather than call it steady.</p>
           </Info>
         </div>
         {m && <StatusTag level={m.level} label={m.level === "good" ? "Steady" : "Growing"} />}

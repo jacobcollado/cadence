@@ -3,6 +3,7 @@ import type { Run } from "../../shared/run";
 import { FREEZE, frameAt, fpsAround, LAYOUT, missed, tier, type RunStats } from "../../shared/stats";
 import { DUR, easeOut, reducedMotion } from "../../shared/motion";
 import { token, useTheme } from "../theme";
+import { tintRgba } from "../glass";
 
 const LABELS = 24;
 const PLOT = 160;
@@ -17,6 +18,7 @@ const TICK_GAP = 14;
 
 // Colors come from the theme tokens, read when drawing. Per tier: on time,
 // late, freeze; the dim set is for frames outside a highlighted section.
+// On-time frames are drawn in the glass spectrum instead (see bar below).
 function palette() {
   return {
     fill: [token("--data"), token("--warn"), token("--bad")],
@@ -245,7 +247,9 @@ function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
   const bar = (x0: number, w: number, d: number, dim: boolean) => {
     const level = tier(d, stats.interval);
     const h = Math.max(px, Math.min(1, d / ceiling) * PLOT * progress);
-    ctx.fillStyle = (dim ? C.fillDim : C.fill)[level];
+    // On time, a frame takes the glass color for where it falls in the run;
+    // late and frozen ones keep their status colors so problems stand out.
+    ctx.fillStyle = level === 0 ? tintRgba((x0 - GUTTER) / PW, dim ? 0.2 : 0.7) : (dim ? C.fillDim : C.fill)[level];
     ctx.fillRect(x0, plotBottom - h, w, h);
     // Past the top of the scale: a break near the end says it ran further.
     if (d > ceiling && progress >= 1) ctx.clearRect(x0, LABELS + 4, w, 2);
