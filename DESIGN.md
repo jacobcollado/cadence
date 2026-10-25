@@ -45,7 +45,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 
 ## Layout
 
-- Every page uses the same `.shell` (960px, 16 or 32px gutters), and the scrollbar's room is always reserved (`scrollbar-gutter: stable`), so moving between a short page and a long one never shifts the layout.
+- Every page uses the same `.shell` (960px, 16 or 32px gutters). The scrollbar takes room only when the page scrolls; no gutter is reserved, so full-width bars reach the window edge.
 
 ## Components
 
