@@ -36,7 +36,7 @@ The rules live in `src/shared/stats.ts`, so the panel and the report always agre
 - A frame is on time, late (it missed a refresh) or a freeze (50 ms or more).
 - **Smooth** holds 92% of the refresh rate with 95% of frames on time and no freezes. **Choppy** is under 45 fps, or under three quarters of the screen's rate when it's slower than 60. **Uneven** is everything in between.
 - A whole run is Smooth only when every section on screen long enough to judge is Smooth too.
-- Each freeze is traced to a slow script, to style and layout, or to drawing, based on what the browser reported during it. Late frames under 50 ms can't be traced, and the report says so.
+- Each freeze is traced to a slow script, to style and layout, or to drawing, based on what the browser reported during it. Browsers only report frames with 50 ms of work or more, so a freeze within one refresh of that line with no report stays untraced rather than being put down to drawing. The report says when most dropped frames couldn't be traced.
 
 Frame timing works in every browser. Chromium also reports slow scripts, layout shift, memory and input delay. Safari and Firefox show those as not reported, never as zero.
 
