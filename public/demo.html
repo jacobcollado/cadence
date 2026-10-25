@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brightloop, a slow page on purpose</title>
+<meta name="robots" content="noindex">
+<!--
+  A landing page for a product that doesn't exist, built to be slow. Each
+  section makes one common mistake, and only while it's on screen, so a
+  Cadence report can point at the section and the function behind it.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; color: #17171a; background: #fff; }
+  .note { position: sticky; top: 0; z-index: 10; padding: 10px 16px; text-align: center; font-size: 13px; background: #17171a; color: #fff; }
+  .note a { color: inherit; }
+  section { position: relative; min-height: 100vh; padding: 96px 20px; overflow: hidden; }
+  .wrap { max-width: 1040px; margin: 0 auto; position: relative; }
+  h1 { font-size: clamp(36px, 7vw, 64px); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 16px; }
+  h2 { font-size: 32px; letter-spacing: -0.02em; margin: 0 0 8px; }
+  p { margin: 0; color: #55555c; max-width: 52ch; }
+  .mistake { display: inline-block; margin-bottom: 16px; padding: 4px 10px; border-radius: 6px; font-size: 13px; background: #fff1e6; color: #a34700; }
+  .btn { display: inline-block; margin-top: 28px; padding: 14px 22px; border-radius: 6px; background: #17171a; color: #fff; font-weight: 600; text-decoration: none; }
+
+  /* Hero: big blurred gradients, animated. Expensive to draw on every frame. */
+  .hero { display: grid; align-items: center; background: #0d0d12; color: #fff; }
+  #sparks { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero p { color: #b6b6c2; }
+  .hero .mistake { background: #2a1d12; color: #ffb27a; }
+  .blob { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; filter: blur(90px) saturate(180%); opacity: 0.75; mix-blend-mode: screen; }
+  .blob:nth-child(1) { background: #5b5bff; left: -20vmax; top: -30vmax; }
+  .blob:nth-child(2) { background: #ff4fa3; right: -25vmax; top: -10vmax; }
+  .blob:nth-child(3) { background: #24d6b5; left: 10vmax; bottom: -40vmax; }
+  .hero.on .blob { animation: drift 3s ease-in-out infinite alternate; }
+  .hero.on .blob:nth-child(2) { animation-duration: 2.3s; }
+  .hero.on .blob:nth-child(3) { animation-duration: 3.7s; }
+  @keyframes drift { to { transform: translate(8vmax, 6vmax) scale(1.15); filter: blur(120px) saturate(220%) hue-rotate(40deg); } }
+
+  /* Features: a grid of cards that a scroll handler measures and moves. */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 40px; }
+  .card { position: relative; padding: 14px; border-radius: 6px; background: #f4f4f6; font-size: 13px; color: #55555c; }
+
+  /* Customers: quotes, plus a tracker that blocks the main thread. */
+  .quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 40px; }
+  .quote { padding: 20px; border-radius: 6px; background: #f4f4f6; }
+  .quote strong { display: block; margin-top: 12px; font-size: 14px; }
+
+  /* Pricing: cards whose width and position are animated by script. */
+  .plans { position: relative; height: 420px; margin-top: 40px; }
+  .plan { position: absolute; top: 0; width: 30%; padding: 24px; border-radius: 6px; background: #f4f4f6; }
+  .plan b { display: block; font-size: 28px; margin: 8px 0; }
+  .bar { position: absolute; left: 0; height: 6px; border-radius: 3px; background: #5b5bff; }
+
+  /* Newsletter: keeps a copy of everything, forever. */
+  .signup { display: flex; gap: 8px; margin-top: 28px; max-width: 420px; }
+  .signup input { flex: 1; height: 48px; padding: 0 14px; border: 1px solid #d8d8de; border-radius: 6px; font: inherit; }
+  .signup button { height: 48px; padding: 0 18px; border: 0; border-radius: 6px; background: #17171a; color: #fff; font: inherit; font-weight: 600; }
+  footer { padding: 48px 20px; text-align: center; font-size: 13px; color: #8a8a93; }
+</style>
+</head>
+<body>
+<div class="note">This page is slow on purpose, to show what Cadence finds. <a href="/">Back to Cadence</a></div>
+
+<main>
+  <section class="hero" data-cadence="Hero">
+    <div class="blob"></div><div class="blob"></div><div class="blob"></div><canvas id="sparks"></canvas>
+    <div class="wrap">
+      <span class="mistake">Mistake: a glowing particle canvas, redrawn every frame</span>
+      <h1>Ship faster with Brightloop.</h1>
+      <p>The all-in-one platform for teams who want everything, everywhere, all at once.</p>
+      <a class="btn" href="#pricing">Start free trial</a>
+    </div>
+  </section>
+
+  <section data-cadence="Features">
+    <div class="wrap">
+      <span class="mistake">Mistake: a scroll handler that measures and moves every card</span>
+      <h2>Everything you could need</h2>
+      <p>Hundreds of features, each with its own little parallax.</p>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section data-cadence="Customers">
+    <div class="wrap">
+      <span class="mistake">Mistake: a tracking script that blocks the page and leaves its pixels behind</span>
+      <h2>Loved by teams</h2>
+      <div class="quotes">
+        <div class="quote">"We moved everything to Brightloop in a weekend."<strong>A happy customer</strong></div>
+        <div class="quote">"It does more than we ever asked it to."<strong>Another happy customer</strong></div>
+        <div class="quote">"The dashboard has so many charts."<strong>A third happy customer</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" data-cadence="Pricing">
+    <div class="wrap">
+      <span class="mistake">Mistake: animating width and position from script</span>
+      <h2>Simple pricing</h2>
+      <div class="plans" id="plans">
+        <div class="plan" style="left:0"><span>Starter</span><b>$9</b><p>For one person.</p></div>
+        <div class="plan" style="left:35%"><span>Team</span><b>$49</b><p>For small teams.</p></div>
+        <div class="plan" style="left:70%"><span>Scale</span><b>$199</b><p>For everyone else.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-cadence="Newsletter">
+    <div class="wrap">
+      <span class="mistake">Mistake: a signup bar that resizes the page on every scroll</span>
+      <h2>Get product updates</h2>
+      <p>One email a week, about everything.</p>
+      <form class="signup" onsubmit="return false"><input type="email" placeholder="you@company.com" aria-label="Email"><button>Subscribe</button></form>
+    </div>
+  </section>
+</main>
+<footer>Brightloop isn't real. This page exists to be measured.</footer>
+
+<script>
+  const on = new Map();
+  const watch = (el, cb) => new IntersectionObserver(([e]) => { on.set(el, e.isIntersecting); cb && cb(e.isIntersecting); }).observe(el);
+  const visible = (el) => on.get(el) === true;
+  const busy = (ms) => { const end = performance.now() + ms; while (performance.now() < end) {} };
+
+  // Hero: the gradients drift, and a full-size canvas redraws 300 glowing
+  // sparks every frame. Shadow blur on a canvas is slow to draw.
+  const hero = document.querySelector(".hero");
+  watch(hero, (v) => hero.classList.toggle("on", v));
+  const sparks = document.getElementById("sparks");
+  const sx = sparks.getContext("2d");
+  const dots = Array.from({ length: 300 }, (_, i) => ({ a: i * 2.4, r: 0.15 + (i % 50) / 60, s: 0.4 + (i % 7) / 10 }));
+  function drawSparks(t) {
+    requestAnimationFrame(drawSparks);
+    if (!visible(hero)) return;
+    const w = (sparks.width = sparks.clientWidth * devicePixelRatio);
+    const h = (sparks.height = sparks.clientHeight * devicePixelRatio);
+    sx.shadowBlur = 40;
+    for (const d of dots) {
+      const a = d.a + (t / 1000) * d.s;
+      sx.shadowColor = sx.fillStyle = `hsl(${(a * 40) % 360} 90% 70%)`;
+      sx.beginPath();
+      sx.arc(w / 2 + Math.cos(a) * d.r * w * 0.5, h / 2 + Math.sin(a * 1.3) * d.r * h * 0.5, 3 * devicePixelRatio, 0, 7);
+      sx.fill();
+    }
+  }
+  requestAnimationFrame(drawSparks);
+
+  // Features: on every scroll, read each card's position, then write a new
+  // one, one card at a time. Every write invalidates layout and every read
+  // forces it again, so the browser lays the page out once per card.
+  const grid = document.getElementById("grid");
+  const names = ["Sync", "Insights", "Alerts", "Roles", "Exports", "Webhooks", "Audit log", "Themes", "Search", "Billing"];
+  for (let i = 0; i < 200; i++) {
+    const c = document.createElement("div");
+    c.className = "card";
+    c.textContent = names[i % names.length] + " " + (Math.floor(i / names.length) + 1);
+    grid.appendChild(c);
+  }
+  const cards = Array.from(grid.children);
+  function updateParallax() {
+    if (!visible(grid.parentElement.parentElement)) return;
+    for (const c of cards) {
+      const top = c.getBoundingClientRect().top;
+      c.style.top = Math.round(Math.sin(top / 90) * 6) + "px";
+    }
+  }
+  watch(grid.parentElement.parentElement);
+  addEventListener("scroll", updateParallax, { passive: true });
+
+  // Customers: a tracker that sends "everything" every half second, the
+  // slow way.
+  const customers = document.querySelectorAll("section")[2];
+  watch(customers);
+  const pixels = document.createElement("div");
+  pixels.hidden = true;
+  document.body.appendChild(pixels);
+  function trackEverything() {
+    // Every tick leaves 120 tracking pixels on the page, and none are removed.
+    for (let i = 0; i < 120; i++) pixels.appendChild(document.createElement("img"));
+    if (!visible(customers)) return;
+    busy(150);
+  }
+  setInterval(trackEverything, 400);
+
+  // Pricing: width and left animated from script on every frame, which
+  // means layout on every frame, plus a little extra work per bar.
+  const pricing = document.getElementById("pricing");
+  const plans = document.getElementById("plans");
+  watch(pricing);
+  const bars = [];
+  for (let i = 0; i < 120; i++) {
+    const b = document.createElement("div");
+    b.className = "bar";
+    b.style.top = 300 + (i % 12) * 9 + "px";
+    plans.appendChild(b);
+    bars.push(b);
+  }
+  function animateBars(t) {
+    requestAnimationFrame(animateBars);
+    if (!visible(pricing)) return;
+    bars.forEach((b, i) => {
+      b.style.width = 30 + 60 * (0.5 + 0.5 * Math.sin(t / 400 + i / 7)) + "%";
+      b.style.left = b.offsetWidth % 40 + "px";
+    });
+    busy(14);
+  }
+  requestAnimationFrame(animateBars);
+
+  // Newsletter: the signup form grows and shrinks with the scroll position,
+  // and every size change makes the browser lay out the whole page again.
+  // Reading each field's height right after makes it happen on the spot.
+  const newsletter = document.querySelectorAll("section")[4];
+  const signup = newsletter.querySelector(".signup");
+  watch(newsletter);
+  function resizeSignup() {
+    if (!visible(newsletter)) return;
+    for (let i = 0; i < 40; i++) {
+      signup.style.paddingTop = 8 + ((scrollY + i) % 24) + "px";
+      document.body.style.paddingBottom = (i % 5) + "px";
+      signup.offsetHeight;
+      cards.forEach((c) => c.offsetWidth);
+    }
+  }
+  addEventListener("scroll", resizeSignup, { passive: true });
+</script>
+<script src="/probe.js" async></script>
+</body>
+</html>
