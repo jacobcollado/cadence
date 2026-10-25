@@ -20,6 +20,11 @@ const paths = {
   moon: <path d="M13.25 9.6A5.5 5.5 0 016.4 2.75a5.5 5.5 0 106.85 6.85z" />,
   info: <><circle cx="8" cy="8" r="6.25" /><path d="M8 7.25v3.5M8 5.25h.01" /></>,
   terminal: <><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M5 6.5L7 8.25 5 10M8.5 10H11" /></>,
+  steady: <path d="M8 2.5v11M4.5 10L8 13.5 11.5 10" />,
+  fast: <path d="M4.5 3.5L8 7l3.5-3.5M4.5 9L8 12.5 11.5 9" />,
+  idle: <path d="M6 3.5v9M10 3.5v9" />,
+  manual: <path d="M6.5 8.5V3.25a1.25 1.25 0 012.5 0V8M9 7.5V6.75a1.25 1.25 0 012.5 0V9.5c0 2.5-1.75 4-4 4H7c-1.6 0-2.6-.9-3.3-2.1L2.6 9.6a1.2 1.2 0 012-1.2l1.9 2.1" />,
+  lock: <><rect x="3" y="7" width="10" height="6.5" rx="1.5" /><path d="M5.25 7V5a2.75 2.75 0 015.5 0v2" /></>,
   file: <><path d="M4 2.5h5l3 3v8H4z" /><path d="M9 2.5v3h3" /></>,
   device: <><rect x="2.5" y="3" width="11" height="7.5" rx="1" /><path d="M6 13.5h4M8 10.5v3" /></>,
   // Ratings differ in shape as well as color, so they never rely on color alone.
@@ -39,7 +44,7 @@ export function Icon({ name, size = 16 }: { name: keyof typeof paths; size?: num
 /** The mark: a dot on an orbit, something moving in a steady loop. */
 export function Mark({ size = 16 }: { size?: number }) {
   return (
-    <svg className="mark" width={size} height={(size * 14) / 16} viewBox="0 0 16 14" aria-hidden="true">
+    <svg className="mark" width={(size * 12) / 16} height={(size * 14) / 16} viewBox="2 0 12 14" aria-hidden="true">
       <g className="mark-orbit">
         <path d="M13.2 7.27A5.25 5.25 0 1 1 7.82 2.75" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <circle cx="11.38" cy="3.98" r="1.9" fill="currentColor" />

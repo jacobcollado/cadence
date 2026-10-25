@@ -28,7 +28,7 @@ export function Report() {
 
   return (
     <div className="shell">
-      <TopBar back />
+      <TopBar />
       {state && "error" in state && (
         <div className="recess empty enter" style={{ marginTop: 48 }}>
           <strong>Couldn't open this report</strong>

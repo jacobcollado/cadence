@@ -4,7 +4,7 @@ import { setTheme, useTheme } from "../theme";
 import { Icon, Mark } from "./ui";
 import { GitHubStar } from "./GitHubStar";
 
-export function TopBar({ back, children }: { back?: boolean; children?: ReactNode }) {
+export function TopBar({ children }: { children?: ReactNode }) {
   const theme = useTheme();
   const home = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -13,19 +13,9 @@ export function TopBar({ back, children }: { back?: boolean; children?: ReactNod
   const next = theme === "dark" ? "light" : "dark";
   return (
     <div className="topbar">
-      {back ? (
-        <a href="/" className="back-link" onClick={home}>
-          {/* The chevron's box is trimmed to its ink, so it starts on the content edge. */}
-          <svg width="6" height="10.5" viewBox="4.75 1.25 6 10.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M10 2L5.5 6.5L10 11" />
-          </svg>
-          Runs
-        </a>
-      ) : (
-        <a href="/" className="brand" onClick={home}>
-          <Mark /><span className="brand-word">cadence</span>
-        </a>
-      )}
+      <a href="/" className="brand" onClick={home} aria-label="Cadence, home">
+        <Mark /><span className="brand-word">cadence</span>
+      </a>
       <span className="spacer" />
       {children}
       <a href="/docs" className="topbar-link" aria-current={location.pathname.startsWith("/docs") ? "page" : undefined} onClick={(e) => { e.preventDefault(); navigate("/docs"); }}>Docs</a>

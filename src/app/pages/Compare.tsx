@@ -75,11 +75,11 @@ export function Compare() {
     );
   }, [location.hash]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!entries) return <div className="shell"><TopBar back /></div>;
+  if (!entries) return <div className="shell"><TopBar /></div>;
   if (entries.length < 2) {
     return (
       <div className="shell">
-        <TopBar back />
+        <TopBar />
         <div className="recess empty enter" style={{ marginTop: 48 }}>
           <strong>Pick two runs or more</strong>
           Select runs in the list, then compare them.
@@ -131,7 +131,7 @@ export function Compare() {
 
   return (
     <div className="shell">
-      <TopBar back />
+      <TopBar />
       <header className="report-head compare-head enter">
         <h1 className="subtitle">Compare runs</h1>
         <p className="compare-summary">{summary(entries, groups)}</p>
