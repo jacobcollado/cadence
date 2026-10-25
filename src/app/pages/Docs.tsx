@@ -1,8 +1,9 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Brand, ThemeToggle } from "../components/TopBar";
 import { GitHubStar } from "../components/GitHubStar";
 import { Install } from "../components/Install";
 import { Icon, StatusIcon } from "../components/ui";
+import { reducedMotion } from "../../shared/motion";
 
 // The guide: one centered column in plain words, with the section list beside
 // it on wide screens marking where you are.
@@ -43,6 +44,51 @@ function Card({ icon, title, children }: { icon: ReactNode; title: string; child
 }
 
 const NAV_KEY = "cadence.docs.nav";
+
+const CIPHER = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+const LENGTH = 72;
+
+/**
+ * A report link, drawn so its two halves read at a glance: the address the
+ * server sees, and the encoded run after the # that it never does. A few
+ * characters re-scramble at a time, like ciphertext.
+ */
+function CipherLink() {
+  // The first bracket spans exactly the address part, measured.
+  const host = useRef<HTMLSpanElement>(null);
+  const [hostW, setHostW] = useState(0);
+  useLayoutEffect(() => {
+    const el = host.current!;
+    const ro = new ResizeObserver(() => setHostW(el.offsetWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const [chars, setChars] = useState(() => Array.from({ length: LENGTH }, (_, i) => CIPHER[(i * 37 + 11) % CIPHER.length]));
+  useEffect(() => {
+    if (reducedMotion()) return;
+    const id = setInterval(() => {
+      setChars((c) => {
+        const next = c.slice();
+        for (let k = 0; k < 4; k++) next[Math.floor(Math.random() * LENGTH)] = CIPHER[Math.floor(Math.random() * CIPHER.length)];
+        return next;
+      });
+    }, 140);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <figure className="cipher" style={{ "--host-w": `${hostW}px` } as React.CSSProperties} aria-label="A report link: the address is sent to the server, the run after the # never leaves the browser">
+      <div className="cipher-line" aria-hidden="true">
+        <span ref={host} className="cipher-host">{location.host}/r</span>
+        <span className="cipher-hash">#</span>
+        <span className="cipher-data">{chars.join("")}</span>
+      </div>
+      <div className="cipher-keys" aria-hidden="true">
+        <span className="cipher-key">Sent to the server</span>
+        <span className="cipher-key cipher-key-private"><Icon name="lock" size={12} />Never leaves the browser</span>
+      </div>
+    </figure>
+  );
+}
 
 export function Docs() {
   const [active, setActive] = useState(SECTIONS[0].id);
@@ -223,13 +269,15 @@ loadCadence();`}</Code>
             <Code>{`<Cadence param="test" enabled={process.env.NODE_ENV !== "production"} />`}</Code>
           </Section>
 
-          <Section id="privacy" title="Privacy">
-            <div className="doc-callout">
-              <span className="doc-card-icon"><Icon name="lock" /></span>
-              <div>
-                <p><strong>Cadence has no server and collects nothing.</strong> A run's results travel inside the report link itself, after the <code>#</code>, which browsers never send to any server. A report is saved only in the browser of whoever opens its link.</p>
-                <p>A report link does include the page address, the device and browser, the names of your sections, and the names of slow scripts. Share report links the way you'd share a screenshot of your site.</p>
+          <Section id="privacy" title="Privacy" lede="Cadence has no server and collects nothing. A run travels inside its own report link.">
+            <CipherLink />
+            <p>Everything after the <code>#</code> stays in the browser. Browsers never send it to any server, so a report is saved only in the browser of whoever opens its link.</p>
+            <div className="doc-contains">
+              <div className="doc-contains-title">What a report link contains</div>
+              <div className="doc-tags">
+                {["Page address", "Device and browser", "Section names", "Slow script names"].map((t) => <span key={t} className="doc-tag">{t}</span>)}
               </div>
+              <p>Share report links the way you'd share a screenshot of your site.</p>
             </div>
           </Section>
         </article>

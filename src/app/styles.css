@@ -846,3 +846,31 @@ svg { display: block; flex: none; }
 /* Wide screens fade from the top of the column; phones fade under the pinned section bar. */
 .doc-fade-phone { display: none; }
 @media (max-width: 899px) { .doc-fade-wide { display: none; } .doc-fade-phone { display: block; } }
+
+/* Privacy: a report link split into the part the server sees and the part it
+   never does. */
+.cipher { margin: 0; padding: 20px; border-radius: 6px; background: var(--recess); box-shadow: inset 0 0 0 1px var(--ring); overflow: hidden; }
+.cipher-line {
+  display: flex; white-space: nowrap; overflow: hidden;
+  font: 400 13px/20px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0;
+  -webkit-mask-image: linear-gradient(to right, #000 75%, transparent); mask-image: linear-gradient(to right, #000 75%, transparent);
+}
+.cipher-host { color: var(--ink); }
+.cipher-hash { color: var(--good); font-weight: 600; padding: 0 1px; }
+.cipher-data { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* Brackets under each half: a hairline with ticks at both ends, and its label. */
+.cipher-keys { display: flex; margin-top: 10px; font-size: 12px; line-height: 16px; }
+.cipher-key { position: relative; display: flex; align-items: center; gap: 6px; padding-top: 10px; color: var(--ink-3); white-space: nowrap; }
+.cipher-key::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+  border: 1px solid var(--ring-firm); border-top: 0; border-radius: 0 0 3px 3px;
+}
+.cipher-key:first-child { width: var(--host-w, 120px); }
+.cipher-key-private { flex: 1; margin-left: 6px; color: var(--ink-2); }
+.cipher-key-private::before { border-color: color-mix(in srgb, var(--good) 55%, transparent); }
+.cipher-key-private svg { color: var(--good); }
+
+.doc-contains { padding-top: 4px; }
+.doc-contains-title { font-size: 15px; line-height: 22px; font-weight: 600; color: var(--ink); }
+.doc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
+.doc-tag { height: 28px; padding: 0 10px; border-radius: 6px; display: inline-flex; align-items: center; background: var(--recess); color: var(--ink-2); font-size: 13px; line-height: 1; }
