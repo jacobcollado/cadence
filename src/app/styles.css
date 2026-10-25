@@ -1282,7 +1282,9 @@ svg { display: block; flex: none; }
 .how-scroll-track { position: absolute; left: 12px; right: 12px; top: 0; display: flex; flex-direction: column; gap: 8px; animation: how-scroll 6s linear infinite; }
 .how-strip { display: block; height: 14px; flex: none; }
 @keyframes how-scroll { to { transform: translateY(calc(-50% - 4px)); } }
-.how-window { position: absolute; left: 4px; right: 4px; top: 50%; height: 40px; transform: translateY(-50%); border-radius: 6px; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.how-window { position: absolute; left: 4px; top: 50%; width: calc(100% - 8px); height: 40px; transform: translateY(-50%); overflow: visible; }
+.how-window rect { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 5 4; animation: how-march 1.2s linear infinite; }
+@keyframes how-march { to { stroke-dashoffset: -18; } }
 .how-frames { display: flex; align-items: flex-end; gap: 4px; height: 48px; }
 .how-frame { width: 8px; height: 100%; }
-@media (prefers-reduced-motion: reduce) { .how-scroll-track { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .how-scroll-track, .how-window rect { animation: none; } }

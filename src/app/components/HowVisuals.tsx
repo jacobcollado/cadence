@@ -29,7 +29,10 @@ export function ScrollPanes() {
           <span key={i} className="glass how-strip" style={{ "--c": tint(0.3 + (k / STRIPS) * 0.4), width: `${[100, 72, 88, 64, 96, 80][k]}%` } as CSSProperties} />
         ))}
       </span>
-      <span className="how-window" />
+      {/* The panel's window, drawn as a dashed marquee whose dashes march, like a selection being worked on. */}
+      <svg className="how-window" aria-hidden="true">
+        <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="6" />
+      </svg>
     </span>
   );
 }
