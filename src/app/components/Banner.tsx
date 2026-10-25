@@ -22,10 +22,16 @@ export function Banner() {
   };
   return (
     <div className="banner" role="note">
-      <p>
-        Cadence is an early build by <span className="banner-sign">Jacob</span>. I'd love your{" "}
+      <p className="banner-long">
+        Cadence is an early build. I'd love your{" "}
         <a href={`${REPO}/issues`} target="_blank" rel="noopener">feedback</a>, and a{" "}
         <a href={REPO} target="_blank" rel="noopener">star</a> if you like it.
+      </p>
+      {/* Phones: the same note, short enough for one line. */}
+      <p className="banner-short">
+        Early build.{" "}
+        <a href={`${REPO}/issues`} target="_blank" rel="noopener">Feedback</a> and{" "}
+        <a href={REPO} target="_blank" rel="noopener">stars</a> welcome.
       </p>
       <button className="banner-close" aria-label="Dismiss" onClick={close}><Icon name="close" size={14} /></button>
     </div>

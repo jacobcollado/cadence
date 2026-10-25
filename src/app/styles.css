@@ -1048,13 +1048,18 @@ svg { display: block; flex: none; }
 }
 .banner a { color: var(--ink); font-weight: 500; box-shadow: inset 0 -1px 0 var(--ring-firm); transition: box-shadow var(--dur-fast) var(--ease-out); }
 .banner a:hover { box-shadow: inset 0 -1px 0 var(--ink); }
-.banner-sign { color: var(--ink); font-weight: 500; }
 .banner-close {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   width: 24px; height: 24px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;
   color: var(--ink-3); transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
 .banner-close:hover { color: var(--ink); background: var(--hover); }
-@media (max-width: 600px) { .banner { padding: 10px 44px 10px var(--gutter); justify-content: flex-start; text-align: left; } }
+.banner-short { display: none; }
+@media (max-width: 600px) {
+  .banner { min-height: 36px; padding: 8px 32px; justify-content: center; text-align: center; font-size: 12px; line-height: 18px; }
+  .banner-long { display: none; }
+  .banner-short { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .banner-close { right: 8px; }
+}
 /* With the banner above, the docs sidebar still fits the window, so its controls stay in view. */
 #root:has(.banner) .doc-side { height: calc(100dvh - 40px); }
