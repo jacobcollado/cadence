@@ -58,6 +58,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - **Buttons**: 36px secondary for actions, the pressable primary only for the one main action on a view.
 - **Info** (`Info`): an "i" beside a title or column header that opens a raised card: what it is, why it matters, the thresholds, and where this run landed. Use it instead of subtitles. What stays visible: verdicts, numbers, thresholds and the sentences that explain a slowdown.
 - **Disclosure**: only for reference material that isn't graded.
+- **Footer**: under a hairline, on the page's content edges: the logo with who makes it and the license, then link groups (Product, Follow) with a 13px heading in ink and links in ink-2.
 - **Charts**: the frame timeline and memory spark are canvas or SVG, gray data, status color only for problems, hover tooltips as white raised cards.
 
 ## Writing

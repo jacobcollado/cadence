@@ -33,6 +33,7 @@ export class Runner {
   private ticks = 0;
   private memTimer = 0;
   private mem: [number, number][] = [];
+  private dom: [number, number][] = [];
   private sectionsAtStart: Run["sections"] = [];
 
   constructor(
@@ -71,16 +72,20 @@ export class Runner {
     this.max = scrollMax();
     this.sectionsAtStart = this.sections.layout();
     this.mem = [];
+    this.dom = [];
     const rec = this.monitor.record();
     this.began = rec.start;
-    if (this.observers.support.memory) {
-      const sample = () => {
-        const heap = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
-        if (heap) this.mem.push([Math.round(performance.now() - this.began), Math.round(heap.usedJSHeapSize / 1e5)]);
-      };
-      sample();
-      this.memTimer = window.setInterval(sample, 500);
-    }
+    // Page elements are exact in every browser, and elements that pile up
+    // are the most common leak. Chrome's heap figure is rounded and rarely
+    // refreshed, so the report only shows it when it moved.
+    const sample = () => {
+      const t = Math.round(performance.now() - this.began);
+      this.dom.push([t, document.getElementsByTagName("*").length]);
+      const heap = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
+      if (heap) this.mem.push([t, Math.round(heap.usedJSHeapSize / 1e5)]);
+    };
+    sample();
+    this.memTimer = window.setInterval(sample, 500);
     this.setPhase("running");
   }
 
@@ -114,10 +119,12 @@ export class Runner {
 
     const t0 = rec.start;
     const t1 = performance.now();
+    this.dom.push([Math.round(t1 - t0), document.getElementsByTagName("*").length]);
     // The frame that ended the run is still open; its long-frame entry
     // arrives a moment later.
     await new Promise((r) => setTimeout(r, 250));
     this.observers.flush();
+
     const within = (t: number) => t >= t0 && t <= t1;
 
     const run: Run = {
@@ -143,6 +150,7 @@ export class Runner {
         .filter(([t]) => within(t))
         .map(([t, v]) => [Math.round(t - t0), Math.round(v * 10000)]),
       mem: this.mem,
+      dom: this.dom,
       vitals: this.observers.snapshot(),
       support: this.observers.support,
     };

@@ -35,9 +35,12 @@ The rules live in `src/shared/stats.ts`, so the panel and the report always agre
 
 - A frame is on time, late (it missed a refresh) or a freeze (50 ms or more).
 - **Smooth** holds 92% of the refresh rate with 95% of frames on time and no freezes. **Choppy** is under 45 fps, or under three quarters of the screen's rate when it's slower than 60. **Uneven** is everything in between.
-- Each freeze is traced to a slow script, to style and layout, or to drawing, based on what the browser reported during it. Late frames under 50 ms can't be traced, and the report says so.
+- A whole run is Smooth only when every section on screen long enough to judge is Smooth too.
+- Each freeze is traced to a slow script, to style and layout, or to drawing, based on what the browser reported during it. Browsers only report frames with 50 ms of work or more, so a freeze within one refresh of that line with no report stays untraced rather than being put down to drawing. The report says when most dropped frames couldn't be traced.
 
-Frame timing works in every browser. Chromium also reports slow scripts, layout shift, memory and input delay. Safari and Firefox show those as not reported, never as zero.
+Frame timing and page elements work in every browser. Chromium also reports slow scripts, layout shift and input delay. Safari and Firefox show those as not reported, never as zero.
+
+Chrome only gives pages a rounded heap figure that it rarely refreshes. Cadence shows the heap only when it moved during the run, and watches page elements for leaks everywhere.
 
 A report is a link. The run is compressed into the part after the `#`, which browsers don't send to the server.
 
@@ -49,7 +52,7 @@ npm run dev:probe   # rebuilds public/probe.js on change
 npm run dev         # the app on http://localhost:5173
 ```
 
-`/demo.html` is a test page with a calm section, a canvas, a heavy section and periodic long tasks.
+`/demo.html` is a landing page for a product that doesn't exist, slow on purpose. Each section makes one common mistake (a glowing canvas, a scroll handler that forces layout, a blocking tracker, script-driven layout animation, a resizing form), so it shows up in a report even on a fast machine.
 
 - `src/probe`: the panel and the measurements. No framework, about 17 KB gzipped.
 - `src/app`: the site and the report (Vite and React).

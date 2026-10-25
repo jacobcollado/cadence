@@ -629,10 +629,23 @@ svg { display: block; flex: none; }
 .setup-btn > svg { margin-left: auto; }
 @media (max-width: 600px) { .setup-peek { display: none; } }
 
-/* Footer: centered, no rule above it. */
-.footer { padding: 32px var(--gutter) 40px; text-align: center; font-size: 13px; line-height: 20px; color: var(--ink-3); }
+/* Footer: the brand and its license on the left, link groups on the right. */
+.footer { width: 100%; max-width: 960px; margin-left: auto; margin-right: auto; padding: 0 var(--gutter); font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.footer-inner {
+  padding: 40px 0 48px; box-shadow: inset 0 1px 0 var(--grid);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px 24px;
+}
+.footer-about { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; }
+.footer-about .brand { margin-bottom: 12px; align-self: flex-start; }
+@media (min-width: 600px) {
+  .footer-inner { grid-template-columns: 1fr 160px 160px; }
+  .footer-about { grid-column: auto; }
+}
+.footer-group h2 { font-size: 13px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.footer-group ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .footer a { color: var(--ink-2); transition: color var(--dur-fast) var(--ease-out); }
 .footer a:hover { color: var(--ink); }
+.footer-about .brand, .footer-about .brand:hover { color: var(--ink); }
 
 /* The footer sits at the bottom of the window on short pages. */
 #root { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
@@ -669,7 +682,6 @@ svg { display: block; flex: none; }
 }
 .gh-star:hover { color: var(--ink); background: var(--hover); }
 .gh-count { padding-left: 6px; box-shadow: inset 1px 0 0 var(--ring-firm); color: var(--ink-3); }
-.footer-sub { margin-top: 2px; font-size: 12px; line-height: 18px; }
 
 /* Hero top: the line and lede beside the orbit field; on phones the field
    sits under the lede, scaled to the width. */
@@ -1052,3 +1064,24 @@ svg { display: block; flex: none; }
 @media (max-width: 600px) { .run-foot { gap: 12px; } }
 /* Phones: the header's Copy link sits right above, so the note keeps only its close button. */
 @media (max-width: 600px) { .saved-actions .tag-btn { display: none; } }
+
+/* Buttons that can't act yet: an empty page field. */
+.btn:disabled, .btn[aria-disabled] { opacity: 0.4; pointer-events: none; }
+.qr-empty { width: 100%; max-width: 136px; aspect-ratio: 1; align-self: center; margin-top: auto; display: grid; place-items: center; padding: 16px; border-radius: 4px; background: var(--recess); font-size: 12px; line-height: 16px; text-align: center; color: var(--ink-3); }
+
+/* Examples: a real report and the slow demo, side by side. */
+.examples { margin-bottom: 48px; }
+.example-cards { display: grid; gap: 16px; margin-top: 16px; }
+@media (min-width: 760px) { .example-cards { grid-template-columns: 1fr 1fr; } }
+.example { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 20px; transition: background-color var(--dur-fast) var(--ease-out); }
+.example:hover { background: var(--hover); }
+.example-copy { display: flex; flex-direction: column; gap: 4px; }
+.example-title { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.example-go { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; line-height: 1; font-weight: 500; color: var(--ink); }
+.example-go svg { color: var(--ink-3); transition: transform var(--dur-fast) var(--ease-out); }
+.example:hover .example-go svg { transform: translateX(2px); }
+
+/* Memory: a labeled chart per measure, and why the heap is missing when it is. */
+.spark-title { margin-top: 20px; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.spark-title + .spark-wrap { margin-top: 8px; }
+.mem-note { margin-top: 16px; }

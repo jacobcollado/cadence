@@ -1,4 +1,5 @@
 import { useEffect, useReducer } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { onNavigate } from "./lib";
 import { Home } from "./pages/Home";
 import { Report } from "./pages/Report";
@@ -12,6 +13,12 @@ export function App() {
   useEffect(() => onNavigate(refresh), []);
 
   const path = location.pathname;
+  useEffect(() => {
+    document.title = path.startsWith("/docs") ? "Cadence docs"
+      : path.startsWith("/r") ? "Cadence report"
+      : path.startsWith("/compare") ? "Cadence comparison"
+      : "Cadence: stress test your site on real devices";
+  }, [path]);
   const page = path.startsWith("/docs")
     ? <Docs />
     : path.startsWith("/r")
@@ -24,6 +31,8 @@ export function App() {
       <Banner />
       {page}
       <Footer />
+      {/* Page views only. The run lives after the #, so it's cut before anything is sent. */}
+      <Analytics beforeSend={(e) => ({ ...e, url: e.url.split("#")[0] })} />
     </>
   );
 }
