@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Run } from "../../shared/run";
 import { computeStats, MODE_LABEL, type RunStats } from "../../shared/stats";
-import { Bar, RatingTag } from "../components/ui";
+import { Bar, RatingTag, splitName } from "../components/ui";
 import { TopBar } from "../components/TopBar";
 import { decodeRun, listRuns, pathOf, when, SERIES } from "../lib";
 
@@ -28,8 +28,8 @@ interface Hover {
 // the time when the same device ran more than once.
 function names(entries: Entry[]): string[] {
   return entries.map((e) => {
-    const name = e.run.device.name;
-    const same = entries.filter((o) => o.run.device.name === name);
+    const name = e.run.device.name.replace(" · ", " ");
+    const same = entries.filter((o) => o.run.device.name === e.run.device.name);
     if (same.length === 1) return name;
     const page = pathOf(e.run.url);
     if (same.filter((o) => pathOf(o.run.url) === page).length === 1) return `${name} on ${page}`;
@@ -75,11 +75,11 @@ export function Compare() {
     );
   }, [location.hash]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!entries) return <div className="shell"><TopBar back /></div>;
+  if (!entries) return <div className="shell"><TopBar /></div>;
   if (entries.length < 2) {
     return (
       <div className="shell">
-        <TopBar back />
+        <TopBar />
         <div className="recess empty enter" style={{ marginTop: 48 }}>
           <strong>Pick two runs or more</strong>
           Select runs in the list, then compare them.
@@ -121,7 +121,7 @@ export function Compare() {
     const left = Math.min(hover.x + 12, (chart.current?.offsetWidth ?? 0) - 200);
     return (
       <div className="tooltip" style={{ left: Math.max(0, left), top: hover.y - 8 }}>
-        <div className="tooltip-title">{e.run.device.name}</div>
+        <div className="tooltip-title"><span>{splitName(e.run.device.name).device}</span><span className="muted">{splitName(e.run.device.name).browser}</span></div>
         <div className="tooltip-row"><span>{g.label}</span><span className="num">{Math.round(g.values[hover.entry] ?? 0)} fps</span></div>
         <div className="tooltip-row"><span>Dropped frames</span><span className="num">{g.dropped[hover.entry]}</span></div>
         <div className="tooltip-row"><span>Refresh rate</span><span className="num">{e.run.hz} Hz</span></div>
@@ -131,27 +131,36 @@ export function Compare() {
 
   return (
     <div className="shell">
-      <TopBar back />
-      <header className="report-head enter">
+      <TopBar />
+      <header className="report-head compare-head enter">
         <h1 className="subtitle">Compare runs</h1>
         <p className="compare-summary">{summary(entries, groups)}</p>
       </header>
 
       <div className="compare-legend enter">
-        {entries.map((e) => (
+        <div className="compare-legend-row compare-legend-head" aria-hidden="true">
+          <span />
+          <span>Device</span>
+          <span className="col-browser">Browser</span>
+          <span className="col-mode">Mode</span>
+          <span className="col-when">When</span>
+          <span>Rating</span>
+          <span className="r">Frame rate</span>
+        </div>
+        {entries.map((e) => { const n = splitName(e.run.device.name); return (
           <div className="compare-legend-row" key={e.run.id}>
             <i className="dot" style={{ background: e.color }} />
-            <div className="compare-legend-name">
-              <span>{e.run.device.name}</span>
-              <span className="muted">{MODE_LABEL[e.run.mode]} · {when(e.run.at)}</span>
-            </div>
-            <RatingTag rating={e.stats.rating} />
+            <span className="run-cell" style={{ color: "var(--ink)" }}>{n.device}</span>
+            <span className="run-cell col-browser">{n.browser}</span>
+            <span className="run-cell col-mode">{MODE_LABEL[e.run.mode]}</span>
+            <span className="run-cell col-when">{when(e.run.at)}</span>
+            <span><RatingTag rating={e.stats.rating} /></span>
             <div className="run-fps">
               <strong className="num">{Math.round(e.stats.fps)}</strong>
               <span>fps</span>
             </div>
           </div>
-        ))}
+        ); })}
       </div>
 
       <section className="card block enter">

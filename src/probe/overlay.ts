@@ -1,5 +1,6 @@
 import { LOADS, MODES, encodeRun, type Mode, type Run } from "../shared/run";
-import { choppyBelow, computeStats, RATING_LABEL, tier, type Rating } from "../shared/stats";
+import { choppyBelow, computeStats, diagnose, RATING_LABEL, tier, type Rating } from "../shared/stats";
+import { ADVICE, CAUSE_LABEL, scrollTip } from "../shared/advice";
 import { DUR, EASE, countUp, flipText, reducedMotion } from "../shared/motion";
 import type { Monitor } from "./monitor";
 import type { Runner } from "./runner";
@@ -89,6 +90,8 @@ export class Overlay {
     document.body.append(this.host);
     this.place();
     this.sizeCanvas();
+    this.readColors();
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", this.readColors);
     addEventListener("resize", this.onResize);
 
     this.monitor.onFrame.push(this.frame);
@@ -116,7 +119,7 @@ export class Overlay {
     const head = h(
       "div",
       { class: "head" },
-      h("span", { class: "brand" }, iconEl(icon.mark()), "Cadence"),
+      h("span", { class: "brand" }, iconEl(icon.mark()), h("span", { class: "brand-word" }, "cadence")),
       h("button", { class: "icon-btn", "aria-label": "Minimize", onclick: () => this.setCollapsed(true) }, iconEl(icon.minus())),
       h("button", { class: "icon-btn", "aria-label": "Close Cadence", onclick: () => this.onClose() }, iconEl(icon.close())),
     );
@@ -257,21 +260,41 @@ export class Overlay {
       setTimeout(() => copy.replaceChildren(iconEl(icon.link()), h("span", {}, "Copy link")), 1600);
     });
 
+    const cause = diagnose(run, s);
+    const top = cause.culprits[0];
+    const tip = !cause.kind ? null
+      : cause.kind === "script" && top && /scroll/i.test(top.name) ? scrollTip(top.name, top.count, top.total)
+      : ADVICE[cause.kind][0];
+    const kindIcon = { script: icon.code, layout: icon.layout, drawing: icon.drawing, steady: icon.steady, unknown: icon.info };
+    const stat = (value: string, unit: string, label: string) =>
+      h("div", { class: "stat" }, h("span", { class: "stat-value num" }, value, unit ? h("span", {}, unit) : null), h("span", { class: "stat-label" }, label));
+
     this.setBody(
       h(
         "div",
-        {},
-        h(
-          "div",
-          { class: "result-head" },
-          big,
-          h("span", { class: "unit" }, `fps out of ${s.hz}`),
-          this.ratingTag(s.rating),
-        ),
-        h("p", { class: "sentence", style: "margin-top:8px" }, s.sentence),
+        { class: "result-head" },
+        big,
+        h("span", { class: "unit" }, `fps out of ${s.hz}`),
+        this.ratingTag(s.rating),
+      ),
+      h(
+        "div",
+        { class: "stats" },
+        stat(String(s.dropped), "", "Dropped"),
+        stat(String(s.freezes), "", "Freezes"),
+        stat(String(Math.round(s.worst)), "ms", "Longest"),
       ),
       ...(bars.length ? [h("div", { class: "bars" }, ...bars.map((b) => b.row))] : []),
-      ...(run.load ? [h("div", { class: "note" }, `Ran with ${this.loadName(run.load).toLowerCase()} added load.`)] : []),
+      ...(cause.kind && tip
+        ? [h(
+            "div",
+            { class: "cause" },
+            h("div", { class: "cause-head" }, h("span", {}, "Why it slowed down"), h("span", { class: "cause-kind" }, iconEl(kindIcon[cause.kind]()), CAUSE_LABEL[cause.kind])),
+            ...(top ? [h("div", { class: "cause-top" }, h("code", {}, top.name), ` ${Math.round(top.total).toLocaleString()} ms${top.sections[0] ? ` in ${top.sections[0]}` : ""}`)] : []),
+            h("div", { class: "fix" }, iconEl(icon.bulb()), h("div", {}, h("div", { class: "fix-title" }, tip.title), h("div", { class: "fix-detail" }, "The report has the full fix."))),
+          )]
+        : []),
+      ...(run.load ? [h("span", { class: "flag", title: `The probe added ${run.load} ms of main-thread work to every frame.` }, `${this.loadName(run.load)} load`)] : []),
       h("button", { class: "btn btn-primary", onclick: () => window.open(link, "_blank", "noopener") }, h("span", {}, "Open report"), iconEl(icon.external())),
       h(
         "div",
@@ -281,7 +304,7 @@ export class Overlay {
       ),
     );
 
-    // The payoff: the number counts up as the bars grow in.
+    // The number counts up while the bars grow.
     countUp(big, s.fps, (v) => String(Math.round(v)));
     requestAnimationFrame(() =>
       requestAnimationFrame(() => bars.forEach((b, i) => {
@@ -348,6 +371,13 @@ export class Overlay {
     }
   };
 
+  /** Graph colors from the theme tokens, refreshed when the device theme changes. */
+  private colors = ["#c6c6c0", "#f5a623", "#d03b3b"];
+  private readColors = () => {
+    const cs = getComputedStyle(this.host);
+    this.colors = ["--data", "--warn", "--bad"].map((v, i) => cs.getPropertyValue(v).trim() || this.colors[i]);
+  };
+
   private draw() {
     const { canvas, ctx } = this;
     const dpr = devicePixelRatio || 1;
@@ -360,7 +390,7 @@ export class Overlay {
     ctx.clearRect(0, 0, W, H);
     // Same tiers as the report: on time, late, frozen.
     for (const level of [0, 1, 2]) {
-      ctx.fillStyle = ["#c6c6c0", "#f5a623", "#d03b3b"][level];
+      ctx.fillStyle = this.colors[level];
       for (let i = 0; i < durations.length; i++) {
         const d = durations[i];
         if (tier(d, interval) !== level) continue;

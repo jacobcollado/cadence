@@ -1,45 +1,74 @@
 # Cadence
 
-Find where a page stutters, on the device in your hand.
+Stress test your site on the devices your customers use.
 
-Cadence has two parts:
+Cadence scrolls a page on a real phone, laptop or desktop and records every frame. The report shows which section stuttered, what the browser was busy with when it did, and what to change first.
 
-- **The probe** (`src/probe`): a small framework-free script, about 13 KB gzipped. A page loads it, and it floats a panel over the page that shows live frame rate, a frame graph and the section on screen. It runs scripted passes (steady scroll, fast scroll, idle, manual) with optional added main-thread load, and ties every dropped frame and slow task to the section that was on screen.
-- **The app** (`src/app`): a Vite + React site that serves the probe and shows results. It has the report (a rating, sections, the frame timeline, why it slowed down, page load, memory, device and a glossary), the runs list and a comparison view.
+Try it at [cad-ence.dev](https://cad-ence.dev).
+
+## Add it to your site
+
+```sh
+npm install cadence-probe
+```
+
+In React or Next.js, add `<Cadence />` to your root layout:
+
+```tsx
+import { Cadence } from "cadence-probe/react";
+
+<body>
+  {children}
+  <Cadence />
+</body>
+```
+
+Anywhere else, call `loadCadence()` from `cadence-probe`.
+
+Then open any page with `?perf` on the end. A panel appears; pick a pass, run it, and open the report. Visitors never download the probe. It only loads with `?perf`, and stays on for that tab until you close the panel or visit with `?perf=off`.
+
+Sections are named from the page's markup. To name one yourself, add `data-cadence="Pricing"` to it.
 
 ## How runs are judged
 
-The rules live in `src/shared/stats.ts`, so the overlay and the report always agree.
+The rules live in `src/shared/stats.ts`, so the panel and the report always agree.
 
-- **Frames** are on time, late (missed a refresh) or a freeze (50 ms or more).
-- **Smooth** holds 92% of the refresh rate, with 95% of frames on time and no freezes. **Choppy** is under three quarters of 60 fps (45), or of the screen when it's slower. **Uneven** is in between.
-- **Why it slowed down** splits each freeze by what the browser reported during it: a slow script, style and layout with no script, or nothing at all, which leaves drawing. Late frames under 50 ms can't be traced this way, and the report says so.
+- A frame is on time, late (it missed a refresh) or a freeze (50 ms or more).
+- **Smooth** holds 92% of the refresh rate with 95% of frames on time and no freezes. **Choppy** is under 45 fps, or under three quarters of the screen's rate when it's slower than 60. **Uneven** is everything in between.
+- A whole run is Smooth only when every section on screen long enough to judge is Smooth too.
+- Each freeze is traced to a slow script, to style and layout, or to drawing, based on what the browser reported during it. Browsers only report frames with 50 ms of work or more, so a freeze within one refresh of that line with no report stays untraced rather than being put down to drawing. The report says when most dropped frames couldn't be traced.
 
-A finished run travels as a link: the run is deflated into the URL hash (`/r#…`), so nothing needs a server yet. Opening a report saves it to this browser's run list. Supabase replaces that later; the run format lives in `src/shared/run.ts`.
+Frame timing and page elements work in every browser. Chromium also reports slow scripts, layout shift and input delay. Safari and Firefox show those as not reported, never as zero.
+
+Chrome only gives pages a rounded heap figure that it rarely refreshes. Cadence shows the heap only when it moved during the run, and watches page elements for leaks everywhere.
+
+A report is a link. The run is compressed into the part after the `#`, which browsers don't send to the server.
 
 ## Develop
 
 ```sh
 npm install
 npm run dev:probe   # rebuilds public/probe.js on change
-npm run dev         # app on http://localhost:5173 (also on your LAN)
+npm run dev         # the app on http://localhost:5173
 ```
 
-`http://localhost:5173/demo.html` is a test page with a calm section, a canvas, a deliberately heavy section and periodic long tasks.
+`/demo.html` is a landing page for a product that doesn't exist, slow on purpose. Each section makes one common mistake (a glowing canvas, a scroll handler that forces layout, a blocking tracker, script-driven layout animation, a resizing form), so it shows up in a report even on a fast machine.
 
-## Using it on Inertia
+- `src/probe`: the panel and the measurements. No framework, about 17 KB gzipped.
+- `src/app`: the site and the report (Vite and React).
+- `src/shared`: the run format, the rules and the advice, used by both.
+- `packages/cadence-probe`: the npm package, a small loader around the probe.
 
-Inertia loads the probe from `/cadence/probe.js` on its own origin, through a rewrite to wherever Cadence is deployed, so its CSP's `'self'` covers it. Set `CADENCE_ORIGIN` on the Inertia project (for local work, `CADENCE_ORIGIN=http://localhost:5173`). Then open any page with `?perf` on the end. The probe stays on for that tab until you close it from its panel, or open a page with `?perf=off`.
+## Releasing the package
 
-The probe names sections on its own (`main > section`, aria labels, class names). Mark an element with `data-cadence="Name"` to name it yourself.
+Release only when the probe changes, which means anything in `src/probe/`, `src/shared/` or `packages/cadence-probe/`. Site changes go live on deploy.
 
-## What each browser reports
+```sh
+npm run release:package -- patch   # or minor, major
+cd packages/cadence-probe
+npm publish
+```
 
-Frame timing works everywhere. Chromium browsers also report slow tasks with the script behind them, layout shift, memory and interaction latency. Safari and Firefox show those as not reported rather than as zero.
+## License
 
-## Scripts
-
-- `scripts/probe-test.mjs`: drives the probe on the demo page in headless Chromium.
-- `scripts/site-test.mjs <url> <out> <mode> <desktop|phone>`: injects the probe into a live site with analytics blocked. Set `THROTTLE=6` to slow the CPU.
-- `scripts/flow-test.mjs [base]`: the real `?perf` loading flow against a local Inertia.
-- `scripts/app-shots.mjs`, `scripts/compare-shots.mjs`: screenshots of the app.
+MIT

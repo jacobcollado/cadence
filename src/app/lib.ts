@@ -33,8 +33,7 @@ export function onNavigate(fn: () => void): () => void {
   };
 }
 
-// The library: runs opened on this machine, kept in localStorage until
-// Supabase takes over.
+// Saved runs: every report opened on this machine, kept in localStorage.
 
 export interface Saved {
   id: string;
@@ -68,6 +67,23 @@ export function saveRun(run: Run, data: string): Saved[] {
   });
   write(runs);
   return runs;
+}
+
+// Whether the note about where runs are saved was dismissed.
+const NOTE = "cadence.savedNote";
+
+export function savedNoteSeen(): boolean {
+  try {
+    return localStorage.getItem(NOTE) === "seen";
+  } catch {
+    return true;
+  }
+}
+
+export function dismissSavedNote() {
+  try {
+    localStorage.setItem(NOTE, "seen");
+  } catch {}
 }
 
 export function removeRun(id: string): Saved[] {

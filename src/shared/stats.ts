@@ -171,9 +171,14 @@ export function computeStats(run: Run): RunStats {
     ? judged.reduce((a, b) => (b.fps < a.fps ? b : a))
     : undefined;
 
+  // A run is only as smooth as its roughest section: one that wasn't smooth
+  // makes the run uneven, though never choppy on its own.
+  let rating = rate(fps, onTime, worst, hz);
+  if (rating === "smooth" && judged.some((s) => s.rating !== "smooth")) rating = "uneven";
+
   const stats: RunStats = {
     hz, interval, time, frames: n, fps, dropped, worst, p95, onTime, late, freezes,
-    rating: rate(fps, onTime, worst, hz), sections, judged, worstSection, sentence: "", times,
+    rating, sections, judged, worstSection, sentence: "", times,
   };
   stats.sentence = sentence(stats);
   return stats;
@@ -215,9 +220,23 @@ export interface Culprit {
   sections: string[];
 }
 
+/** What held frames up most: the kind of work a fix should start with. */
+export type CauseKind = "script" | "layout" | "drawing" | "steady" | "unknown";
+
 export interface Cause {
   /** Freezes that happened while a slow script was running. */
   scripted: number;
+  /** Freezes with no script, but the browser busy with style and layout. */
+  laidOut: number;
+  /** Freezes with the main thread idle, so the time went to drawing. */
+  drawn: number;
+  /**
+   * Freezes too close to FREEZE for the browser to have reported: the work
+   * behind them can be just under 50 ms, so no report doesn't mean drawing.
+   */
+  untraced: number;
+  /** The main cause, or null when nothing ran late. */
+  kind: CauseKind | null;
   culprits: Culprit[];
   /** One plain sentence on why frames ran late, empty when none did. */
   text: string;
@@ -235,13 +254,20 @@ export const LAYOUT = "Style and layout";
 export function diagnose(run: Run, s: RunStats): Cause {
   const tasks = run.tasks;
   const hasScript = (t: Run["tasks"][number]) => !!(t.src || t.fn || t.inv);
-  let scripted = 0, laidOut = 0, drawn = 0, frozenDrops = 0;
+  let scripted = 0, laidOut = 0, drawn = 0, untraced = 0, tracedDrops = 0;
   for (let i = 0; i < run.frames.length; i++) {
     const d = run.frames[i] / 10;
     if (d < FREEZE) continue;
-    frozenDrops += missed(d, s.interval);
     const end = s.times[i], start = end - d;
     const during = tasks.filter((t) => t.t < end && t.t + t.d > start);
+    // A frame shows on screen at the next refresh, so one measured at 50 ms
+    // may hold under 50 ms of work, which browsers don't report. Only a frame
+    // a full refresh past that with no report can be put down to drawing.
+    if (!during.length && d < FREEZE + s.interval) {
+      untraced++;
+      continue;
+    }
+    tracedDrops += missed(d, s.interval);
     if (during.some(hasScript)) scripted++;
     else if (during.length) laidOut++;
     else drawn++;
@@ -262,8 +288,9 @@ export function diagnose(run: Run, s: RunStats): Cause {
   }
   const culprits = [...groups.values()].sort((a, b) => b.total - a.total);
 
-  const n = s.freezes;
-  const over = `over ${FREEZE} ms`;
+  const n = scripted + laidOut + drawn;
+  // When some freezes went untraced, the counts below cover only the rest.
+  const over = untraced ? "the browser traced" : `over ${FREEZE} ms`;
   const all = n === 1 ? "the freeze" : n === 2 ? "both freezes" : `all ${n} freezes`;
   const the = n === 1 ? "the freeze" : `the ${n} freezes`;
   const causes: [number, string][] = [
@@ -274,7 +301,7 @@ export function diagnose(run: Run, s: RunStats): Cause {
   const found = causes.filter(([c]) => c > 0);
 
   let text = "";
-  if (s.rating === "smooth" && !n) {
+  if (s.rating === "smooth" && !s.freezes) {
     text = "";
   } else if (!run.support.loaf) {
     text = `${run.device.browser} doesn't report which scripts were running, so this run can't say what held frames up. A run in Chrome on the same page can.`;
@@ -287,15 +314,22 @@ export function diagnose(run: Run, s: RunStats): Cause {
     text = `No script ran long during ${the} ${over}. The browser was busy with style and layout instead, which usually comes from large DOM changes or costly CSS.`;
   } else if (n) {
     text = `No script ran long during ${the} ${over}, so the time went to drawing rather than JavaScript: effects, large images or WebGL.`;
+  } else if (s.freezes) {
+    text = "Frames kept running late, some by a few refreshes, but none long enough for the browser to trace. That usually means steady work every frame, from scroll-linked scripts, effects or animation.";
   } else if (s.late) {
     text = "Frames ran a little late, again and again, with no single long stall. That usually means steady work every frame, from scroll-linked scripts, effects or animation.";
   }
-  // Freezes can be traced; the shorter late frames can't. Say so when they
+  // Long freezes can be traced; shorter late frames can't. Say so when they
   // are most of the problem.
-  if (n && run.support.loaf && frozenDrops < s.dropped / 2) {
-    text += ` Most dropped frames ran late by less than ${FREEZE} ms, which browsers don't trace to a script.`;
+  if (n && run.support.loaf && tracedDrops < s.dropped / 2) {
+    text += " Most dropped frames were too short for the browser to trace to a script.";
   }
-  return { scripted, culprits, text };
+  let kind: CauseKind | null = null;
+  if (!text) kind = null;
+  else if (!run.support.loaf) kind = "unknown";
+  else if (n) kind = scripted >= laidOut && scripted >= drawn ? "script" : laidOut >= drawn ? "layout" : "drawing";
+  else kind = "steady";
+  return { scripted, laidOut, drawn, untraced, kind, culprits, text };
 }
 /** Index of the frame in progress at time t (ms from start). */
 export function frameAt(times: Float64Array, t: number): number {
