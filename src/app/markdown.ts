@@ -1,5 +1,5 @@
 import type { Run } from "../shared/run";
-import { MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats } from "../shared/stats";
+import { LAYOUT, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats } from "../shared/stats";
 import { ADVICE, CAUSE_LABEL, scrollTip } from "../shared/advice";
 import { LEVEL_LABEL, type MemoryReport, type Metric } from "../shared/vitals";
 import { pathOf } from "./lib";
@@ -37,7 +37,7 @@ export function reportMarkdown(run: Run, stats: RunStats, cause: Cause, metrics:
   if (cause.kind) {
     lines.push(`**Why it slowed down: ${CAUSE_LABEL[cause.kind]}.** ${cause.text}`);
     const top = cause.culprits[0];
-    if (top) lines.push(`Top script: \`${top.name}\`${top.file ? ` in ${top.file}` : ""}, ${Math.round(top.total).toLocaleString()} ms over ${top.count === 1 ? "one run" : `${top.count} runs`}.`);
+    if (top) lines.push(`${top.name === LAYOUT ? "Busy with" : "Top script"}: \`${top.name}\`${top.file ? ` in ${top.file}` : ""}, ${Math.round(top.total).toLocaleString()} ms over ${top.count === 1 ? "one run" : `${top.count} runs`}.`);
     const tip = cause.kind === "script" && top && /scroll/i.test(top.name) ? scrollTip(top.name, top.count, top.total) : ADVICE[cause.kind][0];
     lines.push("");
     lines.push(`**First fix to try: ${tip.title}.** ${tip.detail}`);
