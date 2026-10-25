@@ -1086,31 +1086,37 @@ svg { display: block; flex: none; }
 .spark-title + .spark-wrap { margin-top: 8px; }
 .mem-note { margin-top: 16px; }
 
-/* Home: the sections sit between two rails on the shell's edges, with a
-   hairline between each. The content keeps the shell's edges, so it lines up
-   with the top bar. Phones drop the side rails and keep the hairlines. */
+/* Home: two rails on the shell's edges run the full height of the page, so
+   the top bar, every section and the footer sit between them. A hairline
+   separates each. Content keeps the shell's content edge. Phones drop the
+   side rails and keep the hairlines. */
 .shell:has(.rails) { padding-bottom: 0; }
-.rails { margin: 0 calc(var(--gutter) * -1); }
+#root:has(.rails) { position: relative; }
+#root:has(.rails) > .banner { z-index: 1; }
+@media (min-width: 720px) {
+  #root:has(.rails)::before {
+    content: ""; position: absolute; inset: 0; max-width: 960px; margin: 0 auto; pointer-events: none;
+    box-shadow: inset 1px 0 0 var(--grid), inset -1px 0 0 var(--grid);
+  }
+}
+.rails { margin: 0 calc(var(--gutter) * -1); box-shadow: inset 0 1px 0 var(--grid); }
 .rails > section { padding-left: var(--gutter); padding-right: var(--gutter); }
 .rails > section + section { box-shadow: inset 0 1px 0 var(--grid); }
-@media (min-width: 720px) {
-  .rails { box-shadow: inset 1px 0 0 var(--grid), inset -1px 0 0 var(--grid), inset 0 1px 0 var(--grid); }
-}
-/* The rails end on the footer's hairline. */
 #root:has(.rails) .footer-inner { box-shadow: none; }
-#root:has(.rails) .footer { box-shadow: inset 0 1px 0 var(--grid); max-width: 960px; padding: 0 var(--gutter); }
+#root:has(.rails) .footer { box-shadow: inset 0 1px 0 var(--grid); }
 
-/* Each section: its heading in a column on the left, the content beside it.
-   Sections with tools (data-wide) put the heading above. */
-.home-sec { padding-top: 40px; padding-bottom: 40px; display: grid; gap: 20px; }
-@media (min-width: 760px) { .home-sec { padding-top: 56px; padding-bottom: 56px; } }
-@media (min-width: 860px) { .home-sec:not([data-wide]) { grid-template-columns: 240px minmax(0, 1fr); gap: 32px; } }
+/* Each section: the heading above the content. Split sections put it in a
+   column beside the content instead, so the page alternates. */
+.home-sec { padding-top: 56px; padding-bottom: 56px; display: grid; gap: 24px; }
+@media (min-width: 760px) { .home-sec { padding-top: 96px; padding-bottom: 96px; gap: 32px; } }
+@media (min-width: 860px) { .home-sec[data-split] { grid-template-columns: 240px minmax(0, 1fr); } }
 .home-head { display: flex; flex-direction: column; gap: 8px; }
+.home-head .lede { max-width: 560px; }
 .home-body { min-width: 0; }
 .home-sec > * { transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
 .home-sec > :nth-child(2) { transition-delay: 60ms; }
-.home-sec[data-shown] > *, .runs > * { transition: none; }
 .home-sec:not([data-shown]):not(.runs) > * { opacity: 0; transform: translateY(12px) scale(0.99); }
+.runs > * { transition: none; }
 /* The chart's bars grow from the baseline once it's in view. */
 .home-body .cmp-bar { transform-origin: bottom; transition: transform var(--dur-slow) var(--ease-out); }
 .home-body .cmp-group:nth-child(3) .cmp-bar { transition-delay: 120ms; }
@@ -1134,6 +1140,7 @@ svg { display: block; flex: none; }
 /* Why it's free: four short facts, icon beside each. */
 .free-grid { list-style: none; display: grid; gap: 12px 24px; }
 @media (min-width: 600px) { .free-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 860px) { .free-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .free { display: flex; align-items: center; gap: 12px; }
 
 /* Run a test: the setup row, then the two ways to open a page. */

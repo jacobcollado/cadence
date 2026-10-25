@@ -20,7 +20,7 @@ const MISTAKES = ["Glowing canvas", "Forced layout", "Blocking tracker", "Script
 
 const FREE: { icon: IconName; title: string }[] = [
   { icon: "check", title: "Free, with no account" },
-  { icon: "lock", title: "Runs never reach a server" },
+  { icon: "lock", title: "Runs stay private" },
   { icon: "device", title: "Off for your visitors" },
   { icon: "code", title: "Open source under MIT" },
 ];
@@ -138,7 +138,7 @@ export function Home() {
         </div>
       </section>
 
-      <Reveal title="Fast on your laptop, choppy on their phone" lede="Load scores never see the scroll. Cadence does.">
+      <Reveal split title="Fast on your laptop, choppy on their phone" lede="Load scores never see the scroll. Cadence does.">
         <CompareSpecimen />
       </Reveal>
 
@@ -167,7 +167,7 @@ export function Home() {
         </ol>
       </Reveal>
 
-      <Reveal title="See it in action" lede="A real report, and a page that's slow on purpose.">
+      <Reveal split title="See it in action" lede="A real report, and a page that's slow on purpose.">
         <div className="example-cards">
           <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
             <span className="example-copy">
@@ -199,7 +199,7 @@ export function Home() {
         </ul>
       </Reveal>
 
-      <Reveal wide title="Run a test" lede="Install once, then open any page here or on a phone.">
+      <Reveal title="Run a test" lede="Install once, then open any page here or on a phone.">
         <div className="test-stack">
           <Setup />
           <div className="start-cards">
@@ -370,9 +370,9 @@ function Setup() {
   );
 }
 
-/** A home section: its heading beside the content (above it when wide), rising
+/** A home section: its heading above the content (beside it when split), rising
     into place the first time it scrolls into view. */
-function Reveal({ title, lede, wide, children }: { title: string; lede?: string; wide?: boolean; children: ReactNode }) {
+function Reveal({ title, lede, split, children }: { title: string; lede?: string; split?: boolean; children: ReactNode }) {
   const el = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(reducedMotion);
   useEffect(() => {
@@ -386,7 +386,7 @@ function Reveal({ title, lede, wide, children }: { title: string; lede?: string;
     return () => io.disconnect();
   }, []);
   return (
-    <section ref={el} className="home-sec" data-wide={wide || undefined} data-shown={shown || undefined}>
+    <section ref={el} className="home-sec" data-split={split || undefined} data-shown={shown || undefined}>
       <div className="home-head">
         <h2 className="subtitle">{title}</h2>
         {lede && <p className="lede">{lede}</p>}
