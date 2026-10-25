@@ -83,3 +83,23 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 ## Copy buttons
 
 A copy button keeps its width when it confirms. Each state is its icon and label as one group, stacked in place and centered, so "✓ Copied" sits centered rather than left in leftover space. The new state rises 4px with a light blur clearing while the old one leaves upward, over the base duration. Reduced motion keeps the crossfade and drops the movement. Nothing beside the button moves.
+
+## Step visuals
+
+How it works shows each step's picture in its own recessed panel, with the title and line sitting below it, unboxed. Don't wrap a step's picture and words in one card. Each picture shows the mechanism, not just the idea: the probe drops into the layout file, sections light up only inside the ?perf window, and the report's frames stand against a dashed 16.7 ms budget line, with the ones over it in gray.
+
+## Device rows
+
+Each device row in the frames comparison is headed by a line: the device's mark in a 28px recessed tile (32px on desktop), its name, and its frame rate right-aligned in ink with the unit in gray. The panes run the full width below it. Don't stack a loose icon and a small gray fps beside the panes.
+
+## Recessed panels and dark mode
+
+A recessed panel (step visuals, icon tiles) is the recess fill alone, with no outline: the fill already sets it apart, and an outline on top makes it read as a card. Dark mode's page is near-black (#0b0b0a), never pure #000: pure black smears on OLED phones when scrolling and makes light text glow. The recess, raised, grid and data steps sit just above it so every level stays visible.
+
+## The ?perf window
+
+The window in How it works is a clear glass lens: a firm hairline, a lit top edge and a soft shadow, with the sections gray outside it and in color inside it. No dashed or marching outline.
+
+## Run a test
+
+The two ways to open a page (this device, a phone) share one panel, divided by a hairline, not two cards. Under the field, the exact address that will open is shown in mono with the added ?perf in a glass tag (gray until a page is entered).

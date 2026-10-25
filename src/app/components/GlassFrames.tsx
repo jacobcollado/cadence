@@ -8,7 +8,8 @@ import { tint } from "../glass";
 // three devices, one pane per screen refresh. A refresh that got a new frame
 // is a tinted pane, running through the spectrum; one the page missed is a
 // gray pane, so every chop shows exactly where it happened. The first time
-// the rows come into view, each pane rises when its refresh passed.
+// the rows come into view, each pane rises when its refresh passed. Each row
+// is headed by its device and the frame rate it reached.
 
 const SPAN = 500;           // ms shown
 const BUDGET = 1000 / 60;   // one refresh at 60 Hz
@@ -64,8 +65,9 @@ export function GlassFrames() {
     <figure ref={el} className="frames" data-play={play || undefined} aria-label="Half a second of the same scroll on a laptop, an iPhone and an Android phone, one glass pane per screen refresh, gray where the page missed one">
       {ROWS.map((row) => (
         <div key={row.name} className="frames-row">
-          <div className="frames-name">
-            <DeviceIcon device={row.device} />
+          <div className="frames-head">
+            <span className="frames-icon"><DeviceIcon device={row.device} /></span>
+            <span className="frames-device">{row.name}</span>
             <span className="frames-fps num"><CountUp value={done ? Math.round(row.drawn.filter(Boolean).length * 1000 / SPAN) : 0} /><span className="frames-unit">fps</span></span>
           </div>
           <div className="frames-track" aria-hidden="true">
