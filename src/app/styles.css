@@ -998,3 +998,43 @@ svg { display: block; flex: none; }
   font-size: 13px; font-weight: 500; line-height: 1;
 }
 .flag .info-btn { color: var(--warn-ink); }
+
+/* Why it slowed down: the cause, where it happened, and how to fix it. */
+.cause-card .block-head { margin-bottom: 8px; align-items: center; }
+.cause-card .cause { margin-top: 0; }
+.cause-kind {
+  height: 24px; padding: 0 8px 0 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; flex: none;
+  background: var(--recess); color: var(--ink); font-size: 12px; font-weight: 500; line-height: 1; white-space: nowrap;
+}
+.cause-kind svg { color: var(--ink-2); }
+.cause-split { margin-top: 16px; }
+.cause-split-bar { display: flex; gap: 2px; height: 8px; }
+.cause-split-bar span { border-radius: 2px; min-width: 4px; }
+.cause-split-bar span:first-child { border-radius: 4px 2px 2px 4px; }
+.cause-split-bar span:last-child { border-radius: 2px 4px 4px 2px; }
+[data-kind="script"] { --cause: #2a78d6; }
+[data-kind="layout"] { --cause: #eb6834; }
+[data-kind="drawing"] { --cause: #6250d6; }
+.cause-split-bar span, .cause-split-keys i { background: var(--cause); }
+.cause-split-keys { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--ink-2); }
+.cause-split-keys > span { display: inline-flex; align-items: center; gap: 6px; }
+.cause-split-keys i { width: 8px; height: 8px; border-radius: 2px; }
+.cause-split-keys .num { color: var(--ink-3); }
+.cause-sub { margin-top: 24px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--ink); }
+.cause-card .cause-list { margin-top: 6px; }
+.cause-more { margin-top: 8px; }
+.fix-list { list-style: none; margin: 10px 0 0; padding: 0; counter-reset: fix; display: flex; flex-direction: column; gap: 14px; }
+.fix-list li { position: relative; counter-increment: fix; padding-left: 32px; display: flex; flex-direction: column; gap: 2px; }
+.fix-list li::before {
+  content: counter(fix); position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+  background: var(--recess); color: var(--ink-2);
+}
+.fix-title { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.fix-detail { font-size: 13px; line-height: 20px; color: var(--ink-2); }
+.cause-card .block-title { flex-basis: 0; }
+.dash-split { align-items: stretch; }
+.fix-detail code {
+  font: 400 12px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0;
+  padding: 2px 4px; border-radius: 4px; background: var(--recess); color: var(--ink);
+}

@@ -215,9 +215,18 @@ export interface Culprit {
   sections: string[];
 }
 
+/** What held frames up most: the kind of work a fix should start with. */
+export type CauseKind = "script" | "layout" | "drawing" | "steady" | "unknown";
+
 export interface Cause {
   /** Freezes that happened while a slow script was running. */
   scripted: number;
+  /** Freezes with no script, but the browser busy with style and layout. */
+  laidOut: number;
+  /** Freezes with the main thread idle, so the time went to drawing. */
+  drawn: number;
+  /** The main cause, or null when nothing ran late. */
+  kind: CauseKind | null;
   culprits: Culprit[];
   /** One plain sentence on why frames ran late, empty when none did. */
   text: string;
@@ -295,7 +304,12 @@ export function diagnose(run: Run, s: RunStats): Cause {
   if (n && run.support.loaf && frozenDrops < s.dropped / 2) {
     text += ` Most dropped frames ran late by less than ${FREEZE} ms, which browsers don't trace to a script.`;
   }
-  return { scripted, culprits, text };
+  let kind: CauseKind | null = null;
+  if (!text) kind = null;
+  else if (!run.support.loaf) kind = "unknown";
+  else if (n) kind = scripted >= laidOut && scripted >= drawn ? "script" : laidOut >= drawn ? "layout" : "drawing";
+  else kind = "steady";
+  return { scripted, laidOut, drawn, kind, culprits, text };
 }
 /** Index of the frame in progress at time t (ms from start). */
 export function frameAt(times: Float64Array, t: number): number {

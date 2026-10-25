@@ -8,6 +8,7 @@ import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, splitName, StatusIcon,
 import { LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
+import { ADVICE, CAUSE_LABEL, scrollTip } from "../advice";
 import { decodeRun, download, pathOf, saveRun, when } from "../lib";
 
 type State = { run: Run; stats: RunStats } | { error: string } | null;
@@ -375,41 +376,76 @@ function DeviceButton({ run }: { run: Run }) {
 }
 
 function CauseCard({ run, cause }: { run: Run; cause: Cause }) {
-  const shown = cause.culprits.slice(0, 8);
+  const kind = cause.kind ?? "unknown";
+  const shown = cause.culprits.slice(0, 4);
   const rest = cause.culprits.length - shown.length;
+  const parts = [
+    { kind: "script" as const, n: cause.scripted },
+    { kind: "layout" as const, n: cause.laidOut },
+    { kind: "drawing" as const, n: cause.drawn },
+  ].filter((p) => p.n > 0);
+  const total = parts.reduce((a, p) => a + p.n, 0);
+  const probe = cause.culprits.some((c) => c.name === "Cadence" || c.file === "Cadence");
+  // A scroll handler at the top gets its own first tip, with its real numbers.
+  const top = cause.culprits[0];
+  const tips = kind === "script" && top && /scroll/i.test(top.name) ? [scrollTip(top.name, top.count, top.total), ...ADVICE.script.slice(0, 2)] : ADVICE[kind];
   return (
-    <section className="card block">
+    <section className="card block cause-card">
       <div className="block-head">
-        <div className="block-title">
-          <h2 className="h2">Why it slowed down</h2>
-          <p className="cause">{cause.text}</p>
-        </div>
+        <div className="block-title"><h2 className="h2">Why it slowed down</h2></div>
+        <span className="cause-kind" data-kind={kind}><Icon name={CAUSE_ICON[kind]} size={12} />{CAUSE_LABEL[kind]}</span>
       </div>
+      <p className="cause">{cause.text}</p>
+
+      {parts.length > 1 && (
+        <div className="cause-split">
+          <div className="cause-split-bar" aria-hidden="true">
+            {parts.map((p) => <span key={p.kind} data-kind={p.kind} style={{ flexGrow: p.n }} />)}
+          </div>
+          <div className="cause-split-keys">
+            {parts.map((p) => (
+              <span key={p.kind}><i data-kind={p.kind} />{CAUSE_LABEL[p.kind]}<span className="num">{Math.round((p.n / total) * 100)}%</span></span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {shown.length > 0 && (
-        <ul className="cause-list">
-          {shown.map((c) => (
-            <li key={`${c.name} ${c.file ?? ""}`}>
-              <div className="cause-main">
-                <span className="cause-name">{c.name}</span>
-                <span className="cause-where">{[c.file, c.sections.join(", ")].filter(Boolean).join(" in ")}</span>
-              </div>
-              <div className="cause-time">
-                <span className="num">{Math.round(c.total)} ms</span>
-                <span className="cause-count num">{c.count === 1 ? "once" : `${c.count} times`}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <h3 className="cause-sub">What ran</h3>
+          <ul className="cause-list">
+            {shown.map((c) => (
+              <li key={`${c.name} ${c.file ?? ""}`}>
+                <div className="cause-main">
+                  <span className="cause-name">{c.name}</span>
+                  <span className="cause-where">{[c.file, c.sections.join(", ")].filter(Boolean).join(" in ")}</span>
+                </div>
+                <div className="cause-time">
+                  <span className="num">{Math.round(c.total)} ms</span>
+                  <span className="cause-count num">{c.count === 1 ? "once" : `${c.count} times`}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {rest > 0 && <p className="note cause-more">And {rest} more, in the downloaded data.</p>}
+          {probe && <p className="note cause-more">Scripts named Cadence are the probe itself{run.load ? ", including the added load" : ""}.</p>}
+        </>
       )}
-      {rest > 0 && <p className="note" style={{ marginTop: 12 }}>And {rest} more, in the downloaded data.</p>}
-      {cause.culprits.some((c) => c.name === "Cadence" || c.file === "Cadence") && (
-        <p className="note" style={{ marginTop: 12 }}>
-          Scripts named Cadence are the probe itself{run.load ? ", including the added load" : ""}.
-        </p>
-      )}
+
+      <h3 className="cause-sub">How to fix it</h3>
+      <ol className="fix-list">
+        {tips.map((t) => (
+          <li key={t.title}>
+            <span className="fix-title">{t.title}</span>
+            <span className="fix-detail">{withCode(t.detail)}</span>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
+
+const CAUSE_ICON = { script: "code", layout: "layout", drawing: "drawing", steady: "repeat", unknown: "info" } as const;
 
 function PageLoad({ metrics }: { metrics: Metric[] }) {
   const counts = (["bad", "warn", "good"] as Level[])
@@ -691,4 +727,9 @@ function StatRow({ items }: { items: Stat[] }) {
       ))}
     </div>
   );
+}
+
+/** Text with `code` spans set as code. */
+function withCode(text: string): ReactNode {
+  return text.split(/(`[^`]+`)/).map((part, i) => (part.startsWith("`") ? <code key={i}>{part.slice(1, -1)}</code> : part));
 }
