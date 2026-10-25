@@ -15,6 +15,8 @@ const GUTTER = 44;
 const MAX_CEILING = 150;
 /** Closest two frame time labels may sit. */
 const TICK_GAP = 14;
+/** Narrowest the plot gets per second of run; past that, it scrolls sideways. */
+const PX_PER_S = 140;
 
 // Colors come from the theme tokens, read when drawing. Per tier: on time,
 // late, freeze; the dim set is for frames outside a highlighted section.
@@ -39,8 +41,11 @@ interface Span {
 }
 
 interface Hover {
+  /** Across the plot, which may be wider than the screen. */
   x: number;
   t: number;
+  /** Across the visible chart, for placing the card. */
+  at: number;
 }
 
 /**
@@ -61,9 +66,12 @@ export function ceilingFor(stats: RunStats): number {
  */
 export function Timeline({ run, stats, highlight }: { run: Run; stats: RunStats; highlight: number | null }) {
   const wrap = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const axis = useRef<HTMLCanvasElement>(null);
   const [width, setWidth] = useState(0);
   const [hover, setHover] = useState<Hover | null>(null);
+  const [edges, setEdges] = useState({ start: false, end: false });
   const [progress, setProgress] = useState(reducedMotion() ? 1 : 0);
   const [fontsReady, setFontsReady] = useState(false);
   const theme = useTheme();
@@ -71,6 +79,10 @@ export function Timeline({ run, stats, highlight }: { run: Run; stats: RunStats;
   const height = LABELS + PLOT + (lane ? LANE + 4 : 0) + AXIS;
 
   const spans = useMemo(() => sectionSpans(run, stats.times), [run, stats.times]);
+  // The plot keeps a readable width per second; on narrow screens it scrolls
+  // under the frame time labels, which stay put.
+  const view = Math.max(0, width - GUTTER);
+  const plot = Math.max(view, Math.round((stats.time / 1000) * PX_PER_S));
 
   useEffect(() => {
     const el = wrap.current!;
@@ -95,31 +107,61 @@ export function Timeline({ run, stats, highlight }: { run: Run; stats: RunStats;
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const cv = canvas.current;
-    if (!cv || !width) return;
+    const cv = canvas.current, ax = axis.current;
+    if (!cv || !ax || !width) return;
     const dpr = devicePixelRatio || 1;
-    cv.width = Math.round(width * dpr);
+    cv.width = Math.round(plot * dpr);
     cv.height = Math.round(height * dpr);
     const ctx = cv.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw(ctx, { run, stats, spans, width, height, dpr, progress, highlight, hover, lane });
-  }, [run, stats, spans, width, height, progress, highlight, hover, lane, fontsReady, theme]);
+    draw(ctx, { run, stats, spans, width: plot, height, dpr, progress, highlight, hover, lane });
+    ax.width = Math.round(GUTTER * dpr);
+    ax.height = Math.round(height * dpr);
+    const actx = ax.getContext("2d")!;
+    actx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawAxis(actx, stats, height);
+  }, [run, stats, spans, width, plot, height, progress, highlight, hover, lane, fontsReady, theme]);
+
+  // Fades mark the sides with more of the run past them.
+  const measure = () => {
+    const el = scroller.current;
+    if (!el) return;
+    setEdges({ start: el.scrollLeft > 1, end: el.scrollLeft + el.clientWidth < el.scrollWidth - 1 });
+  };
+  useEffect(measure, [plot, view]);
+
+  // Hovering a section in the table brings its frames into view.
+  useEffect(() => {
+    const el = scroller.current;
+    const span = highlight === null ? undefined : spans.find((s) => s.index === highlight);
+    if (!el || !span || plot <= view) return;
+    const x0 = (span.start / (stats.time || 1)) * plot, x1 = (span.end / (stats.time || 1)) * plot;
+    if (x0 >= el.scrollLeft && x1 <= el.scrollLeft + el.clientWidth) return;
+    el.scrollTo({ left: Math.max(0, x0 - 16), behavior: reducedMotion() ? "auto" : "smooth" });
+  }, [highlight]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const move = (e: React.PointerEvent) => {
-    const r = wrap.current!.getBoundingClientRect();
-    const x = Math.max(GUTTER, Math.min(r.width, e.clientX - r.left));
-    setHover({ x, t: ((x - GUTTER) / (r.width - GUTTER)) * stats.time });
+    const r = canvas.current!.getBoundingClientRect();
+    const w = wrap.current!.getBoundingClientRect();
+    const x = Math.max(0, Math.min(plot, e.clientX - r.left));
+    setHover({ x, t: (x / plot) * stats.time, at: Math.max(GUTTER, Math.min(w.width, e.clientX - w.left)) });
   };
 
   return (
-    <div
-      ref={wrap}
-      className="timeline"
-      onPointerMove={move}
-      onPointerDown={move}
-      onPointerLeave={() => setHover(null)}
-    >
-      <canvas ref={canvas} style={{ height }} role="img" aria-label={`Frame timeline: ${stats.sentence}`} />
+    <div ref={wrap} className="timeline" style={{ height }}>
+      <canvas ref={axis} className="timeline-axis" style={{ width: GUTTER, height }} aria-hidden="true" />
+      <div
+        ref={scroller}
+        className="timeline-scroll"
+        data-start={edges.start || undefined}
+        data-end={edges.end || undefined}
+        onScroll={() => { measure(); setHover(null); }}
+        onPointerMove={move}
+        onPointerDown={move}
+        onPointerLeave={() => setHover(null)}
+      >
+        <canvas ref={canvas} style={{ width: plot, height }} role="img" aria-label={`Frame timeline: ${stats.sentence}`} />
+      </div>
       {hover && width > 0 && <Tip run={run} stats={stats} spans={spans} hover={hover} width={width} />}
     </div>
   );
@@ -139,7 +181,7 @@ function Tip({ run, stats, spans, hover, width }: { run: Run; stats: RunStats; s
   const task = run.tasks
     .filter((k) => k.t + k.d >= t - 250 && k.t <= t + 250)
     .reduce<Run["tasks"][number] | undefined>((x, k) => (!x || k.d > x.d ? k : x), undefined);
-  const left = hover.x > width - 220 ? hover.x - 200 : hover.x + 12;
+  const left = Math.max(0, hover.at > width - 220 ? hover.at - 200 : hover.at + 12);
   return (
     <div className="tooltip" style={{ left, top: LABELS }}>
       <div className="tooltip-title">
@@ -191,8 +233,8 @@ interface DrawArgs {
 function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
   const { run, stats, spans, width: W, dpr, progress, highlight, hover, lane } = a;
   const total = stats.time || 1;
-  const PW = W - GUTTER;
-  const x = (t: number) => GUTTER + (t / total) * PW;
+  const PW = W;
+  const x = (t: number) => (t / total) * PW;
   const plotBottom = LABELS + PLOT;
   const ceiling = ceilingFor(stats);
   const y = (ms: number) => plotBottom - (ms / ceiling) * PLOT;
@@ -219,24 +261,11 @@ function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
     }
   }
 
-  // Frame time scale: the budget (one refresh), the freeze line, and 100 ms
-  // when the run went that far.
-  ctx.font = `400 12px Satoshi, system-ui, sans-serif`;
-  ctx.textAlign = "right";
-  const ticks: number[] = [];
-  for (const v of [stats.interval, FREEZE, 100, 200, 500, 1000]) {
-    if (v > ceiling) break;
-    const prev = ticks[ticks.length - 1];
-    if (prev === undefined || ((v - prev) / ceiling) * PLOT >= TICK_GAP) ticks.push(v);
-  }
-  for (const v of ticks) {
-    const ty = snap(y(v));
+  // Frame time scale lines; their labels sit in the fixed axis beside the plot.
+  for (const v of ticksFor(stats, ceiling)) {
     ctx.fillStyle = v === stats.interval ? C.budget : C.grid;
-    ctx.fillRect(GUTTER, ty, PW, px);
-    ctx.fillStyle = C.ink3;
-    ctx.fillText(`${Math.round(v)} ms`, GUTTER - 8, ty);
+    ctx.fillRect(0, snap(y(v)), PW, px);
   }
-  ctx.textAlign = "left";
 
   // Frames. Wide enough ones get their own bar; dense runs collapse to one
   // device-pixel column each, keeping the longest frame in the column.
@@ -249,7 +278,7 @@ function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
     const h = Math.max(px, Math.min(1, d / ceiling) * PLOT * progress);
     // On time, a frame takes the glass color for where it falls in the run;
     // late and frozen ones keep their status colors so problems stand out.
-    ctx.fillStyle = level === 0 ? tintRgba((x0 - GUTTER) / PW, dim ? 0.2 : 0.7) : (dim ? C.fillDim : C.fill)[level];
+    ctx.fillStyle = level === 0 ? tintRgba(x0 / PW, dim ? 0.2 : 0.7) : (dim ? C.fillDim : C.fill)[level];
     ctx.fillRect(x0, plotBottom - h, w, h);
     // Past the top of the scale: a break near the end says it ran further.
     if (d > ceiling && progress >= 1) ctx.clearRect(x0, LABELS + 4, w, 2);
@@ -297,6 +326,28 @@ function draw(ctx: CanvasRenderingContext2D, a: DrawArgs) {
     ctx.fillStyle = C.ink;
     ctx.fillRect(snap(hover.x), LABELS, px, axisTop - LABELS);
   }
+}
+
+/** The frame times worth labeling: the budget, the freeze line, then round steps. */
+function ticksFor(stats: RunStats, ceiling: number): number[] {
+  const ticks: number[] = [];
+  for (const v of [stats.interval, FREEZE, 100, 200, 500, 1000]) {
+    if (v > ceiling) break;
+    const prev = ticks[ticks.length - 1];
+    if (prev === undefined || ((v - prev) / ceiling) * PLOT >= TICK_GAP) ticks.push(v);
+  }
+  return ticks;
+}
+
+/** The frame time labels, drawn apart from the plot so they stay when it scrolls. */
+function drawAxis(ctx: CanvasRenderingContext2D, stats: RunStats, height: number) {
+  const ceiling = ceilingFor(stats);
+  ctx.clearRect(0, 0, GUTTER, height);
+  ctx.font = `400 12px Satoshi, system-ui, sans-serif`;
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = token("--ink-3");
+  for (const v of ticksFor(stats, ceiling)) ctx.fillText(`${Math.round(v)} ms`, GUTTER - 8, LABELS + PLOT - (v / ceiling) * PLOT);
 }
 
 function niceStep(seconds: number, maxTicks: number): number {

@@ -103,3 +103,10 @@ The window in How it works is a clear glass lens: a firm hairline, a lit top edg
 ## Run a test
 
 The two ways to open a page (this device, a phone) share one panel, divided by a hairline, not two cards. Under the field, the exact address that will open is shown in mono with the added ?perf in a glass tag (gray until a page is entered).
+
+## Report readability
+
+- Zone scales in tooltips have a key under the bar (swatch, name, range per line), never names squeezed into each zone.
+- The frame chart keeps at least 140px per second of run. When that's wider than the card it scrolls sideways under fixed frame time labels, with fades on the sides that have more. Hovering a section row scrolls its frames into view.
+- Stat tiles open the same card as their metric's info button, on hover (mouse) or tap.
+- Metric rows on phones: name, value and status on one line, the scale full width below. Wider: one line with the scale in the middle.

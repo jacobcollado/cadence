@@ -198,64 +198,91 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
 }
 
 /**
- * An "i" that opens a small card on hover or tap. It renders into the body,
- * so tables and animated containers can't clip it.
+ * A small raised card about something on the page, placed beside its anchor
+ * and rendered into the body, so tables and animated containers can't clip it.
+ * It closes on a tap elsewhere, Escape or scroll.
  */
-export function Info({ title, children }: { title: string; children: ReactNode }) {
+function useCard<T extends HTMLElement>() {
   const [at, setAt] = useState<{ x: number; y: number; up: boolean } | null>(null);
-  const btn = useRef<HTMLButtonElement>(null);
+  const anchor = useRef<T>(null);
   const id = useId();
   const show = () => {
-    const r = btn.current!.getBoundingClientRect();
+    const r = anchor.current!.getBoundingClientRect();
     const up = r.bottom + 220 > innerHeight && r.top > 240;
     setAt({ x: Math.max(16, Math.min(r.left + r.width / 2 - 140, innerWidth - 296)), y: up ? r.top - 8 : r.bottom + 8, up });
   };
+  const hide = () => setAt(null);
   useEffect(() => {
     if (!at) return;
-    const close = () => setAt(null);
-    const away = (e: PointerEvent) => !btn.current?.contains(e.target as Node) && close();
-    const key = (e: KeyboardEvent) => e.key === "Escape" && close();
+    const away = (e: PointerEvent) => !anchor.current?.contains(e.target as Node) && hide();
+    const key = (e: KeyboardEvent) => e.key === "Escape" && hide();
     addEventListener("pointerdown", away);
     addEventListener("keydown", key);
-    addEventListener("scroll", close, { passive: true, capture: true });
+    addEventListener("scroll", hide, { passive: true, capture: true });
     return () => {
       removeEventListener("pointerdown", away);
       removeEventListener("keydown", key);
-      removeEventListener("scroll", close, { capture: true });
+      removeEventListener("scroll", hide, { capture: true });
     };
   }, [at]);
+  // Mouse opens on hover; touch and keyboard open on press.
+  const handlers = {
+    onPointerEnter: (e: React.PointerEvent) => e.pointerType === "mouse" && show(),
+    onPointerLeave: (e: React.PointerEvent) => e.pointerType === "mouse" && hide(),
+    onClick: (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (at) hide();
+      else show();
+    },
+  };
+  const card = (title: string, children: ReactNode) => at && createPortal(
+    <div role="tooltip" id={id} className="info-tip" data-up={at.up || undefined} style={{ left: at.x, top: at.y }}>
+      <div className="info-title">{title}</div>
+      <div className="info-body">{children}</div>
+    </div>,
+    document.body,
+  );
+  return { anchor, open: !!at, id, handlers, card };
+}
+
+/** An "i" that opens a card about the title beside it, on hover or tap. */
+export function Info({ title, children }: { title: string; children: ReactNode }) {
+  const { anchor, open, id, handlers, card } = useCard<HTMLButtonElement>();
   return (
     <>
       <button
-        ref={btn}
+        ref={anchor}
         type="button"
         className="info-btn"
         aria-label={`About ${title.toLowerCase()}`}
-        aria-expanded={!!at}
-        aria-describedby={at ? id : undefined}
-        onPointerEnter={(e) => e.pointerType === "mouse" && show()}
-        onPointerLeave={(e) => e.pointerType === "mouse" && setAt(null)}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (at) setAt(null);
-          else show();
-        }}
+        aria-expanded={open}
+        aria-describedby={open ? id : undefined}
+        {...handlers}
       >
         <Icon name="info" size={14} />
       </button>
-      {at && createPortal(
-        <div
-          role="tooltip"
-          id={id}
-          className="info-tip"
-          data-up={at.up || undefined}
-          style={{ left: at.x, top: at.y }}
-        >
-          <div className="info-title">{title}</div>
-          <div className="info-body">{children}</div>
-        </div>,
-        document.body,
-      )}
+      {card(title, children)}
+    </>
+  );
+}
+
+/** A whole tile that opens a card about itself on hover or tap. */
+export function InfoTile({ title, info, className, children }: { title: string; info: ReactNode; className?: string; children: ReactNode }) {
+  const { anchor, open, id, handlers, card } = useCard<HTMLButtonElement>();
+  return (
+    <>
+      <button
+        ref={anchor}
+        type="button"
+        className={className}
+        aria-expanded={open}
+        aria-describedby={open ? id : undefined}
+        data-open={open || undefined}
+        {...handlers}
+      >
+        {children}
+      </button>
+      {card(title, info)}
     </>
   );
 }
@@ -302,14 +329,13 @@ export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel, glas
           <div key={z.from} className="zone-seg" data-level={z.level} style={{ width: `${((z.to - z.from) / range) * 100}%` }} />
         ))}
       </div>
-      <div className="zone-words">
-        {spans.map((z) => (
-          <span key={z.from} style={{ width: `${((z.to - z.from) / range) * 100}%` }}>{z.label ?? LEVEL_LABEL[z.level]}</span>
-        ))}
-      </div>
-      <div className="zone-ticks">
-        {spans.slice(0, -1).map((z) => (
-          <span key={z.to} className="num" style={{ left: pct(z.to) }}>{format(z.to)}</span>
+      <div className="zone-key">
+        {spans.map((z, i) => (
+          <div key={z.from} className="zone-key-row">
+            <i className="zone-swatch" data-level={z.level} />
+            <span>{z.label ?? LEVEL_LABEL[z.level]}</span>
+            <span className="num">{i === 0 ? `Under ${format(z.to)}` : i === spans.length - 1 ? `Over ${format(z.from)}` : `${format(z.from)} to ${format(z.to)}`}</span>
+          </div>
         ))}
       </div>
     </div>

@@ -317,8 +317,17 @@ svg { display: block; flex: none; }
 .legend { display: flex; gap: 4px 16px; min-height: 24px; align-items: center; font-size: 12px; color: var(--ink-2); line-height: 16px; flex-wrap: wrap; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { width: 8px; height: 8px; border-radius: 2px; flex: none; }
-.timeline { position: relative; touch-action: pan-y; }
-.timeline canvas { display: block; width: 100%; }
+/* The frame chart: frame time labels fixed on the left, the plot beside them
+   scrolling sideways when the run is too long to read at this width. Fades
+   mark the sides with more past them. */
+.timeline { position: relative; display: flex; }
+.timeline canvas { display: block; }
+.timeline-axis { flex: none; }
+.timeline-scroll { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; }
+.timeline-scroll::-webkit-scrollbar { display: none; }
+.timeline-scroll[data-end] { mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+.timeline-scroll[data-start] { mask-image: linear-gradient(90deg, transparent, #000 40px); }
+.timeline-scroll[data-start][data-end] { mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
 
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .table th { text-align: left; font-weight: 500; color: var(--ink-3); height: 32px; padding: 0 8px; white-space: nowrap; }
@@ -382,18 +391,22 @@ svg { display: block; flex: none; }
 
 /* Graded metrics: name and what it measures, the value on its thresholds, the status. */
 .metrics { display: flex; flex-direction: column; }
+/* Phones: name, value and status on one line, the scale full width under it.
+   Wider: one line, with the scale taking the middle. */
 .metric {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px 16px;
-  padding: 16px 0; box-shadow: inset 0 1px 0 var(--grid);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name value status" "scale scale scale";
+  align-items: center; gap: 8px 12px; padding: 16px 0; box-shadow: inset 0 1px 0 var(--grid);
 }
-.metric-name { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 20px; font-weight: 500; }
-.metric-value { font-size: 15px; line-height: 20px; font-weight: 500; text-align: right; }
-.metric-status { display: flex; min-width: 96px; }
-.metric-missing { grid-column: 1 / -1; font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.metric-name { grid-area: name; display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 20px; font-weight: 500; }
+.metric-scale { grid-area: scale; }
+.metric-value { grid-area: value; font-size: 15px; line-height: 20px; font-weight: 500; text-align: right; }
+.metric-status { grid-area: status; display: flex; min-width: 72px; }
+.metric-missing { grid-area: scale; font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.metric-scale:empty { display: none; }
 @media (min-width: 720px) {
-  .metric { grid-template-columns: minmax(0, 1fr) 200px 72px 104px; gap: 24px; }
-  .metric-name { grid-column: auto; }
-  .metric-missing { grid-column: 2 / -1; text-align: right; }
+  .metric { grid-template-columns: 200px minmax(0, 1fr) 88px 104px; grid-template-areas: "name scale value status"; gap: 24px; }
+  .metric-scale:empty { display: block; }
+  .metric-missing { grid-area: 1 / 2 / 2 / -1; text-align: right; }
 }
 .scale { position: relative; height: 28px; }
 .scale-track { height: 8px; border-radius: 4px; background: var(--recess); overflow: hidden; }
@@ -530,10 +543,14 @@ svg { display: block; flex: none; }
 .zone[data-glass] .zone-seg[data-level="good"] { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 .zone-seg:first-child { border-radius: 4px 2px 2px 4px; }
 .zone-seg:last-child { border-radius: 2px 4px 4px 2px; }
-.zone-words { display: flex; gap: 2px; margin-top: 6px; font-size: 12px; line-height: 16px; color: var(--ink-2); }
-.zone-words span { text-align: center; white-space: nowrap; overflow: hidden; }
-.zone-ticks { position: relative; height: 16px; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
-.zone-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+/* The key: each zone's swatch, name and range, one per line, so nothing is squeezed into a narrow zone. */
+.zone-key { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; font-size: 12px; line-height: 18px; }
+.zone-key-row { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 8px; color: var(--ink); }
+.zone-key-row .num { color: var(--ink-3); }
+.zone-swatch { width: 8px; height: 8px; border-radius: 2px; background: var(--good); }
+.zone-swatch[data-level="warn"] { background: var(--warn); }
+.zone-swatch[data-level="bad"] { background: var(--bad); }
+.zone[data-glass] .zone-swatch[data-level="good"] { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 .zone-marker { position: absolute; top: 20px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; box-shadow: 0 0 0 2px var(--paper); z-index: 1; }
 .zone-marker-label {
   position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
@@ -894,6 +911,9 @@ svg { display: block; flex: none; }
 .stat-value { font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); white-space: nowrap; }
 .stat-value span { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); margin-left: 4px; }
 .stat-sub { font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-info { text-align: left; cursor: help; transition: box-shadow var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out); }
+.stat-info[data-open] { box-shadow: inset 0 0 0 1px var(--ring-firm); background: var(--hover); }
+@media (hover: hover) and (pointer: fine) { .stat-info:hover { box-shadow: inset 0 0 0 1px var(--ring-firm); background: var(--hover); } }
 
 /* Sections beside the cause, sharing a top edge. */
 .dash-split { display: grid; gap: 16px; align-items: start; }
