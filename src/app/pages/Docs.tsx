@@ -124,7 +124,13 @@ export function Docs() {
         </aside>
 
         <article className="doc-body">
-          {/* Phones: the section list, pinned to the top as you scroll. */}
+          <div className="doc-fade doc-fade-wide" aria-hidden="true" />
+          <header className="doc-head">
+            <h1 className="title">Docs</h1>
+            <p className="lede">Add Cadence to your site, run a test on any device, and read what it found.</p>
+          </header>
+
+          {/* Phones: the section list, under the title, then pinned to the top once you scroll to it. */}
           <div className="doc-toc" data-open={tocOpen || undefined}>
             <button className="doc-toc-btn" aria-expanded={tocOpen} aria-controls="doc-toc-list" onClick={() => setTocOpen(!tocOpen)}>
               <span className="doc-toc-current">{SECTIONS.find((s) => s.id === active)?.title}</span>
@@ -141,11 +147,7 @@ export function Docs() {
             </div>
           </div>
           {/* Text scrolling under the top edge fades out instead of cutting off. */}
-          <div className="doc-fade" aria-hidden="true" />
-          <header className="doc-head">
-            <h1 className="title">Docs</h1>
-            <p className="lede">Add Cadence to your site, run a test on any device, and read what it found.</p>
-          </header>
+          <div className="doc-fade doc-fade-phone" aria-hidden="true" />
 
           <Section id="start" title="Get started" lede={<>Setup takes two lines of code. After that, any page of your site can be tested on any device by adding <code>?perf</code> to its address.</>}>
             <ol className="doc-steps">
