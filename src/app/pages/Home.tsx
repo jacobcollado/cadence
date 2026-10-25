@@ -5,7 +5,7 @@ import { CompareSpecimen, FrameStrip, PassMeter } from "../components/DocVisuals
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
-import { FrameClock } from "../components/FrameClock";
+import { GlassFan } from "../components/GlassFan";
 import { OPEN_SETUP } from "../components/Footer";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
@@ -134,7 +134,7 @@ export function Home() {
               <a href={`/r?example#${INERTIA_RUN}`} className="btn btn-lg btn-secondary" onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>See a report</a>
             </div>
           </div>
-          <FrameClock />
+          <GlassFan />
         </div>
       </section>
 

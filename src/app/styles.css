@@ -687,10 +687,10 @@ svg { display: block; flex: none; }
 /* Hero top: the line and lede beside the orbit field; on phones the field
    sits under the lede, scaled to the width. */
 .start-top { display: grid; align-items: center; gap: 24px; }
-.frame-clock { display: block; justify-self: center; }
+.glass-fan { justify-self: center; }
 @media (min-width: 860px) {
   .start-top { grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; }
-  .frame-clock { justify-self: end; }
+  .glass-fan { justify-self: end; }
 }
 
 /* Top bar text link. */
@@ -1198,3 +1198,42 @@ svg { display: block; flex: none; }
     content: ""; position: absolute; top: 0; left: 5px; right: 5px; height: 1px; background: var(--grid); pointer-events: none;
   }
 }
+
+/* Hero: tinted glass slabs fanning open and shut. Each slab turns about a pin
+   near its base; where they overlap, the tints deepen like stacked glass.
+   At rest under reduced motion, the fan stays open. */
+.glass-fan { position: relative; width: 320px; height: 300px; flex: none; }
+.glass-slab {
+  position: absolute; left: 50%; bottom: 36px; width: 112px; height: 216px; margin-left: -56px;
+  border-radius: 6px; transform-origin: 50% 86%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 52%, transparent), color-mix(in srgb, var(--c) 20%, transparent) 50%, color-mix(in srgb, var(--c) 2%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent), inset 0 1px 0 rgba(255,255,255,.7);
+  transform: perspective(900px) rotateX(12deg) rotateZ(var(--open));
+  animation: fan 9s var(--ease-in-out) infinite both;
+  animation-delay: calc(var(--i) * 70ms);
+  will-change: transform;
+}
+:root[data-theme="dark"] .glass-slab { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
+@keyframes fan {
+  0%, 12% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--shut)); }
+  48%, 74% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--open)); }
+  100% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--shut)); }
+}
+/* A soft shadow under the pin that widens as the fan opens. */
+.glass-shadow {
+  position: absolute; left: 50%; bottom: 20px; width: 240px; height: 28px; margin-left: -120px; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--shadow), transparent); opacity: .5;
+  animation: fan-shadow 9s var(--ease-in-out) infinite both;
+}
+@keyframes fan-shadow {
+  0%, 12% { transform: scaleX(.5); }
+  48%, 74% { transform: scaleX(1); }
+  100% { transform: scaleX(.5); }
+}
+@media (prefers-reduced-motion: reduce) { .glass-slab, .glass-shadow { animation: none; } }
+@media (min-width: 1024px) {
+  .glass-fan { width: 400px; height: 360px; }
+  .glass-slab { width: 136px; height: 264px; margin-left: -68px; bottom: 44px; }
+  .glass-shadow { width: 300px; margin-left: -150px; bottom: 26px; }
+}
+@media (min-width: 1024px) { .rails .start-top { grid-template-columns: minmax(0, 1fr) 400px; } }
