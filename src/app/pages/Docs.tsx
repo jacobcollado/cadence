@@ -140,6 +140,8 @@ export function Docs() {
               </div>
             </div>
           </div>
+          {/* Text scrolling under the top edge fades out instead of cutting off. */}
+          <div className="doc-fade" aria-hidden="true" />
           <header className="doc-head">
             <h1 className="title">Docs</h1>
             <p className="lede">Add Cadence to your site, run a test on any device, and read what it found.</p>

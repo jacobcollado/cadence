@@ -831,3 +831,12 @@ svg { display: block; flex: none; }
 .doc-side[data-collapsed] .doc-nav-fold { visibility: hidden; }
 .gh-star[data-compact] { width: 28px; padding: 0; justify-content: center; box-shadow: none; color: var(--ink-3); }
 .gh-star[data-compact]:hover { color: var(--ink); background: var(--recess); }
+
+/* The fade at the top of the docs column: it takes no space, stays pinned
+   (under the phone's section bar), and covers the column's full width. */
+.doc-fade {
+  position: sticky; top: 0; z-index: 10; height: 56px; margin: 0 -24px -56px;
+  background: linear-gradient(to bottom, var(--paper) 15%, color-mix(in srgb, var(--paper) 0%, transparent));
+  pointer-events: none;
+}
+@media (max-width: 899px) { .doc-fade { top: 44px; height: 40px; margin: 0 calc(var(--gutter) * -1) -40px; } }
