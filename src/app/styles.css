@@ -706,51 +706,6 @@ svg { display: block; flex: none; }
    centered. */
 /* Phones: a slim bar with the logo and controls. Wide screens: they live in
    the sidebar instead. */
-.doc-bar { display: flex; align-items: center; gap: 20px; height: 64px; padding: 0 var(--gutter); }
-.doc-layout {
-  display: grid; gap: 0 56px; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter) 80px;
-  grid-template-columns: minmax(0, 1fr);
-}
-.doc-side { display: none; }
-@media (min-width: 900px) {
-  .doc-bar { display: none; }
-  .doc-layout { grid-template-columns: 184px minmax(0, 680px); justify-content: center; }
-  .doc-side { display: flex; }
-  .doc-layout > span { display: none; }
-}
-@media (min-width: 1180px) {
-  .doc-layout { grid-template-columns: minmax(184px, 1fr) minmax(0, 680px) minmax(184px, 1fr); }
-  .doc-layout > span { display: block; }
-}
-/* The sidebar runs the height of the window: logo at the top, the section
-   list, then the controls at the bottom. */
-.doc-side {
-  flex-direction: column; position: sticky; top: 0; align-self: start; justify-self: end;
-  width: 184px; height: 100vh; height: 100dvh; padding: 22px 0 24px;
-}
-.doc-side > .brand { height: 20px; }
-.doc-side-head { display: flex; align-items: center; justify-content: space-between; height: 20px; }
-.doc-side-toggle {
-  position: relative; width: 28px; height: 28px; margin-right: -6px; border-radius: 6px;
-  display: inline-flex; align-items: center; justify-content: center; color: var(--ink-3);
-  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
-}
-.doc-side-toggle:hover, .doc-side-toggle[aria-expanded="false"] { color: var(--ink); background: var(--recess); }
-/* The list folds away to the left and comes back the same way. */
-.doc-nav-fold { display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateX(-8px); margin-top: 108px;
-  transition: grid-template-rows var(--dur-slow) var(--ease-out), opacity var(--dur-base) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
-.doc-nav-fold[data-open] { grid-template-rows: 1fr; opacity: 1; transform: none; }
-.doc-side-foot { margin-top: auto; display: flex; align-items: center; gap: 20px; }
-.doc-nav-fold > nav { overflow: hidden; }
-.doc-nav { display: flex; flex-direction: column; gap: 2px; margin: 0 -10px; padding: 0 0 2px; }
-.doc-nav a {
-  height: 32px; display: flex; align-items: center; padding: 0 10px; border-radius: 6px;
-  font-size: 14px; color: var(--ink-3);
-  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-base) var(--ease-out);
-}
-.doc-nav a:hover { color: var(--ink); background: var(--hover); }
-.doc-nav a[aria-current] { color: var(--ink); font-weight: 500; background: var(--recess); }
-
 /* Phones: the pinned section list. */
 .doc-toc {
   position: sticky; top: 0; z-index: 20; margin: 0 calc(var(--gutter) * -1) 0; padding: 0 var(--gutter);
@@ -810,19 +765,6 @@ svg { display: block; flex: none; }
 .doc-card-title { margin-top: 12px; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--ink); }
 .doc-card p { margin-top: 4px; font-size: 14px; line-height: 22px; }
 
-.doc-bar .spacer { flex: 1; }
-
-/* Collapsed: the sidebar shrinks to a slim rail of icons beside the text,
-   which stays centered. */
-.doc-side { transition: width var(--dur-slow) var(--ease-out); }
-.doc-side .brand-word { transition: opacity var(--dur-base) var(--ease-out); }
-.doc-side[data-collapsed] { width: 28px; }
-.doc-side[data-collapsed] .brand-word { opacity: 0; width: 0; overflow: hidden; }
-.doc-side[data-collapsed] .brand { gap: 0; }
-.doc-side[data-collapsed] .doc-side-head { flex-direction: column; align-items: center; height: auto; gap: 16px; }
-.doc-side[data-collapsed] .doc-side-toggle { margin-right: 0; }
-.doc-side[data-collapsed] .doc-side-foot { flex-direction: column; gap: 16px; }
-.doc-side[data-collapsed] .doc-nav-fold { visibility: hidden; }
 .gh-star[data-compact] { width: 28px; padding: 0; justify-content: center; box-shadow: none; color: var(--ink-3); }
 .gh-star[data-compact]:hover { color: var(--ink); background: var(--recess); }
 
@@ -1358,3 +1300,67 @@ svg { display: block; flex: none; }
    Each overview tile carries its category's score on the right of its label. */
 .report-name { display: flex; align-items: center; gap: 16px; }
 .report .tile-label { gap: 8px; }
+
+/* Docs in the frame: the same rails as the rest of the site. On wide screens
+   the section list has its own lane, divided from the text by a double line
+   (the rails' motif), and each section is a cell whose hairline runs from
+   that line to the rail. */
+.doc-frame { display: grid; grid-template-columns: minmax(0, 1fr); }
+.doc-side { display: none; }
+@media (min-width: 900px) {
+  .doc-frame {
+    grid-template-columns: 224px minmax(0, 1fr);
+    background:
+      linear-gradient(var(--grid), var(--grid)) 219px 0 / 1px 100% no-repeat,
+      linear-gradient(var(--grid), var(--grid)) 223px 0 / 1px 100% no-repeat;
+  }
+  .doc-side { display: block; position: sticky; top: 0; align-self: start; padding: 40px 24px 40px var(--gutter); }
+}
+.doc-nav { display: flex; flex-direction: column; gap: 2px; margin: 0 -10px; }
+.doc-nav a {
+  height: 32px; display: flex; align-items: center; padding: 0 10px; border-radius: 6px;
+  font-size: 14px; color: var(--ink-3);
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.doc-nav a:hover { color: var(--ink); background: var(--hover); }
+.doc-nav a[aria-current] { color: var(--ink); font-weight: 500; }
+@media (min-width: 1024px) { .doc-nav a { font-size: 15px; } }
+/* The top bar sits above the docs now, so only phones need the fade under their pinned list. */
+.doc-fade-wide { display: none !important; }
+/* The current section is marked in its own tint. */
+.doc-frame .doc-nav a[aria-current] { background: color-mix(in srgb, var(--c) 12%, transparent); box-shadow: inset 2px 0 0 var(--c); }
+
+.doc-frame .doc-head { padding: 40px var(--gutter) 32px; gap: 8px; }
+.doc-frame .doc-section { padding: 40px var(--gutter); }
+@media (min-width: 900px) {
+  .doc-frame .doc-head { padding: 56px 48px 40px; }
+  .doc-frame .doc-section { padding: 56px 48px; }
+}
+/* Text keeps a readable measure inside the wider cells. */
+.doc-frame .doc-head > *, .doc-frame .doc-section > * { max-width: 720px; }
+.doc-frame .doc-toc { margin: 0; }
+.doc-frame .doc-fade { margin-left: 0; margin-right: 0; }
+
+/* A section's heading leads with its glass tile. */
+.doc-h2-row { display: flex; align-items: center; gap: 12px; }
+
+/* The docs' pictures, in the same glass as the home page. */
+.glass.doc-card-icon { color: var(--ink); }
+.doc-card:nth-child(4n+1) .doc-card-icon { --c: #7c5ce6; }
+.doc-card:nth-child(4n+2) .doc-card-icon { --c: #3d6fe0; }
+.doc-card:nth-child(4n+3) .doc-card-icon { --c: #1fa2c9; }
+.doc-card:nth-child(4n+4) .doc-card-icon { --c: #2fb67c; }
+.doc-card-icon .pass { background: none; }
+.pass-page i { background: color-mix(in srgb, var(--ink) 30%, transparent); }
+.pass-window { box-shadow: none; border: 1.5px dashed var(--ink); background: none; }
+.strip { display: flex; align-items: center; justify-content: center; height: 76px; padding: 0; background: none; }
+.causes { background: none; justify-content: center; }
+.causes .glass { color: var(--ink); }
+.causes .glass svg { color: var(--ink-2); }
+.specimen-tile[data-selected] {
+  background: linear-gradient(180deg, color-mix(in srgb, #7c5ce6 18%, var(--raised)), var(--raised) 75%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #7c5ce6 45%, transparent), 0 1px 2px rgba(0,0,0,.06);
+}
+.doc-tag { background: none; box-shadow: inset 0 0 0 1px var(--ring-firm); }
+@media (max-width: 480px) { .specimen-value span { display: none; } }
+.specimen-label { gap: 6px; }

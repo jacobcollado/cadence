@@ -1,28 +1,39 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { Brand, ThemeToggle } from "../components/TopBar";
-import { GitHubStar } from "../components/GitHubStar";
+import { useEffect, useLayoutEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
+import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
 import { Icon } from "../components/ui";
 import { CauseTags, CompareSpecimen, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
 import { reducedMotion } from "../../shared/motion";
+import { tint } from "../glass";
 
-// The docs: one centered column, with a section list beside it on wide
-// screens that marks where you are.
+// The docs, in the same frame as the rest of the site: the section list in
+// its own lane on wide screens, marking where you are, and the sections as
+// cells beside it. Each section has a glass tint, stepping through the
+// spectrum, shared by its heading and its place in the list.
 
-const SECTIONS = [
-  { id: "start", title: "Get started" },
-  { id: "test", title: "Running a test" },
-  { id: "report", title: "Reading a report" },
-  { id: "compare", title: "Comparing devices" },
-  { id: "tips", title: "Tips for useful results" },
-  { id: "options", title: "Options" },
-  { id: "privacy", title: "Privacy" },
+const SECTIONS: { id: string; title: string; icon: IconName }[] = [
+  { id: "start", title: "Get started", icon: "terminal" },
+  { id: "test", title: "Running a test", icon: "steady" },
+  { id: "report", title: "Reading a report", icon: "file" },
+  { id: "compare", title: "Comparing devices", icon: "compare" },
+  { id: "tips", title: "Tips for useful results", icon: "info" },
+  { id: "options", title: "Options", icon: "code" },
+  { id: "privacy", title: "Privacy", icon: "lock" },
 ];
 
+type IconName = ComponentProps<typeof Icon>["name"];
+
+/** A section's tint, by its place in the list. */
+const sectionTint = (id: string) => tint(SECTIONS.findIndex((s) => s.id === id) / (SECTIONS.length - 1));
+
 function Section({ id, title, lede, children }: { id: string; title: string; lede?: ReactNode; children: ReactNode }) {
+  const icon = SECTIONS.find((s) => s.id === id)!.icon;
   return (
     <section id={id} className="doc-section">
-      <h2 className="doc-h2">{title}</h2>
+      <div className="doc-h2-row">
+        <span className="glass free-tile" style={{ "--c": sectionTint(id) } as CSSProperties}><Icon name={icon} size={16} /></span>
+        <h2 className="doc-h2">{title}</h2>
+      </div>
       {lede && <p className="doc-lede">{lede}</p>}
       {children}
     </section>
@@ -37,14 +48,12 @@ function Code({ children }: { children: string }) {
 function Card({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
     <div className="doc-card">
-      <span className="doc-card-icon">{icon}</span>
+      <span className="glass doc-card-icon">{icon}</span>
       <div className="doc-card-title">{title}</div>
       <p>{children}</p>
     </div>
   );
 }
-
-const NAV_KEY = "cadence.docs.nav";
 
 const CIPHER = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 const LENGTH = 72;
@@ -93,37 +102,23 @@ function CipherLink() {
 
 export function Docs() {
   const [active, setActive] = useState(SECTIONS[0].id);
-  // The section list on wide screens, shown unless it was put away.
-  const [listOpen, setListOpen] = useState(() => {
-    try {
-      return localStorage.getItem(NAV_KEY) !== "closed";
-    } catch {
-      return true;
-    }
-  });
   // The pinned list on phones, closed until tapped.
   const [tocOpen, setTocOpen] = useState(false);
-  const toggleList = () => {
-    setListOpen((o) => {
-      try {
-        localStorage.setItem(NAV_KEY, o ? "closed" : "open");
-      } catch {}
-      return !o;
-    });
-  };
-
-  // Mark the section nearest the top of the screen.
+  // Mark the last section whose top has passed the upper part of the screen.
   useEffect(() => {
     const els = SECTIONS.map((s) => document.getElementById(s.id)!);
-    const io = new IntersectionObserver(
-      (entries) => {
-        const seen = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (seen[0]) setActive(seen[0].target.id);
-      },
-      { rootMargin: "0px 0px -70% 0px" },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const line = innerHeight * 0.25;
+      let current = els[0];
+      for (const el of els) if (el.getBoundingClientRect().top <= line) current = el;
+      setActive(current.id);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    addEventListener("scroll", onScroll, { passive: true });
+    return () => { removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, []);
 
   const go = (id: string) => (e: React.MouseEvent) => {
@@ -134,40 +129,15 @@ export function Docs() {
   };
 
   return (
-    <>
-      {/* Phones have no sidebar, so the logo and controls get a slim bar. */}
-      <div className="doc-bar">
-        <Brand />
-        <span className="spacer" />
-        <GitHubStar />
-        <ThemeToggle />
-      </div>
-      <div className="doc-layout enter">
-        <aside className="doc-side" data-collapsed={!listOpen || undefined}>
-          <div className="doc-side-head">
-            <Brand />
-            <button
-              className="doc-side-toggle"
-              aria-expanded={listOpen}
-              aria-controls="doc-nav"
-              aria-label={listOpen ? "Hide the section list" : "Show the section list"}
-              title={listOpen ? "Hide sections" : "Show sections"}
-              onClick={toggleList}
-            >
-              <Icon name="sidebar" />
-            </button>
-          </div>
-          <div className="doc-nav-fold" data-open={listOpen || undefined}>
-            <nav id="doc-nav" className="doc-nav" aria-label="On this page">
-              {SECTIONS.map((s) => (
-                <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined} tabIndex={listOpen ? undefined : -1}>{s.title}</a>
-              ))}
-            </nav>
-          </div>
-          <div className="doc-side-foot">
-            <GitHubStar compact={!listOpen} />
-            <ThemeToggle />
-          </div>
+    <div className="shell docs">
+      <TopBar />
+      <div className="rails doc-frame enter">
+        <aside className="doc-side">
+          <nav id="doc-nav" className="doc-nav" aria-label="On this page">
+            {SECTIONS.map((s) => (
+              <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined} style={{ "--c": sectionTint(s.id) } as CSSProperties}>{s.title}</a>
+            ))}
+          </nav>
         </aside>
 
         <article className="doc-body">
@@ -309,9 +279,7 @@ loadCadence();`}</Code>
             <p>Opening a report saves the run to that browser's run list, on that device only. Clearing site data or a private window removes it, and Safari clears it after seven days without a visit. The report link keeps the whole run, so copy it to keep a run for good or to open it elsewhere.</p>
           </Section>
         </article>
-
-        <span aria-hidden="true" />
       </div>
-    </>
+    </div>
   );
 }
