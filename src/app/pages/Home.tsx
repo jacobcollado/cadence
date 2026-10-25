@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
-import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../components/ui";
+import { CopyButton, Icon, Qr, RatingTag, ScoreRing, splitName, StatusIcon } from "../components/ui";
 import { GlassRow, MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
 import { tint } from "../glass";
 import { GlassFrames } from "../components/GlassFrames";
@@ -289,6 +289,7 @@ export function Home() {
               <span className="col-page">Page</span>
               <span className="col-when">When</span>
               <span className="run-tag">Rating</span>
+              <span className="col-score">Score</span>
               <span className="r">Frame rate</span>
               <span />
             </div>
@@ -318,6 +319,7 @@ export function Home() {
                 <span className="run-cell col-page">{pathOf(r.url)}</span>
                 <span className="run-cell col-when">{when(r.at)}</span>
                 <span className="run-tag">{r.rating && <RatingTag rating={r.rating} />}</span>
+                <span className="col-score">{r.score !== undefined && <ScoreRing score={r.score} size={28} />}</span>
                 <div className="run-score">
                   <div className="run-fps">
                     {r.rating && <span className="run-icon"><StatusIcon level={RATING_LEVEL[r.rating]} /></span>}

@@ -326,3 +326,34 @@ export function Fields({ items }: { items: [string, ReactNode][] }) {
     </dl>
   );
 }
+
+/**
+ * A score out of 100 as a ring, the way Lighthouse draws it: the arc fills to
+ * the score in its band's color, with the number inside. Both count up from
+ * zero when it appears.
+ */
+export function ScoreRing({ score, size = 32 }: { score: number; size?: number }) {
+  const level = score >= 90 ? "good" : score >= 50 ? "warn" : "bad";
+  const stroke = size >= 48 ? 4 : 3;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return (
+    <span className="score" data-level={level} data-large={size >= 48 || undefined} data-small={size <= 28 || undefined} style={{ width: size, height: size }} role="img" aria-label={`Score ${score} of 100, ${LEVEL_LABEL[level]}`}>
+      <svg viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+        <circle className="score-track" cx={size / 2} cy={size / 2} r={r} strokeWidth={stroke} />
+        <circle
+          className="score-arc"
+          cx={size / 2} cy={size / 2} r={r} strokeWidth={stroke}
+          strokeDasharray={c}
+          strokeDashoffset={shown ? c * (1 - score / 100) : c}
+        />
+      </svg>
+      <CountUp className="score-num num" value={shown ? score : 0} />
+    </span>
+  );
+}

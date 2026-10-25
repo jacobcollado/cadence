@@ -235,6 +235,9 @@ loadCadence();`}</Code>
           <Section id="report" title="Reading a report" lede="A report opens on three tiles. Each one is a part of the result, and each has a verdict. Select a tile to see its detail.">
             <TilesSpecimen />
             <p>Every number in a report has an <strong>i</strong> beside it that explains what it means and what counts as good.</p>
+            <h3 className="doc-h3">Scores</h3>
+            <p>Like Lighthouse, a report has a score out of 100, and each tile has its own. 90 and up is good, 50 to 89 needs work, under 50 is poor: the same three levels as every other grade in Cadence, so a score never disagrees with its word.</p>
+            <p>Each measurement is scored on Lighthouse's curve, set so that Cadence's good threshold scores 90 and its poor threshold scores 50. <strong>Smoothness</strong> weighs the frame rate at half, then the share of frames on time and the longest frame. <strong>Page load</strong> weighs largest paint and layout shift most, as Lighthouse does. <strong>Memory</strong> scores how much the heap and the page's elements grew. The overall score weighs smoothness at half, page load at 30 and memory at 20, counting only what was measured.</p>
             <h3 className="doc-h3">Three terms that matter most</h3>
             <div className="doc-cards doc-cards-3">
               <div className="doc-term">

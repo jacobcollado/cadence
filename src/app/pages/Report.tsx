@@ -4,7 +4,8 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { scoreLevel, scores, type Scores } from "../../shared/score";
 import { heapMissing, LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
@@ -62,6 +63,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   const cause = diagnose(run, stats);
   const metrics = pageLoad(run);
   const mem = memory(run);
+  const sc = scores(stats, metrics, mem);
   const name = splitName(run.device.name);
 
   // Context that changes how to read every tab, so it sits above them.
@@ -81,8 +83,13 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
       <section className="report-sec report-top">
       <header className="report-head enter">
         <div className="report-title">
-          <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{name.device}</h1>
-          <p className="report-page">{pathOf(run.url)}</p>
+          <div className="report-name">
+            <ScoreRing score={sc.overall} size={56} />
+            <div>
+              <h1 className="subtitle" style={{ viewTransitionName: `name-${run.id}` }}>{name.device}</h1>
+              <p className="report-page">{pathOf(run.url)}</p>
+            </div>
+          </div>
           {flags.length > 0 && (
             <div className="report-flags">
               {flags.map((f) => (
@@ -96,7 +103,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         </div>
         <div className="actions">
           <DeviceButton run={run} />
-          <CopyButton text={() => reportMarkdown(run, stats, cause, metrics, mem, location.href)} label="Copy as Markdown" icon="markdown" />
+          <CopyButton text={() => reportMarkdown(run, stats, cause, metrics, mem, sc, location.href)} label="Copy as Markdown" icon="markdown" />
           <CopyButton text={() => location.href} />
         </div>
       </header>
@@ -106,7 +113,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
 
       <section className="report-sec">
         <div className="enter">
-          <Overview run={run} stats={stats} metrics={metrics} mem={mem} tab={tab} onPick={pick} />
+          <Overview run={run} stats={stats} metrics={metrics} mem={mem} scores={sc} tab={tab} onPick={pick} />
         </div>
       </section>
 
@@ -185,31 +192,33 @@ function SavedNote() {
 }
 
 /** One tile per graded category. Each tile is also the tab for its part. */
-function Overview({ run, stats, metrics, mem, tab, onPick }: {
+function Overview({ run, stats, metrics, mem, scores: sc, tab, onPick }: {
   run: Run;
   stats: RunStats;
   metrics: Metric[];
   mem: MemoryReport | null;
+  scores: Scores;
   tab: Tab;
   onPick: (t: Tab) => void;
 }) {
   const graded = metrics.filter((m) => m.level);
   const worstLoad = graded.find((m) => m.level === "bad") ?? graded.find((m) => m.level === "warn");
-  const loadLevel: Level | undefined = graded.length ? worstLoad?.level ?? "good" : undefined;
+  // The tile's grade follows its score, like Lighthouse; the detail still names the worst metric.
+  const loadLevel: Level | undefined = sc.load !== null ? scoreLevel(sc.load) : undefined;
   const lcp = metrics.find((m) => m.key === "lcp");
   const headline = worstLoad ?? lcp;
   const loadCounts = (["bad", "warn"] as Level[])
     .map((l) => [l, graded.filter((m) => m.level === l).length] as const)
     .filter(([, n]) => n);
 
-  const tiles: { id: Tab; label: string; level?: Level; value: ReactNode; detail: string }[] = [
+  const tiles: { id: Tab; label: string; level?: Level; score: number | null; value: ReactNode; detail: string }[] = [
     {
-      id: "smooth", label: "Smoothness", level: RATING_LEVEL[stats.rating],
+      id: "smooth", label: "Smoothness", level: RATING_LEVEL[stats.rating], score: sc.smooth,
       value: <><CountUp className="num" value={stats.fps} /><span className="tile-unit">fps</span></>,
       detail: `${RATING_LABEL[stats.rating]}, out of ${run.hz}`,
     },
     {
-      id: "load", label: "Page load", level: loadLevel,
+      id: "load", label: "Page load", level: loadLevel, score: sc.load,
       value: headline?.value !== undefined
         ? <><span className="num">{headline.display}</span>{headline.key === "nodes" && <span className="tile-unit">elements</span>}</>
         : <span className="tile-none">Not reported</span>,
@@ -220,7 +229,7 @@ function Overview({ run, stats, metrics, mem, tab, onPick }: {
           : `${headline?.name ?? "Every metric"}, all good`,
     },
     {
-      id: "memory", label: "Memory", level: mem?.level,
+      id: "memory", label: "Memory", level: mem?.level, score: sc.memory,
       value: mem?.heap
         ? <><span className="num">{mem.heap.peak.toFixed(1)}</span><span className="tile-unit">MB</span></>
         : mem?.nodes
@@ -245,7 +254,8 @@ function Overview({ run, stats, metrics, mem, tab, onPick }: {
           onClick={() => onPick(t.id)}
         >
           <span className="tile-label">
-            {t.level && <StatusIcon level={t.level} />}
+            {/* The score ring carries the grade's color, so it takes the status icon's place. */}
+            {t.score !== null ? <ScoreRing score={t.score} size={28} /> : t.level && <StatusIcon level={t.level} />}
             {t.label}
           </span>
           <span className="tile-value">{t.value}</span>
