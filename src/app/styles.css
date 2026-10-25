@@ -206,7 +206,8 @@ svg { display: block; flex: none; }
 .status-icon { display: inline-flex; }
 
 /* Flip: changing text leaves upward. */
-.flip { position: relative; display: inline-block; clip-path: inset(0 -100vw); vertical-align: bottom; }
+/* The clip leaves room above and below the line, so descenders (the y in Copy) never get cut. */
+.flip { position: relative; display: inline-block; clip-path: inset(-0.35em -100vw); vertical-align: bottom; }
 .flip > span { display: block; white-space: nowrap; }
 
 /* Disclosure */
@@ -637,7 +638,7 @@ svg { display: block; flex: none; }
 .setup-btn:hover { background: var(--hover); }
 .setup-icon { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: var(--recess); color: var(--ink-2); flex: none; }
 .setup-title { font-weight: 500; white-space: nowrap; }
-.setup-peek { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); font: 400 12px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; }
+.setup-peek { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); font: 400 12px/20px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; }
 .setup-btn > svg { color: var(--ink-3); transition: transform var(--dur-slow) var(--ease-out); }
 .setup-btn[aria-expanded="true"] > svg { transform: rotate(180deg); }
 .setup-body { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px; }
@@ -759,7 +760,7 @@ svg { display: block; flex: none; }
 .doc-toc[data-open] { box-shadow: inset 0 -1px 0 var(--grid), 0 16px 24px -16px var(--shadow); }
 @media (min-width: 900px) { .doc-toc { display: none; } }
 .doc-toc-btn { width: 100%; height: 44px; display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1; text-align: left; }
-.doc-toc-current { color: var(--ink); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-toc-current { color: var(--ink); font-weight: 500; flex: 1; min-width: 0; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .doc-toc-btn svg { color: var(--ink-3); transition: transform var(--dur-slow) var(--ease-out); }
 .doc-toc-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
 .doc-toc-list { display: flex; flex-direction: column; gap: 2px; padding: 0 0 12px; }
@@ -769,7 +770,7 @@ svg { display: block; flex: none; }
 .doc-head { display: flex; flex-direction: column; gap: 12px; padding: 32px 0 24px; }
 @media (max-width: 899px) { .doc-toc + .doc-fade + .doc-section, .doc-toc ~ .doc-section:first-of-type { box-shadow: none; } }
 @media (min-width: 900px) { .doc-head { padding-top: 104px; } }
-.doc-section { padding: 40px 0 8px; scroll-margin-top: 24px; box-shadow: inset 0 1px 0 var(--grid); }
+.doc-section { padding: 40px 0 40px; scroll-margin-top: 24px; box-shadow: inset 0 1px 0 var(--grid); }
 .doc-h2 { font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.02em; }
 .doc-lede { margin-top: 8px; }
 .doc-body p { font-size: 15px; line-height: 25px; color: var(--ink-2); }
@@ -812,8 +813,9 @@ svg { display: block; flex: none; }
 .doc-callout { display: flex; gap: 16px; padding: 16px; border-radius: 6px; background: var(--recess); }
 .doc-callout p + p { margin-top: 10px; }
 .doc-list { display: flex; flex-direction: column; }
-.doc-list div { display: grid; gap: 2px; padding: 12px 0; box-shadow: inset 0 -1px 0 var(--grid); }
-.doc-list div:first-child { box-shadow: inset 0 1px 0 var(--grid), inset 0 -1px 0 var(--grid); }
+/* Hairlines only between items, so none doubles up with a section's own divider. */
+.doc-list div { display: grid; gap: 2px; padding: 12px 0; }
+.doc-list div + div { box-shadow: inset 0 1px 0 var(--grid); }
 @media (min-width: 600px) { .doc-list div { grid-template-columns: 160px 1fr; gap: 20px; } }
 .doc-list dt { font-size: 15px; line-height: 25px; font-weight: 600; color: var(--ink); }
 .doc-list dd { font-size: 15px; line-height: 25px; color: var(--ink-2); }
