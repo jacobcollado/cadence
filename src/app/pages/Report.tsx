@@ -354,6 +354,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                           min={Math.round(run.hz / 2)}
                           max={run.hz}
                           format={(v) => `${Math.round(v)} fps`}
+                          glass
                         />
                       </Info>
                     </span>
@@ -379,6 +380,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                           ]}
                           max={FREEZE * 1.6}
                           format={(v) => `${Math.round(v)} ms`}
+                          glass
                         />
                       </Info>
                     </span>

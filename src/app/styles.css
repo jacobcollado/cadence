@@ -513,6 +513,8 @@ svg { display: block; flex: none; }
 .zone-seg { border-radius: 2px; background: var(--good); }
 .zone-seg[data-level="warn"] { background: var(--warn); }
 .zone-seg[data-level="bad"] { background: var(--bad); }
+/* Where frames are drawn in glass, the good zone is the same spectrum. */
+.zone[data-glass] .zone-seg[data-level="good"] { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 .zone-seg:first-child { border-radius: 4px 2px 2px 4px; }
 .zone-seg:last-child { border-radius: 2px 4px 4px 2px; }
 .zone-words { display: flex; gap: 2px; margin-top: 6px; font-size: 12px; line-height: 16px; color: var(--ink-2); }
