@@ -704,25 +704,33 @@ svg { display: block; flex: none; }
 /* Docs: one readable column, centered on the page, with the section list
    beside it. The empty third column balances the list so the text stays
    centered. */
-.doc-top { padding-bottom: 0; }
+/* Phones: a slim bar with the logo and controls. Wide screens: they live in
+   the sidebar instead. */
+.doc-bar { display: flex; align-items: center; gap: 20px; height: 64px; padding: 0 var(--gutter); }
 .doc-layout {
   display: grid; gap: 0 56px; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter) 80px;
   grid-template-columns: minmax(0, 1fr);
 }
-.doc-nav { display: none; }
+.doc-side { display: none; }
 @media (min-width: 900px) {
+  .doc-bar { display: none; }
   .doc-layout { grid-template-columns: 184px minmax(0, 680px); justify-content: center; }
-  .doc-nav { display: flex; }
+  .doc-side { display: flex; }
   .doc-layout > span { display: none; }
 }
 @media (min-width: 1180px) {
   .doc-layout { grid-template-columns: minmax(184px, 1fr) minmax(0, 680px) minmax(184px, 1fr); }
   .doc-layout > span { display: block; }
 }
-.doc-nav {
-  flex-direction: column; gap: 2px; position: sticky; top: 32px; align-self: start;
-  justify-self: end; width: 184px; margin-top: 160px;
+/* The sidebar runs the height of the window: logo at the top, the section
+   list, then the controls at the bottom. */
+.doc-side {
+  flex-direction: column; position: sticky; top: 0; align-self: start; justify-self: end;
+  width: 184px; height: 100vh; height: 100dvh; padding: 22px 0 24px;
 }
+.doc-side > .brand { height: 20px; }
+.doc-nav { display: flex; flex-direction: column; gap: 2px; margin-top: 128px; }
+.doc-side-foot { margin-top: auto; display: flex; align-items: center; gap: 20px; }
 .doc-nav-title { font-size: 12px; line-height: 16px; color: var(--ink-3); margin-bottom: 8px; }
 .doc-nav a {
   position: relative; height: 32px; display: flex; align-items: center; padding-left: 14px;
@@ -733,6 +741,7 @@ svg { display: block; flex: none; }
 .doc-nav a[aria-current] { color: var(--ink); font-weight: 500; box-shadow: inset 2px 0 0 var(--ink); }
 .doc-body { min-width: 0; }
 .doc-head { display: flex; flex-direction: column; gap: 12px; padding: 40px 0 40px; }
+@media (min-width: 900px) { .doc-head { padding-top: 104px; } }
 .doc-section { padding: 40px 0 8px; scroll-margin-top: 24px; box-shadow: inset 0 1px 0 var(--grid); }
 .doc-h2 { font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.02em; }
 .doc-lede { margin-top: 8px; }
@@ -781,3 +790,4 @@ svg { display: block; flex: none; }
 @media (min-width: 600px) { .doc-list div { grid-template-columns: 160px 1fr; gap: 20px; } }
 .doc-list dt { font-size: 15px; line-height: 25px; font-weight: 600; color: var(--ink); }
 .doc-list dd { font-size: 15px; line-height: 25px; color: var(--ink-2); }
+.doc-bar .spacer { flex: 1; }

@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { TopBar } from "../components/TopBar";
+import { Brand, ThemeToggle } from "../components/TopBar";
+import { GitHubStar } from "../components/GitHubStar";
 import { Install } from "../components/Install";
 import { Icon, StatusIcon } from "../components/ui";
 
@@ -66,14 +67,27 @@ export function Docs() {
 
   return (
     <>
-      <div className="shell doc-top"><TopBar /></div>
+      {/* Phones have no sidebar, so the logo and controls get a slim bar. */}
+      <div className="doc-bar">
+        <Brand />
+        <span className="spacer" />
+        <GitHubStar />
+        <ThemeToggle />
+      </div>
       <div className="doc-layout enter">
-        <nav className="doc-nav" aria-label="On this page">
-          <div className="doc-nav-title">On this page</div>
-          {SECTIONS.map((s) => (
-            <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined}>{s.title}</a>
-          ))}
-        </nav>
+        <aside className="doc-side">
+          <Brand />
+          <nav className="doc-nav" aria-label="On this page">
+            <div className="doc-nav-title">On this page</div>
+            {SECTIONS.map((s) => (
+              <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined}>{s.title}</a>
+            ))}
+          </nav>
+          <div className="doc-side-foot">
+            <GitHubStar />
+            <ThemeToggle />
+          </div>
+        </aside>
 
         <article className="doc-body">
           <header className="doc-head">
