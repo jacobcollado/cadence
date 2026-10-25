@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { tint } from "./GlassFrames";
+import { tint } from "../glass";
 
 // The pictures for How it works, in the same glass as the hero and the
 // frame rows: the probe added to a page, the page scrolling under the

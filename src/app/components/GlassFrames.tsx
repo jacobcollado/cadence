@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { reducedMotion } from "../../shared/motion";
 import { DeviceIcon, type Device } from "./DeviceIcon";
 import { CountUp } from "./ui";
+import { tint } from "../glass";
 
 // The hero's glass, standing in rows: half a second of the same scroll on
 // three devices, one pane per screen refresh. A refresh that got a new frame
@@ -13,17 +14,9 @@ const SPAN = 500;           // ms shown
 const BUDGET = 1000 / 60;   // one refresh at 60 Hz
 const SLOTS = Math.round(SPAN / BUDGET);
 const LEAD = 300;           // ms before the rows start
-// Cool end of the hero's spectrum.
-export const TINTS = ["#7c5ce6", "#3d6fe0", "#1fa2c9", "#2fb67c"];
 
 type Row = { name: string; device: Device; drawn: boolean[] };
 
-/** A color a fraction of the way through the tints. */
-export function tint(f: number): string {
-  const x = Math.min(f, 0.999) * (TINTS.length - 1);
-  const i = Math.floor(x);
-  return `color-mix(in oklab, ${TINTS[i]} ${Math.round((1 - (x - i)) * 100)}%, ${TINTS[i + 1]})`;
-}
 
 /**
  * A repeatable run as refresh slots: true where a frame was drawn, false
