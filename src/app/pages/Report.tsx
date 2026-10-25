@@ -8,7 +8,8 @@ import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, splitName, StatusIcon,
 import { LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
-import { ADVICE, CAUSE_LABEL, scrollTip } from "../advice";
+import { reportMarkdown } from "../markdown";
+import { ADVICE, CAUSE_LABEL, scrollTip } from "../../shared/advice";
 import { decodeRun, download, pathOf, saveRun, when } from "../lib";
 
 type State = { run: Run; stats: RunStats } | { error: string } | null;
@@ -88,9 +89,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         </div>
         <div className="actions">
           <DeviceButton run={run} />
-          <button className="btn btn-secondary btn-icon-l" onClick={() => download(run)}>
-            <Icon name="download" size={14} />Download JSON
-          </button>
+          <CopyButton text={() => reportMarkdown(run, stats, cause, metrics, mem, location.href)} label="Copy as Markdown" icon="markdown" />
           <CopyButton text={() => location.href} />
         </div>
       </header>
@@ -662,8 +661,11 @@ function DevicePanel({ run }: { run: Run }) {
   ];
   return (
     <>
-      <div className="popover-head">
+      <div className="popover-head popover-head-row">
         <h2 className="h2">Details</h2>
+        <button className="btn btn-secondary btn-icon-l" onClick={() => download(run)}>
+          <Icon name="download" size={14} />Download JSON
+        </button>
       </div>
       <div className="device-groups">
         {groups.map(([title, items]) => {

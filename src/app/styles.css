@@ -1038,3 +1038,4 @@ svg { display: block; flex: none; }
   font: 400 12px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0;
   padding: 2px 4px; border-radius: 4px; background: var(--recess); color: var(--ink);
 }
+.popover-head-row { flex-direction: row; align-items: center; justify-content: space-between; }
