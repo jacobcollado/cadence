@@ -3,16 +3,20 @@ import { reducedMotion } from "../../shared/motion";
 import { tier } from "../../shared/stats";
 import { CountUp } from "./ui";
 
-// Strobe arcs: one dot travels the same half circle on three devices, and
-// every frame it was drawn leaves an imprint, like a strobe photograph. On
-// time, the imprints sit evenly; where frames dropped there's a gap, and the
-// imprint after it is amber, or red after a freeze. The first time the arcs
-// come into view they draw in at real speed.
+// Strobe arcs: a bright head travels the same half circle on three devices,
+// and every frame it was drawn leaves a tick, like a strobe photograph. On
+// time, the ticks sit evenly; a dropped frame leaves a gap, and a freeze a
+// wide one closed by a red tick. The first time the arcs come into view, the
+// heads run at real speed, stepping once per frame, so the slow device
+// visibly stalls.
 
 const SPAN = 1000;          // ms the dot takes to cross
 const BUDGET = 1000 / 60;   // one refresh at 60 Hz
 const LEAD = 300;           // ms before the arcs start drawing
-const W = 560, CX = 280, CY = 244;
+const FADE = 240;           // ms the heads take to fade at the end
+const W = 584, CX = 280, CY = 260;   // room on the right for the last label
+const TICK = 7;            // half a tick's length
+const LABEL = 44;          // room under the baseline for the labels
 
 type Device = "laptop" | "apple" | "android";
 type Arc = { name: string; device: Device; r: number; frames: number[] };
@@ -58,19 +62,26 @@ function run(seed: number, late: number, freezes: number[]): number[] {
 }
 
 const ARCS: Arc[] = [
-  { name: "Laptop", device: "laptop", r: 104, frames: run(7, 0, []) },
-  { name: "iPhone", device: "apple", r: 160, frames: run(11, 0.06, []) },
-  { name: "Android", device: "android", r: 216, frames: run(23, 0.1, [0.3, 0.68]) },
+  { name: "Laptop", device: "laptop", r: 124, frames: run(7, 0, []) },
+  { name: "iPhone", device: "apple", r: 186, frames: run(11, 0.06, []) },
+  { name: "Android", device: "android", r: 248, frames: run(23, 0.1, [0.3, 0.68]) },
 ];
 
-/** Where on its arc the dot is after a fraction of the crossing: left end to right end, over the top. */
-function point(r: number, f: number): [number, number] {
+/** A point at radius r, a fraction of the way along the half circle: left end to right end, over the top. */
+function polar(r: number, f: number): [number, number] {
   const a = Math.PI * (1 - Math.min(f, 1));
   return [CX + r * Math.cos(a), CY - r * Math.sin(a)];
 }
 
+/** Frame end times along a run, so each tick and head step lands when its frame did. */
+function ends(frames: number[]): number[] {
+  let t = 0;
+  return frames.map((d) => (t += d));
+}
+
 export function StrobeArcs() {
   const el = useRef<HTMLElement>(null);
+  const heads = useRef<(SVGGElement | null)[]>([]);
   const [play, setPlay] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -81,6 +92,20 @@ export function StrobeArcs() {
       if (!e.isIntersecting) return;
       io.disconnect();
       setPlay(true);
+      // Each head turns about the center, holding still between frames and
+      // stepping when one lands: a slow frame is a visible stall.
+      ARCS.forEach((arc, i) => {
+        const keys: Keyframe[] = [{ transform: "rotate(0deg)", opacity: 1, offset: 0 }];
+        let last = 0;
+        for (const t of ends(arc.frames)) {
+          const o = Math.min(t, SPAN) / (SPAN + FADE);
+          keys.push({ transform: `rotate(${last}deg)`, opacity: 1, offset: o });
+          last = (180 * Math.min(t, SPAN)) / SPAN;
+          keys.push({ transform: `rotate(${last}deg)`, opacity: 1, offset: o });
+        }
+        keys.push({ transform: `rotate(${last}deg)`, opacity: 0, offset: 1 });
+        heads.current[i]?.animate(keys, { duration: SPAN + FADE, delay: LEAD, fill: "both" });
+      });
       timer = window.setTimeout(() => setDone(true), LEAD + SPAN);
     }, { rootMargin: "0px 0px -20% 0px" });
     io.observe(el.current!);
@@ -89,44 +114,44 @@ export function StrobeArcs() {
 
   return (
     <figure ref={el} className="strobe" data-play={play || undefined} aria-label="One second of the same motion on a laptop, an iPhone and an Android phone, one imprint per frame">
-      <div className="strobe-stage">
-      <svg className="strobe-plot" viewBox={`0 0 ${W} ${CY + 8}`} aria-hidden="true">
-        {ARCS.map((arc) => {
-          let t = 0;
+      <svg className="strobe-plot" viewBox={`0 0 ${W} ${CY + LABEL}`} aria-hidden="true">
+        {ARCS.map((arc, i) => {
+          const times = ends(arc.frames);
           return (
             <g key={arc.name}>
               <path className="strobe-guide" d={`M${CX - arc.r} ${CY}A${arc.r} ${arc.r} 0 0 1 ${CX + arc.r} ${CY}`} />
-              {arc.frames.map((d, i) => {
-                t += d;
-                const [x, y] = point(arc.r, t / SPAN);
-                const level = tier(d, BUDGET);
+              {arc.frames.map((d, j) => {
+                const f = times[j] / SPAN;
+                const freeze = tier(d, BUDGET) === 2;
+                const len = freeze ? TICK + 3 : TICK;
+                const [x1, y1] = polar(arc.r - len, f);
+                const [x2, y2] = polar(arc.r + len, f);
                 return (
-                  <circle
-                    key={i}
-                    className="strobe-dot"
-                    data-tier={level || undefined}
-                    cx={x}
-                    cy={y}
-                    r={level ? 3.5 : 2.5}
-                    style={{ "--t": `${LEAD + Math.min(t, SPAN)}ms` } as CSSProperties}
+                  <line
+                    key={j}
+                    className="strobe-tick"
+                    data-freeze={freeze || undefined}
+                    x1={x1} y1={y1} x2={x2} y2={y2}
+                    style={{ "--t": `${LEAD + Math.min(times[j], SPAN)}ms` } as CSSProperties}
                   />
                 );
               })}
+              <g ref={(g) => { heads.current[i] = g; }} className="strobe-head" style={{ transformOrigin: `${CX}px ${CY}px` }}>
+                <circle className="strobe-glow" cx={CX - arc.r} cy={CY} r={9} />
+                <circle className="strobe-dot" cx={CX - arc.r} cy={CY} r={4} />
+              </g>
             </g>
           );
         })}
       </svg>
-      {ARCS.map((arc) => (
-        <span key={arc.name} className="strobe-end" style={{ left: `${((CX - arc.r) / W) * 100}%` }}>
-          <DeviceIcon device={arc.device} />
-        </span>
-      ))}
       {ARCS.map((arc, i) => (
-        <span key={arc.name} className="strobe-end strobe-fps num" style={{ left: `${((CX + arc.r) / W) * 100}%` }}>
-          <CountUp value={done ? Math.round(arc.frames.length * 1000 / SPAN) : 0} />{i === ARCS.length - 1 && <span className="strobe-unit">fps</span>}
+        <span key={arc.name} className="strobe-label" style={{ left: `${((CX + arc.r) / W) * 100}%`, top: `${(CY / (CY + LABEL)) * 100}%` }}>
+          <DeviceIcon device={arc.device} />
+          <span className="strobe-fps num">
+            <CountUp value={done ? Math.round(arc.frames.length * 1000 / SPAN) : 0} />{i === ARCS.length - 1 && <span className="strobe-unit">fps</span>}
+          </span>
         </span>
       ))}
-      </div>
     </figure>
   );
 }

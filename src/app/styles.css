@@ -1232,28 +1232,28 @@ svg { display: block; flex: none; }
 }
 @media (min-width: 1024px) { .rails .start-top { grid-template-columns: minmax(0, 1fr) 400px; } }
 
-/* Strobe arcs: three half circles sharing a center, one imprint per frame.
-   Each imprint pops in when its frame lands. Below, a key per arc. */
-.strobe { margin: 0; padding: 24px 20px 20px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); display: flex; flex-direction: column; gap: 20px; }
-.strobe-plot { width: 100%; height: auto; overflow: visible; }
+/* Strobe arcs: three half circles sharing a center, a tick per frame and
+   a bright head that runs each arc once. No frame around it: the arcs carry
+   the section. Each device's mark and frame rate sit under its arc's end. */
+.strobe { position: relative; margin: 0; }
+.strobe-plot { display: block; width: 100%; height: auto; overflow: visible; }
 .strobe-guide { fill: none; stroke: var(--grid); stroke-width: 1; }
-.strobe-dot { fill: var(--data-line); transform-box: fill-box; transform-origin: center; transform: scale(0); }
-.strobe-dot[data-tier="1"] { fill: var(--warn); }
-.strobe-dot[data-tier="2"] { fill: var(--bad); }
-.strobe[data-play] .strobe-dot { animation: strobe-pop var(--dur-base) var(--ease-out) var(--t) both; }
+.strobe-tick { stroke: var(--data-line); stroke-width: 2; stroke-linecap: round; transform-box: fill-box; transform-origin: center; transform: scale(0); }
+.strobe-tick[data-freeze] { stroke: var(--bad); stroke-width: 2.5; }
+.strobe[data-play] .strobe-tick { animation: strobe-pop var(--dur-fast) var(--ease-out) var(--t) both; }
 @keyframes strobe-pop { from { transform: scale(0); } to { transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { .strobe-dot { transform: none; animation: none !important; } }
-/* The arcs' ends sit on the baseline: each device's mark under its left
-   end, its frame rate under its right end. */
-.strobe-stage { position: relative; padding-bottom: 28px; }
-.strobe-end { position: absolute; top: calc(100% - 28px); transform: translateX(-50%); height: 28px; display: flex; align-items: center; color: var(--ink); white-space: nowrap; }
-.strobe-end svg { width: 16px; height: 16px; }
-.strobe-fps { font-size: 13px; line-height: 20px; color: var(--ink-2); }
-.strobe-unit { margin-left: 4px; color: var(--ink-3); }
+.strobe-head { opacity: 0; }
+.strobe-dot { fill: var(--ink); }
+.strobe-glow { fill: var(--ink); opacity: .12; }
+@media (prefers-reduced-motion: reduce) { .strobe-tick { transform: none; animation: none !important; } .strobe-head { display: none; } }
+.strobe-label {
+  position: absolute; transform: translate(-50%, 12px);
+  display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--ink);
+}
+.strobe-label svg { width: 16px; height: 16px; }
+.strobe-fps { position: relative; font-size: 13px; line-height: 16px; color: var(--ink-2); }
+.strobe-unit { position: absolute; left: 100%; margin-left: 4px; color: var(--ink-3); }
 @media (min-width: 1024px) {
-  .strobe { padding: 32px 24px 24px; gap: 24px; }
-  .strobe-stage { padding-bottom: 32px; }
-  .strobe-end { top: calc(100% - 32px); height: 32px; }
-  .strobe-end svg { width: 18px; height: 18px; }
-  .rails .strobe-fps { font-size: 15px; }
+  .strobe-label svg { width: 18px; height: 18px; }
+  .rails .strobe-fps { font-size: 15px; line-height: 20px; }
 }
