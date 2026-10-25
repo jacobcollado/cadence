@@ -743,7 +743,6 @@ svg { display: block; flex: none; }
 .doc-side-foot { margin-top: auto; display: flex; align-items: center; gap: 20px; }
 .doc-nav-fold > nav { overflow: hidden; }
 .doc-nav { display: flex; flex-direction: column; gap: 2px; margin: 0 -10px; padding: 0 0 2px; }
-.doc-nav-title { font-size: 12px; line-height: 16px; color: var(--ink-3); margin: 0 10px 8px; }
 .doc-nav a {
   height: 32px; display: flex; align-items: center; padding: 0 10px; border-radius: 6px;
   font-size: 14px; color: var(--ink-3);
@@ -760,7 +759,6 @@ svg { display: block; flex: none; }
 .doc-toc[data-open] { box-shadow: inset 0 -1px 0 var(--grid), 0 16px 24px -16px var(--shadow); }
 @media (min-width: 900px) { .doc-toc { display: none; } }
 .doc-toc-btn { width: 100%; height: 44px; display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1; text-align: left; }
-.doc-toc-label { color: var(--ink-3); white-space: nowrap; }
 .doc-toc-current { color: var(--ink); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .doc-toc-btn svg { color: var(--ink-3); transition: transform var(--dur-slow) var(--ease-out); }
 .doc-toc-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
@@ -819,3 +817,17 @@ svg { display: block; flex: none; }
 .doc-list dt { font-size: 15px; line-height: 25px; font-weight: 600; color: var(--ink); }
 .doc-list dd { font-size: 15px; line-height: 25px; color: var(--ink-2); }
 .doc-bar .spacer { flex: 1; }
+
+/* Collapsed: the sidebar shrinks to a slim rail of icons beside the text,
+   which stays centered. */
+.doc-side { transition: width var(--dur-slow) var(--ease-out); }
+.doc-side .brand-word { transition: opacity var(--dur-base) var(--ease-out); }
+.doc-side[data-collapsed] { width: 28px; }
+.doc-side[data-collapsed] .brand-word { opacity: 0; width: 0; overflow: hidden; }
+.doc-side[data-collapsed] .brand { gap: 0; }
+.doc-side[data-collapsed] .doc-side-head { flex-direction: column; align-items: center; height: auto; gap: 16px; }
+.doc-side[data-collapsed] .doc-side-toggle { margin-right: 0; }
+.doc-side[data-collapsed] .doc-side-foot { flex-direction: column; gap: 16px; }
+.doc-side[data-collapsed] .doc-nav-fold { visibility: hidden; }
+.gh-star[data-compact] { width: 28px; padding: 0; justify-content: center; box-shadow: none; color: var(--ink-3); }
+.gh-star[data-compact]:hover { color: var(--ink); background: var(--recess); }

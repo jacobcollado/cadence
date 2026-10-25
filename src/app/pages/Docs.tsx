@@ -96,7 +96,7 @@ export function Docs() {
         <ThemeToggle />
       </div>
       <div className="doc-layout enter">
-        <aside className="doc-side">
+        <aside className="doc-side" data-collapsed={!listOpen || undefined}>
           <div className="doc-side-head">
             <Brand />
             <button
@@ -112,14 +112,13 @@ export function Docs() {
           </div>
           <div className="doc-nav-fold" data-open={listOpen || undefined}>
             <nav id="doc-nav" className="doc-nav" aria-label="On this page">
-              <div className="doc-nav-title">On this page</div>
               {SECTIONS.map((s) => (
                 <a key={s.id} href={`#${s.id}`} onClick={go(s.id)} aria-current={active === s.id || undefined} tabIndex={listOpen ? undefined : -1}>{s.title}</a>
               ))}
             </nav>
           </div>
           <div className="doc-side-foot">
-            <GitHubStar />
+            <GitHubStar compact={!listOpen} />
             <ThemeToggle />
           </div>
         </aside>
@@ -128,7 +127,6 @@ export function Docs() {
           {/* Phones: the section list, pinned to the top as you scroll. */}
           <div className="doc-toc" data-open={tocOpen || undefined}>
             <button className="doc-toc-btn" aria-expanded={tocOpen} aria-controls="doc-toc-list" onClick={() => setTocOpen(!tocOpen)}>
-              <span className="doc-toc-label">On this page</span>
               <span className="doc-toc-current">{SECTIONS.find((s) => s.id === active)?.title}</span>
               <Icon name="chevron" />
             </button>
