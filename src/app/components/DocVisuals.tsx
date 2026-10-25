@@ -1,5 +1,4 @@
 import type { CSSProperties } from "react";
-import { SERIES } from "../lib";
 import { Icon, ScoreRing } from "./ui";
 import { GlassRow } from "./HowVisuals";
 import { tint } from "../glass";
@@ -62,49 +61,5 @@ export function CauseTags() {
       <span className="glass" style={{ "--c": tint(0.5) } as CSSProperties}><Icon name="layout" size={12} />Layout</span>
       <span className="glass" style={{ "--c": tint(1) } as CSSProperties}><Icon name="drawing" size={12} />Drawing</span>
     </span>
-  );
-}
-
-/** Three devices across three sections, like the compare page, against the target line. */
-export function CompareSpecimen() {
-  const devices = [
-    { name: "iPhone", fps: 59 },
-    { name: "Android", fps: 42 },
-    { name: "Laptop", fps: 60 },
-  ];
-  const sections = [
-    { label: "Hero", fps: [60, 52, 60] },
-    { label: "Work", fps: [58, 34, 60] },
-    { label: "Close", fps: [59, 41, 60] },
-  ];
-  return (
-    <figure className="cmp" aria-label="Example: three devices compared across three sections">
-      <div className="cmp-legend">
-        {devices.map((d, i) => (
-          <span key={d.name} className="cmp-key">
-            <i style={{ background: SERIES[i] }} />{d.name}<span className="num">{d.fps} fps</span>
-          </span>
-        ))}
-        <span className="cmp-key cmp-key-target"><i />Target<span className="num">60 fps</span></span>
-      </div>
-      <div className="cmp-plot" aria-hidden="true">
-        <span className="cmp-target" />
-        {sections.map((s) => (
-          <div key={s.label} className="cmp-group">
-            <div className="cmp-bars">
-              {s.fps.map((v, i) => (
-                <span key={i} className="cmp-bar" style={{ height: `${(v / 60) * 100}%`, background: SERIES[i] }}>
-                  <span className="num">{v}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="cmp-labels" aria-hidden="true">
-        {sections.map((s) => <span key={s.label}>{s.label}</span>)}
-      </div>
-      <figcaption className="cmp-note">Android was the slowest at 42 fps, against 60 on Laptop. The widest gap was in Work.</figcaption>
-    </figure>
   );
 }

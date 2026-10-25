@@ -2,7 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
 import { Icon } from "../components/ui";
-import { CauseTags, CompareSpecimen, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
+import { CauseTags, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
+import { GlassFrames } from "../components/GlassFrames";
 import { reducedMotion } from "../../shared/motion";
 
 // The docs, in the same frame as the rest of the site: the section list in
@@ -218,7 +219,7 @@ loadCadence();`}</Code>
           </Section>
 
           <Section id="compare" title="Comparing devices" lede="Every report you open is saved to the list of runs on the home page. Tick two or more and press Compare to see them side by side, section by section, with a sentence that names the biggest gap.">
-            <CompareSpecimen />
+            <GlassFrames />
             <p>A good set to compare: a recent iPhone, a mid-range Android, and a laptop.</p>
           </Section>
 
