@@ -20,7 +20,13 @@ export function reportMarkdown(run: Run, stats: RunStats, cause: Cause, metrics:
   const worst = graded.find((m) => m.level === "bad") ?? graded.find((m) => m.level === "warn") ?? metrics.find((m) => m.key === "lcp");
   lines.push(`- **Smoothness:** ${RATING_LABEL[stats.rating]}, ${Math.round(stats.fps)} fps out of ${run.hz}, ${stats.dropped} dropped frames, longest frame ${Math.round(stats.worst)} ms`);
   if (worst?.value !== undefined) lines.push(`- **Page load:** ${worst.name} ${worst.display}${worst.level ? ` (${LEVEL_LABEL[worst.level].toLowerCase()})` : ""}`);
-  if (mem) lines.push(`- **Memory:** ${mem.level === "good" ? "Steady" : "Growing"}, ${mem.peak.toFixed(1)} MB at its peak`);
+  if (mem) {
+    const what = [
+      mem.heap ? `${mem.heap.peak.toFixed(1)} MB heap at its peak` : "heap not measured",
+      mem.nodes ? `${mem.nodes.end.toLocaleString()} page elements` : "",
+    ].filter(Boolean).join(", ");
+    lines.push(`- **Memory:** ${mem.level === "good" ? "Steady" : "Growing"}, ${what}`);
+  }
   lines.push("");
 
   const rows = stats.sections.filter((s) => s.frames > 0);

@@ -94,6 +94,8 @@ export interface Run {
   shifts: [number, number][];
   /** [ms from start, JS heap MB × 10] */
   mem: [number, number][];
+  /** [ms from start, elements on the page]. Missing on older runs. */
+  dom?: [number, number][];
   vitals: Vitals;
   support: Support;
 }

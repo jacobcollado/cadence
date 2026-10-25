@@ -1,6 +1,6 @@
 {
   "name": "cadence-probe",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Stress test your site on real devices. Records every frame and shows which section stutters, and why.",
   "license": "MIT",
   "homepage": "https://cad-ence.dev",

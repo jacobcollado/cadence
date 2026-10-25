@@ -5,7 +5,7 @@ import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
 import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
-import { LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
+import { heapMissing, LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
 import { TopBar } from "../components/TopBar";
 import { reportMarkdown } from "../markdown";
@@ -118,10 +118,18 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
           <>
             {mem && (
               <StatRow items={[
-                { label: "At start", value: mem.start.toFixed(1), unit: "MB", sub: "When the run began" },
-                { label: "Peak", value: mem.peak.toFixed(1), unit: "MB", sub: "The most it held" },
-                { label: "At end", value: mem.end.toFixed(1), unit: "MB", sub: "When the run finished" },
-                { label: "Change", value: `${mem.change >= 0 ? "+" : ""}${mem.change.toFixed(1)}`, unit: "MB", sub: mem.level === "good" ? "Steady" : "Growing", level: mem.level },
+                mem.heap
+                  ? { label: "Heap peak", value: mem.heap.peak.toFixed(1), unit: "MB", sub: "The most it held" }
+                  : { label: "Heap", value: "None", sub: "Not measured" },
+                mem.heap
+                  ? { label: "Heap change", value: signed(mem.heap.change.toFixed(1)), unit: "MB", sub: mem.heap.grew ? "Growing" : "Steady", level: mem.heap.grew ? "warn" : "good" }
+                  : { label: "Heap change", value: "None", sub: "Not measured" },
+                mem.nodes
+                  ? { label: "Page elements", value: mem.nodes.end.toLocaleString(), sub: "At the end of the run" }
+                  : { label: "Page elements", value: "None", sub: "Not recorded" },
+                mem.nodes
+                  ? { label: "Element change", value: signed(mem.nodes.change.toLocaleString()), sub: mem.nodes.grew ? "Growing" : "Steady", level: mem.nodes.grew ? "warn" : "good" }
+                  : { label: "Element change", value: "None", sub: "Not recorded" },
               ]} />
             )}
             <MemoryCard run={run} m={mem} />
@@ -191,7 +199,9 @@ function Overview({ run, stats, metrics, mem, tab, onPick }: {
     },
     {
       id: "load", label: "Page load", level: loadLevel,
-      value: headline?.value !== undefined ? <span className="num">{headline.display}</span> : <span className="tile-none">Not reported</span>,
+      value: headline?.value !== undefined
+        ? <><span className="num">{headline.display}</span>{headline.key === "nodes" && <span className="tile-unit">elements</span>}</>
+        : <span className="tile-none">Not reported</span>,
       detail: !graded.length
         ? `${run.device.browser} doesn't report it`
         : loadCounts.length
@@ -200,8 +210,13 @@ function Overview({ run, stats, metrics, mem, tab, onPick }: {
     },
     {
       id: "memory", label: "Memory", level: mem?.level,
-      value: mem ? <><span className="num">{mem.peak.toFixed(1)}</span><span className="tile-unit">MB</span></> : <span className="tile-none">Not reported</span>,
-      detail: mem ? `${mem.level === "good" ? "Steady" : "Growing"}, at its peak` : `${run.device.browser} doesn't report it`,
+      value: mem?.heap
+        ? <><span className="num">{mem.heap.peak.toFixed(1)}</span><span className="tile-unit">MB</span></>
+        : mem?.nodes
+          ? <><span className="num">{mem.nodes.end.toLocaleString()}</span><span className="tile-unit">elements</span></>
+          : <span className="tile-none">{run.support.memory ? "Not measured" : "Not reported"}</span>,
+      detail: !mem ? (run.support.memory ? "Not measured on this run" : `${run.device.browser} doesn't report it`)
+        : `${mem.level === "good" ? "Steady" : "Growing"}, ${mem.heap ? "at its peak" : "page elements"}`,
     },
   ];
 
@@ -378,7 +393,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
 }
 
 function memoryMissing(run: Run): string {
-  return `${run.device.browser} doesn't expose memory use to pages. Chrome and Edge do.`;
+  return heapMissing(run) || "Memory wasn't measured on this run.";
 }
 
 /** Device details in a floating panel: context, not a result. */
@@ -564,8 +579,9 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
         <div className="block-title title-row">
           <h2 className="h2">Memory</h2>
           <Info title="Memory">
-            <p>The JavaScript heap: what the page's scripts are holding on to, sampled twice a second.</p>
-            <p>Some rise and fall is normal. Memory that only climbs is a leak, and on phones it ends with the tab reloading. Growing means it rose more than 10 MB and a fifth during the run.</p>
+            <p>Two signs of a leak, sampled twice a second: the JavaScript heap, which is what the page's scripts hold on to, and the number of elements on the page.</p>
+            <p>Some rise and fall is normal. Memory that only climbs is a leak, and on phones it ends with the tab reloading. Growing means the heap rose more than 10 MB, or the page gained more than 500 elements, and either rose by more than a fifth.</p>
+            <p>Most pages can only read a rounded heap figure from Chrome that it rarely refreshes. When it doesn't move, Cadence leaves it out rather than call it steady.</p>
           </Info>
         </div>
         {m && <StatusTag level={m.level} label={m.level === "good" ? "Steady" : "Growing"} />}
@@ -575,15 +591,21 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
       ) : (
         <>
           <p className="cause">{m.text}</p>
-          <Spark samples={m.samples} />
+          {m.heap && <Spark title="Heap" samples={m.heap.samples} format={(v) => `${v.toFixed(1)} MB`} />}
+          {m.nodes && <Spark title="Page elements" samples={m.nodes.samples} format={(v) => Math.round(v).toLocaleString()} />}
+          {!m.heap && m.heapNote && <p className="note mem-note">{m.heapNote}</p>}
         </>
       )}
     </section>
   );
 }
 
-/** Heap size over the run. Hover to read any point. */
-function Spark({ samples }: { samples: [number, number][] }) {
+function signed(v: string): string {
+  return v.startsWith("-") ? v : `+${v}`;
+}
+
+/** One measure over the run. Hover to read any point. */
+function Spark({ title, samples, format }: { title: string; samples: [number, number][]; format: (v: number) => string }) {
   const W = 400, H = 96;
   const wrap = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
@@ -607,6 +629,7 @@ function Spark({ samples }: { samples: [number, number][] }) {
   const left = h ? xOf(h[0]) : 0;
   return (
     <div>
+      <div className="spark-title">{title}</div>
       <div
         ref={wrap}
         className="spark-wrap"
@@ -614,7 +637,7 @@ function Spark({ samples }: { samples: [number, number][] }) {
         onPointerDown={move}
         onPointerLeave={() => setHover(null)}
       >
-        <svg className="spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Memory over the run">
+        <svg className="spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`${title} over the run`}>
           <defs>
             <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="var(--data)" stopOpacity="0.45" />
@@ -630,8 +653,8 @@ function Spark({ samples }: { samples: [number, number][] }) {
             <div className="spark-dot" style={{ left: `${left * 100}%`, top: `${yOf(h[1]) * 100}%` }} />
             <div className="tooltip" style={left > 0.6 ? { right: `${(1 - left) * 100}%`, marginRight: 12, top: 0 } : { left: `${left * 100}%`, marginLeft: 12, top: 0 }}>
               <div className="tooltip-title"><span className="num">{((h[0] - t0) / 1000).toFixed(1)} s</span></div>
-              <div className="tooltip-row"><span>Heap</span><span className="num">{h[1].toFixed(1)} MB</span></div>
-              <div className="tooltip-row"><span>Since start</span><span className="num">{`${change >= 0 ? "+" : ""}${change.toFixed(1)} MB`}</span></div>
+              <div className="tooltip-row"><span>{title}</span><span className="num">{format(h[1])}</span></div>
+              <div className="tooltip-row"><span>Since start</span><span className="num">{signed(format(change))}</span></div>
             </div>
           </>
         )}

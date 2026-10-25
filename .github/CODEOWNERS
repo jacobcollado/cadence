@@ -1,0 +1,10 @@
+# Changes here ship to npm, into other people's sites, so they always need
+# a review from the maintainer.
+/src/probe/                @jacobcollado
+/src/shared/               @jacobcollado
+/packages/                 @jacobcollado
+/package.json              @jacobcollado
+/package-lock.json         @jacobcollado
+/scripts/                  @jacobcollado
+/vercel.json               @jacobcollado
+/.github/                  @jacobcollado

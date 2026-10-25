@@ -23,7 +23,7 @@ export function TilesSpecimen() {
   const tiles = [
     { level: "good" as const, label: "Smoothness", value: "60", unit: "fps", about: "Smooth, Uneven or Choppy, for the page and each of its sections." },
     { level: "warn" as const, label: "Page load", value: "3.1", unit: "s", about: "How fast the page appeared, on the thresholds Google uses for Core Web Vitals." },
-    { level: "good" as const, label: "Memory", value: "38.4", unit: "MB", about: "How much memory the run used, and whether it kept growing." },
+    { level: "good" as const, label: "Memory", value: "1,240", unit: "elements", about: "Whether the page kept piling up elements or memory during the run." },
   ];
   return (
     <div className="specimen-wrap">
