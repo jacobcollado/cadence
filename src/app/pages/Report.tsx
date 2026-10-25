@@ -107,8 +107,28 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
         {tab === "smooth" && (
           <SmoothTab run={run} stats={stats} cause={cause} highlight={highlight} setHighlight={setHighlight} />
         )}
-        {tab === "load" && <PageLoad metrics={metrics} />}
-        {tab === "memory" && <MemoryCard run={run} m={mem} />}
+        {tab === "load" && (
+          <>
+            <StatRow items={["lcp", "cls", "fcp", "ttfb"].map((k) => {
+              const m = metrics.find((x) => x.key === k)!;
+              return { label: m.name, value: m.value === undefined ? "None" : m.display, sub: m.level ? LEVEL_LABEL[m.level] : "Not reported", level: m.level };
+            })} />
+            <PageLoad metrics={metrics} />
+          </>
+        )}
+        {tab === "memory" && (
+          <>
+            {mem && (
+              <StatRow items={[
+                { label: "At start", value: mem.start.toFixed(1), unit: "MB", sub: "When the run began" },
+                { label: "Peak", value: mem.peak.toFixed(1), unit: "MB", sub: "The most it held" },
+                { label: "At end", value: mem.end.toFixed(1), unit: "MB", sub: "When the run finished" },
+                { label: "Change", value: `${mem.change >= 0 ? "+" : ""}${mem.change.toFixed(1)}`, unit: "MB", sub: mem.level === "good" ? "Steady" : "Growing", level: mem.level },
+              ]} />
+            )}
+            <MemoryCard run={run} m={mem} />
+          </>
+        )}
       </div>
     </>
   );
@@ -186,12 +206,42 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
   setHighlight: (i: number | null) => void;
 }) {
   const rows = stats.sections.filter((s) => s.frames > 0);
+  const judged = stats.judged;
+  const smoothCount = judged.filter((s) => s.rating === "smooth").length;
   const budget = Math.round(stats.interval);
   const lane = run.support.loaf && run.tasks.length > 0;
   return (
     <>
+      <StatRow items={[
+        { label: "Dropped frames", value: `${stats.dropped}`, sub: `Of ${stats.frames.toLocaleString()} frames`, level: stats.dropped ? "warn" : "good" },
+        { label: "Freezes", value: `${stats.freezes}`, sub: `Frames over ${FREEZE} ms`, level: stats.freezes ? "bad" : "good" },
+        { label: "Longest frame", value: `${Math.round(stats.worst)}`, unit: "ms", sub: `Each frame has ${Math.round(stats.interval)} ms`, level: stats.worst >= FREEZE ? "bad" : stats.worst > stats.interval * 1.5 ? "warn" : "good" },
+        { label: "Smooth sections", value: `${smoothCount}`, unit: `of ${judged.length}`, sub: judged.length ? "Rated on frame rate" : "None long enough to rate", level: judged.length && smoothCount === judged.length ? "good" : smoothCount ? "warn" : "bad" },
+      ]} />
+
+      <section className="card block">
+        <div className="block-head">
+          <div className="block-title title-row">
+            <h2 className="h2">Frames</h2>
+            <Info title="Reading the frames">
+              <p>Every frame of the run, left to right. A taller bar took longer to draw.</p>
+              <p>Above the {budget} ms line a frame missed its refresh and turns amber. Past {FREEZE} ms it froze and turns red. Dark marks along the bottom are where the main thread was busy.</p>
+              <p>Hover a section in the table to light up its frames.</p>
+            </Info>
+          </div>
+          <div className="legend">
+            <span><i className="swatch" style={{ background: "var(--data)" }} />On time</span>
+            <span><i className="swatch" style={{ background: "var(--warn)" }} />Late</span>
+            <span><i className="swatch" style={{ background: "var(--bad)" }} />Freeze over {FREEZE} ms</span>
+            {lane && <span><i className="swatch" style={{ background: "var(--ink-2)" }} />Busy main thread</span>}
+          </div>
+        </div>
+        <Timeline run={run} stats={stats} highlight={highlight} />
+      </section>
+
+      <div className={cause.text ? "dash-split" : undefined}>
       {rows.length > 0 && (
-        <section className="card block">
+        <section className="card block" data-compact={cause.text ? true : undefined}>
           <div className="block-head">
             <div className="block-title title-row">
               <h2 className="h2">Sections</h2>
@@ -233,7 +283,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                       </Info>
                     </span>
                   </th>
-                  <th className="r wide">
+                  <th className="r wide split-hide">
                     <span className="th-info">Longest frame
                       <Info title="Longest frame">
                         <p>The single slowest frame in the section. Averages hide it; people don't.</p>
@@ -250,7 +300,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                       </Info>
                     </span>
                   </th>
-                  <th className="r wide">
+                  <th className="r wide split-hide">
                     <span className="th-info">On screen
                       <Info title="On screen">
                         <p>How long the section was in the middle of the screen.</p>
@@ -279,8 +329,8 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                         </div>
                       </td>
                       <td className="r num wide">{s.dropped}</td>
-                      <td className="r num wide">{Math.round(s.worst)} ms</td>
-                      <td className="r num wide">{(s.time / 1000).toFixed(1)} s</td>
+                      <td className="r num wide split-hide">{Math.round(s.worst)} ms</td>
+                      <td className="r num wide split-hide">{(s.time / 1000).toFixed(1)} s</td>
                     </tr>
                   );
                 })}
@@ -290,27 +340,8 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
         </section>
       )}
 
-      <section className="card block">
-        <div className="block-head">
-          <div className="block-title title-row">
-            <h2 className="h2">Frames</h2>
-            <Info title="Reading the frames">
-              <p>Every frame of the run, left to right. A taller bar took longer to draw.</p>
-              <p>Above the {budget} ms line a frame missed its refresh and turns amber. Past {FREEZE} ms it froze and turns red. Dark marks along the bottom are where the main thread was busy.</p>
-              <p>Hover a section in the table to light up its frames.</p>
-            </Info>
-          </div>
-          <div className="legend">
-            <span><i className="swatch" style={{ background: "var(--data)" }} />On time</span>
-            <span><i className="swatch" style={{ background: "var(--warn)" }} />Late</span>
-            <span><i className="swatch" style={{ background: "var(--bad)" }} />Freeze over {FREEZE} ms</span>
-            {lane && <span><i className="swatch" style={{ background: "var(--ink-2)" }} />Busy main thread</span>}
-          </div>
-        </div>
-        <Timeline run={run} stats={stats} highlight={highlight} />
-      </section>
-
-      {cause.text && <CauseCard run={run} cause={cause} />}
+        {cause.text && <CauseCard run={run} cause={cause} />}
+      </div>
     </>
   );
 }
@@ -378,31 +409,20 @@ function CauseCard({ run, cause }: { run: Run; cause: Cause }) {
         </div>
       </div>
       {shown.length > 0 && (
-        <div className="table-scroll">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>What ran</th>
-                <th className="wide">Section</th>
-                <th className="r">Times</th>
-                <th className="r">Time spent</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shown.map((c) => (
-                <tr key={`${c.name} ${c.file ?? ""}`}>
-                  <td className="clip">
-                    <span>{c.name}</span>
-                    {c.file && <span className="muted script-file">{c.file}</span>}
-                  </td>
-                  <td className="wide muted clip">{c.sections.join(", ")}</td>
-                  <td className="r num">{c.count}</td>
-                  <td className="r num">{Math.round(c.total)} ms</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="cause-list">
+          {shown.map((c) => (
+            <li key={`${c.name} ${c.file ?? ""}`}>
+              <div className="cause-main">
+                <span className="cause-name">{c.name}</span>
+                <span className="cause-where">{[c.file, c.sections.join(", ")].filter(Boolean).join(" in ")}</span>
+              </div>
+              <div className="cause-time">
+                <span className="num">{Math.round(c.total)} ms</span>
+                <span className="cause-count num">{c.count === 1 ? "once" : `${c.count} times`}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
       {rest > 0 && <p className="note" style={{ marginTop: 12 }}>And {rest} more, in the downloaded data.</p>}
       {cause.culprits.some((c) => c.name === "Cadence" || c.file === "Cadence") && (
@@ -490,7 +510,6 @@ function Scale({ m, delay }: { m: Metric; delay: number }) {
 }
 
 function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
-  const mb = (v: number) => `${v.toFixed(1)} MB`;
   return (
     <section className="card block">
       <div className="block-head">
@@ -509,12 +528,6 @@ function MemoryCard({ run, m }: { run: Run; m: MemoryReport | null }) {
         <>
           <p className="cause">{m.text}</p>
           <Spark samples={m.samples} />
-          <dl className="kv kv-row">
-            <div><dt>At start</dt><dd className="num">{mb(m.start)}</dd></div>
-            <div><dt>Peak</dt><dd className="num">{mb(m.peak)}</dd></div>
-            <div><dt>At end</dt><dd className="num">{mb(m.end)}</dd></div>
-            <div><dt>Change</dt><dd className="num">{`${m.change >= 0 ? "+" : ""}${m.change.toFixed(1)} MB`}</dd></div>
-          </dl>
         </>
       )}
     </section>
@@ -661,4 +674,27 @@ function runVerdict(m: Metric): string {
   if (m.level === "good") return v <= good / 2 ? `${here}, well inside good.` : `${here}, inside good.`;
   if (m.level === "warn") return `${here}, past good but not yet poor.`;
   return v > poor * 1.5 ? `${here}, far past the poor line.` : `${here}, past the poor line.`;
+}
+
+interface Stat {
+  label: string;
+  value: string;
+  unit?: string;
+  sub: string;
+  level?: Level;
+}
+
+/** The numbers worth seeing first, as a row of small cards. */
+function StatRow({ items }: { items: Stat[] }) {
+  return (
+    <div className="stat-row">
+      {items.map((t) => (
+        <div key={t.label} className="stat">
+          <span className="stat-label">{t.level && <StatusIcon level={t.level} size={12} />}{t.label}</span>
+          <span className="stat-value num">{t.value}{t.unit && <span>{t.unit}</span>}</span>
+          <span className="stat-sub">{t.sub}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
