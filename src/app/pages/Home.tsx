@@ -152,17 +152,17 @@ export function Home() {
 
       <Reveal title="How it works" lede="Two lines of code, then test any page.">
         <ol className="how-grid">
-          <li className="card how-step">
+          <li className="how-step">
             <div className="how-visual"><ProbePane /></div>
             <h3 className="how-title">Add the probe</h3>
             <p className="meta">One component in your root layout.</p>
           </li>
-          <li className="card how-step">
+          <li className="how-step">
             <div className="how-visual"><ScrollPanes /></div>
             <h3 className="how-title">Open with <span className="nowrap">?perf</span></h3>
             <p className="meta">Pick a pass in the panel.</p>
           </li>
-          <li className="card how-step">
+          <li className="how-step">
             <div className="how-visual"><MiniFrames /></div>
             <h3 className="how-title">Read the report</h3>
             <p className="meta">Which section stuttered, and why.</p>
