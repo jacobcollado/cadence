@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, splitName, StatusIcon } from "../components/ui";
+import { CompareSpecimen, FrameStrip, PassMeter } from "../components/DocVisuals";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
@@ -11,6 +12,22 @@ import { DUR, EASE, reducedMotion } from "../../shared/motion";
 import { INERTIA_RUN } from "../examples";
 
 const TARGET = "cadence.target";
+
+type IconName = ComponentProps<typeof Icon>["name"];
+
+const CATCHES: { icon: IconName; title: string; about: string }[] = [
+  { icon: "drawing", title: "Effects painted every frame", about: "Glows, blurs and canvas backgrounds that redraw while the page scrolls." },
+  { icon: "layout", title: "Scroll handlers that force layout", about: "Code that measures and moves elements on every scroll event." },
+  { icon: "code", title: "Heavy third-party scripts", about: "Trackers and widgets that hold up the page when it should be scrolling." },
+  { icon: "layers", title: "Layout animated in script", about: "Heights and positions changed frame by frame instead of with transforms." },
+];
+
+const FREE: { icon: IconName; title: string; about: string }[] = [
+  { icon: "check", title: "Free to use", about: "Every feature, on every device, with no account." },
+  { icon: "lock", title: "Private", about: "A run travels inside its own report link. No server ever sees it." },
+  { icon: "device", title: "Off for visitors", about: "The probe only loads on pages opened with ?perf." },
+  { icon: "code", title: "Open source", about: "MIT licensed. Read it, fork it, or send a fix on GitHub." },
+];
 
 function withPerf(base: string): string {
   const raw = base.trim();
@@ -113,48 +130,72 @@ export function Home() {
           <div className="start-copy">
             <h1 className="title">Stress test your site on the devices your customers use.</h1>
             <p className="lede">
-              A slow site makes a fast product look slow. Cadence shows which section stutters, and why.
+              Cadence is a free, open source tool that scrolls your pages on real phones and laptops, records every frame, and shows which section stutters and why.
             </p>
             <div className="start-actions">
               <a href="/docs" className="btn btn-lg btn-primary" onClick={(e) => { e.preventDefault(); navigate("/docs"); }}>Get started</a>
+              <a href={`/r?example#${INERTIA_RUN}`} className="btn btn-lg btn-secondary" onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>See a report</a>
             </div>
           </div>
           <FrameClock />
         </div>
-        <div className="start-cards">
-          <div className="card start-card">
-            <div className="start-card-head">
-              <h2 className="h2">Test on this device</h2>
-              <p className="meta">Opens the page with the probe on.</p>
-            </div>
-            <label className="field-label" htmlFor="target">Page</label>
-            <div className="link-row">
-              <input
-                id="target"
-                className="field"
-                value={base}
-                onChange={(e) => setBase(e.target.value)}
-                spellCheck={false}
-                autoCapitalize="off"
-                placeholder="https://example.com"
-              />
-              <CopyButton text={() => link} label="Copy link" className="btn btn-lg btn-secondary btn-icon-l" disabled={!link} />
-              <a className="btn btn-lg btn-primary" href={link || undefined} aria-disabled={!link || undefined} target="_blank" rel="noopener">Open</a>
-            </div>
-          </div>
-          <div className="card start-card qr-card">
-            <div className="start-card-head">
-              <h2 className="h2">Test on a phone</h2>
-              <p className="meta">Scan to open it there.</p>
-            </div>
-            {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
-          </div>
-        </div>
-        <Setup />
       </section>
 
-      <section className="enter examples">
-        <h2 className="h2">See it in action</h2>
+      <Reveal>
+        <div className="home-head">
+          <h2 className="subtitle">Fast on your laptop, choppy on their phone</h2>
+          <p className="lede">
+            Sites are built on fast machines and judged on load time. Your customers scroll them on phones that are years older, where heavy effects and busy scripts drop frames. Load scores never see that. Cadence measures the scroll.
+          </p>
+        </div>
+        <div className="why-chart"><CompareSpecimen /></div>
+      </Reveal>
+
+      <Reveal>
+        <div className="home-head">
+          <h2 className="subtitle">How it works</h2>
+          <p className="lede">Two lines of code, then any page of your site can be tested on any device.</p>
+        </div>
+        <ol className="how-grid">
+          <li className="card how-step">
+            <div className="how-visual how-code" aria-hidden="true">
+              <span><span className="muted">$ </span>npm i cadence-probe</span>
+              <span>{"<Cadence />"}</span>
+            </div>
+            <h3 className="how-title">Add the probe</h3>
+            <p className="meta">Install the package and add one component to your root layout. Visitors never load it.</p>
+          </li>
+          <li className="card how-step">
+            <div className="how-visual" aria-hidden="true">
+              {(["steady", "fast", "idle", "manual"] as const).map((p) => <PassMeter key={p} pass={p} />)}
+            </div>
+            <h3 className="how-title">Open a page with ?perf</h3>
+            <p className="meta">A small panel appears on the page. Pick a pass: steady, fast, idle, or scroll it yourself.</p>
+          </li>
+          <li className="card how-step">
+            <div className="how-visual"><FrameStrip kind="freeze" /></div>
+            <h3 className="how-title">Read the report</h3>
+            <p className="meta">See which section stuttered, what the browser was busy with, and what to change first.</p>
+          </li>
+        </ol>
+      </Reveal>
+
+      <Reveal>
+        <div className="home-head">
+          <h2 className="subtitle">What it catches</h2>
+          <p className="lede">The mistakes that look fine on a fast laptop and stutter everywhere else.</p>
+        </div>
+        <ul className="catch-grid">
+          {CATCHES.map((c) => (
+            <li key={c.title} className="catch">
+              <span className="setup-icon"><Icon name={c.icon} size={16} /></span>
+              <span className="example-copy">
+                <span className="example-title">{c.title}</span>
+                <span className="meta">{c.about}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
         <div className="example-cards">
           <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
             <span className="example-copy">
@@ -171,9 +212,66 @@ export function Home() {
             <span className="example-go">Open demo<Icon name="external" size={14} /></span>
           </a>
         </div>
-      </section>
+      </Reveal>
 
-      <section className="enter">
+      <Reveal>
+        <div className="home-head">
+          <h2 className="subtitle">Free, open and private</h2>
+          <p className="lede">No account, no plan, and no server watching your runs.</p>
+        </div>
+        <ul className="free-grid">
+          {FREE.map((f) => (
+            <li key={f.title} className="free">
+              <span className="setup-icon"><Icon name={f.icon} size={16} /></span>
+              <span className="example-copy">
+                <span className="example-title">{f.title}</span>
+                <span className="meta">{f.about}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+
+      <Reveal>
+        <div className="home-head">
+          <h2 className="subtitle">Run a test</h2>
+          <p className="lede">With the probe on your site, open any of its pages here or on a phone.</p>
+        </div>
+        <div className="test-stack">
+          <Setup />
+          <div className="start-cards">
+            <div className="card start-card">
+              <div className="start-card-head">
+                <h3 className="h2">Test on this device</h3>
+                <p className="meta">Opens the page with the probe on.</p>
+              </div>
+              <label className="field-label" htmlFor="target">Page</label>
+              <div className="link-row">
+                <input
+                  id="target"
+                  className="field"
+                  value={base}
+                  onChange={(e) => setBase(e.target.value)}
+                  spellCheck={false}
+                  autoCapitalize="off"
+                  placeholder="https://example.com"
+                />
+                <CopyButton text={() => link} label="Copy link" className="btn btn-lg btn-secondary btn-icon-l" disabled={!link} />
+                <a className="btn btn-lg btn-primary" href={link || undefined} aria-disabled={!link || undefined} target="_blank" rel="noopener">Open</a>
+              </div>
+            </div>
+            <div className="card start-card qr-card">
+              <div className="start-card-head">
+                <h3 className="h2">Test on a phone</h3>
+                <p className="meta">Scan to open it there.</p>
+              </div>
+              {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
+            </div>
+          </div>
+        </div>
+      </Reveal>
+
+      <section className="runs" id="runs">
         <div className="runs-head">
           <h2 className="h2">
             Runs {runs.length > 0 && <span className="muted num">{runs.length}</span>}
@@ -306,4 +404,21 @@ function Setup() {
       </div>
     </div>
   );
+}
+
+/** A home section that rises into place the first time it scrolls into view. */
+function Reveal({ children }: { children: ReactNode }) {
+  const el = useRef<HTMLElement>(null);
+  const [shown, setShown] = useState(reducedMotion);
+  useEffect(() => {
+    if (shown) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      setShown(true);
+      io.disconnect();
+    }, { rootMargin: "0px 0px -10% 0px" });
+    io.observe(el.current!);
+    return () => io.disconnect();
+  }, []);
+  return <section ref={el} className="home-sec" data-shown={shown || undefined}>{children}</section>;
 }
