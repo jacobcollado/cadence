@@ -82,4 +82,4 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 
 ## Copy buttons
 
-A copy button keeps its width when it confirms: both states (icon and label) stay stacked in place, and "Copied" rises 4px into view with a light blur clearing while the old state leaves upward, over the base duration. The icon grows from half size, never from zero. Nothing beside the button moves.
+A copy button keeps its width when it confirms. Each state is its icon and label as one group, stacked in place and centered, so "✓ Copied" sits centered rather than left in leftover space. The new state rises 4px with a light blur clearing while the old one leaves upward, over the base duration. Reduced motion keeps the crossfade and drops the movement. Nothing beside the button moves.

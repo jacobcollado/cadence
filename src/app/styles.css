@@ -219,17 +219,22 @@ svg { display: block; flex: none; }
 .flip { position: relative; display: inline-block; clip-path: inset(-0.35em -100vw); vertical-align: bottom; }
 .flip > span { display: block; white-space: nowrap; }
 
-/* Copy buttons: icon and label swap in place. The new state rises 4px into
-   view with a light blur clearing; the old one leaves the same way. */
-.copy-swap { display: inline-grid; }
-.copy-swap > * { grid-area: 1 / 1; transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), filter var(--dur-base) var(--ease-out); }
-.copy-text > span { white-space: nowrap; text-align: left; }
-.copy-icon > :last-child, [data-done] .copy-icon > :first-child { opacity: 0; transform: scale(.5); filter: blur(2px); }
-[data-done] .copy-icon > :last-child { opacity: 1; transform: none; filter: none; }
-.copy-text > :last-child { opacity: 0; transform: translateY(4px); filter: blur(2px); }
-[data-done] .copy-text > :first-child { opacity: 0; transform: translateY(-4px); filter: blur(2px); }
-[data-done] .copy-text > :last-child { opacity: 1; transform: none; filter: none; }
-@media (prefers-reduced-motion: reduce) { .copy-swap > * { transition: none; } }
+/* Copy buttons: each state is an icon with its label, stacked in one cell
+   and centered, so the button never changes width. "Copied" rises 4px into
+   view with a light blur clearing; the old state leaves upward. */
+.copy-swap { display: inline-grid; margin: 0 auto; }
+.copy-state {
+  grid-area: 1 / 1; display: inline-flex; align-items: center; justify-content: center; gap: inherit; white-space: nowrap;
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), filter var(--dur-base) var(--ease-out);
+}
+.copy-swap { gap: inherit; }
+.copy-state:last-child { opacity: 0; transform: translateY(4px); filter: blur(2px); }
+[data-done] .copy-state:first-child { opacity: 0; transform: translateY(-4px); filter: blur(2px); }
+[data-done] .copy-state:last-child { opacity: 1; transform: none; filter: none; }
+/* Reduced motion keeps the crossfade and drops the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .copy-state { transition: opacity var(--dur-base) var(--ease-out); transform: none !important; filter: none !important; }
+}
 
 /* Disclosure */
 .disclosure { box-shadow: inset 0 1px 0 var(--grid); }

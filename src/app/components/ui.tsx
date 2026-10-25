@@ -177,22 +177,21 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
   disabled?: boolean;
 }) {
   const [done, setDone] = useState(false);
+  const timer = useRef(0);
+  useEffect(() => () => clearTimeout(timer.current), []);
   const copy = async () => {
     await copyText(await text());
     setDone(true);
-    setTimeout(() => setDone(false), 1600);
+    clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setDone(false), 1600);
   };
-  // Both states stay stacked in place, so the button keeps its width; the
-  // new one rises in as the old one leaves.
+  // Both states stay stacked in place, each an icon with its label, so the
+  // button keeps its width and the visible one stays centered.
   return (
     <button className={className} onClick={copy} disabled={disabled} data-done={done || undefined}>
-      <span className="copy-swap copy-icon" aria-hidden="true">
-        <Icon name={icon} size={14} />
-        <Icon name="check" size={14} />
-      </span>
-      <span className="copy-swap copy-text">
-        <span aria-hidden={done || undefined}>{label}</span>
-        <span aria-hidden={!done || undefined}>Copied</span>
+      <span className="copy-swap">
+        <span className="copy-state" aria-hidden={done || undefined}><Icon name={icon} size={14} />{label}</span>
+        <span className="copy-state" aria-hidden={!done || undefined}><Icon name="check" size={14} />Copied</span>
       </span>
     </button>
   );
