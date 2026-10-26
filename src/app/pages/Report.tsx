@@ -4,7 +4,7 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Icon, Info, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { Bar, CopyButton, CountUp, Icon, Info, InfoTile, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
 import { scoreLevel, scores, type Scores } from "../../shared/score";
 import { heapMissing, LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
@@ -126,7 +126,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
           <>
             <StatRow items={["lcp", "cls", "fcp", "ttfb"].map((k) => {
               const m = metrics.find((x) => x.key === k)!;
-              return { label: m.name, value: m.value === undefined ? "None" : m.display, sub: m.level ? LEVEL_LABEL[m.level] : "Not reported", level: m.level };
+              return { label: m.name, value: m.value === undefined ? "None" : m.display, sub: m.level ? LEVEL_LABEL[m.level] : "Not reported", level: m.level, info: <MetricInfo m={m} /> };
             })} />
             <PageLoad metrics={metrics} />
           </>
@@ -296,10 +296,44 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
   return (
     <>
       <StatRow items={[
-        { label: "Dropped frames", value: `${stats.dropped}`, sub: `Of ${(stats.frames + stats.dropped).toLocaleString()} frames`, level: stats.dropped ? "warn" : "good" },
-        { label: "Freezes", value: `${stats.freezes}`, sub: `Frames over ${FREEZE} ms`, level: stats.freezes ? "bad" : "good" },
-        { label: "Longest frame", value: `${Math.round(stats.worst)}`, unit: "ms", sub: `Each frame has ${Math.round(stats.interval)} ms`, level: stats.worst >= FREEZE ? "bad" : stats.worst > stats.interval * 1.5 ? "warn" : "good" },
-        { label: "Smooth sections", value: `${smoothCount}`, unit: `of ${judged.length}`, sub: judged.length ? "Rated on frame rate" : "None long enough to rate", level: judged.length && smoothCount === judged.length ? "good" : smoothCount ? "warn" : "bad" },
+        {
+          label: "Dropped frames", value: `${stats.dropped}`, sub: `Of ${(stats.frames + stats.dropped).toLocaleString()} frames`, level: stats.dropped ? "warn" : "good",
+          info: <>
+            <p>Refreshes where the page wasn't ready, so the screen showed the last frame again. Each one is a visible skip.</p>
+            <p className="info-run">This run: {stats.dropped ? `${stats.dropped} of ${(stats.frames + stats.dropped).toLocaleString()} refreshes were skipped.` : "every refresh got a new frame."}</p>
+          </>,
+        },
+        {
+          label: "Freezes", value: `${stats.freezes}`, sub: `Frames over ${FREEZE} ms`, level: stats.freezes ? "bad" : "good",
+          info: <>
+            <p>Frames that took over {FREEZE} ms. The page visibly stops, then jumps, and people notice every one.</p>
+            <p className="info-run">This run: {stats.freezes ? `${stats.freezes} ${stats.freezes === 1 ? "freeze" : "freezes"}. The red bars in the chart show where.` : "no freezes."}</p>
+          </>,
+        },
+        {
+          label: "Longest frame", value: `${Math.round(stats.worst)}`, unit: "ms", sub: `Each frame has ${budget} ms`, level: stats.worst >= FREEZE ? "bad" : stats.worst > stats.interval * 1.5 ? "warn" : "good",
+          info: <>
+            <p>The single slowest frame of the run. Each frame has {budget} ms to make its refresh.</p>
+            <ZoneBar
+              zones={[
+                { to: 1000 / run.hz, level: "good", label: "On time" },
+                { to: FREEZE, level: "warn", label: "Late" },
+                { to: FREEZE * 1.6, level: "bad", label: "Freeze" },
+              ]}
+              max={FREEZE * 1.6}
+              format={(v) => `${Math.round(v)} ms`}
+              marker={stats.worst}
+              glass
+            />
+          </>,
+        },
+        {
+          label: "Smooth sections", value: `${smoothCount}`, unit: `of ${judged.length}`, sub: judged.length ? "Rated on frame rate" : "None long enough to rate", level: judged.length && smoothCount === judged.length ? "good" : smoothCount ? "warn" : "bad",
+          info: <>
+            <p>Sections rated Smooth, out of those on screen long enough to judge (at least {MIN_SECTION_TIME / 1000} s).</p>
+            <p>The table below rates each one and says which to look at first.</p>
+          </>,
+        },
       ]} />
 
       <section className="card block">
@@ -354,6 +388,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                           min={Math.round(run.hz / 2)}
                           max={run.hz}
                           format={(v) => `${Math.round(v)} fps`}
+                          glass
                         />
                       </Info>
                     </span>
@@ -379,6 +414,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                           ]}
                           max={FREEZE * 1.6}
                           format={(v) => `${Math.round(v)} ms`}
+                          glass
                         />
                       </Info>
                     </span>
@@ -562,24 +598,31 @@ function PageLoad({ metrics }: { metrics: Metric[] }) {
   );
 }
 
+/** What a metric measures, why it matters, its scale and where this run landed. */
+function MetricInfo({ m }: { m: Metric }) {
+  return (
+    <>
+      <p>{m.what}</p>
+      <p>{m.why}</p>
+      {m.good !== undefined && (
+        <ZoneBar
+          zones={[{ to: m.good, level: "good" }, { to: m.poor!, level: "warn" }, { to: m.poor! * 1.5, level: "bad" }]}
+          max={m.poor! * 1.5}
+          format={m.format}
+          marker={m.value}
+        />
+      )}
+      {m.value !== undefined && m.level && <p className="info-run">{runVerdict(m)}</p>}
+    </>
+  );
+}
+
 function MetricRow({ m, delay }: { m: Metric; delay: number }) {
   return (
     <div className="metric">
       <div className="metric-name title-row">
         <span>{m.name}</span>
-        <Info title={m.name}>
-          <p>{m.what}</p>
-          <p>{m.why}</p>
-          {m.good !== undefined && (
-            <ZoneBar
-              zones={[{ to: m.good, level: "good" }, { to: m.poor!, level: "warn" }, { to: m.poor! * 1.5, level: "bad" }]}
-              max={m.poor! * 1.5}
-              format={m.format}
-              marker={m.value}
-            />
-          )}
-          {m.value !== undefined && m.level && <p className="info-run">{runVerdict(m)}</p>}
-        </Info>
+        <Info title={m.name}><MetricInfo m={m} /></Info>
       </div>
       {m.value === undefined ? (
         <div className="metric-missing">{m.missing}</div>
@@ -811,19 +854,24 @@ interface Stat {
   unit?: string;
   sub: string;
   level?: Level;
+  /** What the number means, shown when the tile is hovered or tapped. */
+  info?: ReactNode;
 }
 
 /** The numbers worth seeing first, as a row of small cards. */
 function StatRow({ items }: { items: Stat[] }) {
   return (
     <div className="stat-row">
-      {items.map((t) => (
-        <div key={t.label} className="stat">
+      {items.map((t) => {
+        const body = <>
           <span className="stat-label">{t.level && <StatusIcon level={t.level} size={12} />}{t.label}</span>
           <span className="stat-value num">{t.value}{t.unit && <span>{t.unit}</span>}</span>
           <span className="stat-sub">{t.sub}</span>
-        </div>
-      ))}
+        </>;
+        return t.info
+          ? <InfoTile key={t.label} title={t.label} info={t.info} className="stat stat-info">{body}</InfoTile>
+          : <div key={t.label} className="stat">{body}</div>;
+      })}
     </div>
   );
 }

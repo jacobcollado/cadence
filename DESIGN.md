@@ -6,6 +6,7 @@ Cadence is read by developers and engineers who need to know what's wrong, quick
 
 - The mark is an orbit: a ring with a dot riding on it, in a gap. The wordmark is lowercase "cadence" in Satoshi, a touch heavier and tighter than body text.
 - The mark sits on the wordmark's baseline the way a round letter does: its box ends at the ring's outer edge (viewBox 0 0 16 14) and the logo aligns by baseline. Never nudge it with offsets.
+- In display or marketing type (headlines, video, social), the name only appears as the lockup: the mark with lowercase "cadence". Never a capitalized "Cadence" set as a headline word. Where a line needs the product as its subject, rewrite it so the lockup can answer it instead. `<Cadence />` in code and plain running text in docs are the exceptions.
 - On hover the dot travels once around the orbit; skipped under reduced motion.
 
 ## Tokens
@@ -79,3 +80,34 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - Say what wasn't measured and why, never show a zero for it.
 - No em dashes, no uppercase labels.
 - No separator glyphs (dots, pipes, slashes, decorative marks) between facts. Facts that sit together get structure instead: labeled fields (`Fields`, a small muted label over each value) in headers, and a column header row in lists. A device name from the probe ("iPhone · Safari 26.0") is split with `splitName` into device and browser; in a sentence it reads as plain words.
+
+## Copy buttons
+
+A copy button keeps its width when it confirms. Each state is its icon and label as one group, stacked in place and centered, so "✓ Copied" sits centered rather than left in leftover space. The new state rises 4px with a light blur clearing while the old one leaves upward, over the base duration. Reduced motion keeps the crossfade and drops the movement. Nothing beside the button moves.
+
+## Step visuals
+
+How it works shows each step's picture in its own recessed panel, with the title and line sitting below it, unboxed. Don't wrap a step's picture and words in one card. Each picture shows the mechanism, not just the idea: the probe drops into the layout file, sections light up only inside the ?perf window, and the report's frames stand against a dashed 16.7 ms budget line, with the ones over it in gray.
+
+## Device rows
+
+Each device row in the frames comparison is headed by a line: the device's mark in a 28px recessed tile (32px on desktop), its name, and its frame rate right-aligned in ink with the unit in gray. The panes run the full width below it. Don't stack a loose icon and a small gray fps beside the panes.
+
+## Recessed panels and dark mode
+
+A recessed panel (step visuals, icon tiles) is the recess fill alone, with no outline: the fill already sets it apart, and an outline on top makes it read as a card. Dark mode's page is near-black (#0b0b0a), never pure #000: pure black smears on OLED phones when scrolling and makes light text glow. The recess, raised, grid and data steps sit just above it so every level stays visible.
+
+## The ?perf window
+
+The window in How it works is a clear glass lens: a firm hairline, a lit top edge and a soft shadow, with the sections gray outside it and in color inside it. No dashed or marching outline.
+
+## Run a test
+
+The two ways to open a page (this device, a phone) share one panel, divided by a hairline, not two cards. Under the field, the exact address that will open is shown in mono with the added ?perf in a glass tag (gray until a page is entered).
+
+## Report readability
+
+- Zone scales in tooltips have a key under the bar (swatch, name, range per line), never names squeezed into each zone.
+- The frame chart keeps at least 140px per second of run. When that's wider than the card it scrolls sideways under fixed frame time labels, with fades on the sides that have more. Hovering a section row scrolls its frames into view.
+- Stat tiles open the same card as their metric's info button, on hover (mouse) or tap.
+- Metric rows on phones: name, value and status on one line, the scale full width below. Wider: one line with the scale in the middle.

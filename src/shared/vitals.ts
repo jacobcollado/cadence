@@ -79,7 +79,7 @@ export function pageLoad(run: Run): Metric[] {
       value: v.ttfb, good: 800, poor: 1800, format: formatMs, supported: true,
     },
     {
-      key: "nodes", why: "Every element costs style and layout time, again on every change. Lighthouse flags pages past 800.", name: "Page size", what: "Elements on the page. More of them means slower style and layout.",
+      key: "nodes", why: "Every element costs style and layout time, again on every change. Lighthouse flags pages past 800.", name: "Page elements", what: "Elements on the page. More of them means slower style and layout.",
       value: v.nodes, good: 800, poor: 1400, format: formatCount, supported: true,
     },
     {

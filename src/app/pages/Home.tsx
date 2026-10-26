@@ -44,6 +44,18 @@ function withPerf(base: string): string {
   }
 }
 
+/** The address the probe will open, with the part Cadence adds marked. */
+function LinkPreview({ link }: { link: string }) {
+  const shown = link ? link.replace(/^https?:\/\//, "") : "example.com/?perf";
+  const cut = /[?&]perf$/.test(shown) ? shown.length - 5 : shown.length;
+  return (
+    <p className="test-link" data-empty={!link || undefined}>
+      <span className="test-link-url">{shown.slice(0, cut)}</span>
+      {cut < shown.length && <span className="glass test-link-perf" style={link ? { "--c": tint(1 / 3) } as CSSProperties : undefined}>{shown.slice(cut)}</span>}
+    </p>
+  );
+}
+
 export function Home() {
   const [base, setBase] = useState(() => {
     try {
@@ -152,17 +164,17 @@ export function Home() {
 
       <Reveal title="How it works" lede="Two lines of code, then test any page.">
         <ol className="how-grid">
-          <li className="card how-step">
+          <li className="how-step">
             <div className="how-visual"><ProbePane /></div>
             <h3 className="how-title">Add the probe</h3>
             <p className="meta">One component in your root layout.</p>
           </li>
-          <li className="card how-step">
+          <li className="how-step">
             <div className="how-visual"><ScrollPanes /></div>
             <h3 className="how-title">Open with <span className="nowrap">?perf</span></h3>
             <p className="meta">Pick a pass in the panel.</p>
           </li>
-          <li className="card how-step">
+          <li className="how-step">
             <div className="how-visual"><MiniFrames /></div>
             <h3 className="how-title">Read the report</h3>
             <p className="meta">Which section stuttered, and why.</p>
@@ -207,8 +219,9 @@ export function Home() {
       <Reveal title="Run a test" lede="Install once, then open any page here or on a phone.">
         <div className="test-stack">
           <Setup />
-          <div className="start-cards">
-            <div className="card start-card">
+          {/* One panel, two ways to open the page: here, or on a phone by its code. */}
+          <div className="card test-card">
+            <div className="test-pane">
               <div className="start-card-head">
                 <span className="glass free-tile" style={{ "--c": tint(1 / 3) } as CSSProperties}><Icon name="device" size={16} /></span>
                 <span>
@@ -230,8 +243,9 @@ export function Home() {
                 <CopyButton text={() => link} label="Copy link" className="btn btn-lg btn-secondary btn-icon-l" disabled={!link} />
                 <a className="btn btn-lg btn-primary" href={link || undefined} aria-disabled={!link || undefined} target="_blank" rel="noopener">Open</a>
               </div>
+              <LinkPreview link={link} />
             </div>
-            <div className="card start-card qr-card">
+            <div className="test-pane qr-card">
               <div className="start-card-head">
                 <span className="glass free-tile" style={{ "--c": tint(2 / 3) } as CSSProperties}><Icon name="phone" size={16} /></span>
                 <span>

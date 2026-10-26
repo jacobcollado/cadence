@@ -59,19 +59,19 @@
   --ink: #ecebe7;
   --ink-2: #b4b3ad;
   --ink-3: #8f8e88;
-  --paper: #141413;
-  --recess: #1f1f1d;
-  --hover: #1a1a19;
+  --paper: #0b0b0a;
+  --recess: #171716;
+  --hover: #121211;
   --ring: rgba(255, 255, 255, 0.08);
   --ring-firm: rgba(255, 255, 255, 0.14);
-  --grid: #262624;
+  --grid: #1e1e1c;
   --data: #5c5b56;
-  --data-dim: #2c2c29;
+  --data-dim: #242422;
   --data-line: #8d8c86;
   --warn-ink: #f5a623;
   --warn-dim: #4d3c18;
   --bad-dim: #4d2323;
-  --budget: #3d3d39;
+  --budget: #353531;
   --solid: #ecebe7;
   --solid-face: linear-gradient(180deg, #ffffff 0%, #ecebe7 52%, #dddcd7 100%);
   --solid-edge: inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(0,0,0,.3);
@@ -79,8 +79,8 @@
   --on-solid-2: rgba(20,20,19,.72);
   --on-solid-3: rgba(20,20,19,.6);
   --shadow: rgba(0,0,0,.6);
-  --veil: rgba(20,20,19,.86);
-  --raised: #2a2a27;
+  --veil: rgba(11,11,10,.86);
+  --raised: #20201e;
   --add-bg: rgba(12,163,12,.12);
   --tile-hover: rgba(255,255,255,.03);
   --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23141413' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5'/%3E%3C/svg%3E");
@@ -219,6 +219,23 @@ svg { display: block; flex: none; }
 .flip { position: relative; display: inline-block; clip-path: inset(-0.35em -100vw); vertical-align: bottom; }
 .flip > span { display: block; white-space: nowrap; }
 
+/* Copy buttons: each state is an icon with its label, stacked in one cell
+   and centered, so the button never changes width. "Copied" rises 4px into
+   view with a light blur clearing; the old state leaves upward. */
+.copy-swap { display: inline-grid; margin: 0 auto; }
+.copy-state {
+  grid-area: 1 / 1; display: inline-flex; align-items: center; justify-content: center; gap: inherit; white-space: nowrap;
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), filter var(--dur-base) var(--ease-out);
+}
+.copy-swap { gap: inherit; }
+.copy-state:last-child { opacity: 0; transform: translateY(4px); filter: blur(2px); }
+[data-done] .copy-state:first-child { opacity: 0; transform: translateY(-4px); filter: blur(2px); }
+[data-done] .copy-state:last-child { opacity: 1; transform: none; filter: none; }
+/* Reduced motion keeps the crossfade and drops the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .copy-state { transition: opacity var(--dur-base) var(--ease-out); transform: none !important; filter: none !important; }
+}
+
 /* Disclosure */
 .disclosure { box-shadow: inset 0 1px 0 var(--grid); }
 .disclosure-btn {
@@ -241,10 +258,7 @@ svg { display: block; flex: none; }
 @media (min-width: 760px) { .start { padding: 64px 0; } }
 .start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 780px; }
 .start-copy .lede { max-width: 640px; }
-.start-cards { display: grid; gap: 16px; align-items: stretch; }
 @media (min-width: 760px) and (pointer: fine) { .start-card-head { padding-right: 8px; } }
-@media (min-width: 760px) and (pointer: fine) { .start-cards { grid-template-columns: minmax(0, 1fr) 264px; } }
-.start-card { padding: 20px; display: flex; flex-direction: column; }
 .start-card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
 .start-card-head > span:last-child { display: flex; flex-direction: column; gap: 2px; }
 .field-label { font-size: 12px; line-height: 16px; color: var(--ink-3); margin-bottom: 6px; }
@@ -255,7 +269,6 @@ svg { display: block; flex: none; }
 .qr-card { align-items: stretch; }
 .qr-card .qr { width: 100%; max-width: 112px; align-self: center; margin-top: auto; }
 /* The controls sit on the card's bottom edge, level with the QR beside it. */
-.start-card .field-label { margin-top: auto; }
 .runs-head { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 12px; }
 .runs-head .h2 { flex: 1; }
 .runs-hint { font-size: 13px; line-height: 20px; color: var(--ink-3); margin-right: 8px; }
@@ -304,8 +317,17 @@ svg { display: block; flex: none; }
 .legend { display: flex; gap: 4px 16px; min-height: 24px; align-items: center; font-size: 12px; color: var(--ink-2); line-height: 16px; flex-wrap: wrap; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { width: 8px; height: 8px; border-radius: 2px; flex: none; }
-.timeline { position: relative; touch-action: pan-y; }
-.timeline canvas { display: block; width: 100%; }
+/* The frame chart: frame time labels fixed on the left, the plot beside them
+   scrolling sideways when the run is too long to read at this width. Fades
+   mark the sides with more past them. */
+.timeline { position: relative; display: flex; }
+.timeline canvas { display: block; }
+.timeline-axis { flex: none; }
+.timeline-scroll { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; }
+.timeline-scroll::-webkit-scrollbar { display: none; }
+.timeline-scroll[data-end] { mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+.timeline-scroll[data-start] { mask-image: linear-gradient(90deg, transparent, #000 40px); }
+.timeline-scroll[data-start][data-end] { mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
 
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .table th { text-align: left; font-weight: 500; color: var(--ink-3); height: 32px; padding: 0 8px; white-space: nowrap; }
@@ -369,18 +391,22 @@ svg { display: block; flex: none; }
 
 /* Graded metrics: name and what it measures, the value on its thresholds, the status. */
 .metrics { display: flex; flex-direction: column; }
+/* Phones: name, value and status on one line, the scale full width under it.
+   Wider: one line, with the scale taking the middle. */
 .metric {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px 16px;
-  padding: 16px 0; box-shadow: inset 0 1px 0 var(--grid);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name value status" "scale scale scale";
+  align-items: center; gap: 8px 12px; padding: 16px 0; box-shadow: inset 0 1px 0 var(--grid);
 }
-.metric-name { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 20px; font-weight: 500; }
-.metric-value { font-size: 15px; line-height: 20px; font-weight: 500; text-align: right; }
-.metric-status { display: flex; min-width: 96px; }
-.metric-missing { grid-column: 1 / -1; font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.metric-name { grid-area: name; display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 20px; font-weight: 500; }
+.metric-scale { grid-area: scale; }
+.metric-value { grid-area: value; font-size: 15px; line-height: 20px; font-weight: 500; text-align: right; }
+.metric-status { grid-area: status; display: flex; min-width: 72px; }
+.metric-missing { grid-area: scale; font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.metric-scale:empty { display: none; }
 @media (min-width: 720px) {
-  .metric { grid-template-columns: minmax(0, 1fr) 200px 72px 104px; gap: 24px; }
-  .metric-name { grid-column: auto; }
-  .metric-missing { grid-column: 2 / -1; text-align: right; }
+  .metric { grid-template-columns: 200px minmax(0, 1fr) 88px 104px; grid-template-areas: "name scale value status"; gap: 24px; }
+  .metric-scale:empty { display: block; }
+  .metric-missing { grid-area: 1 / 2 / 2 / -1; text-align: right; }
 }
 .scale { position: relative; height: 28px; }
 .scale-track { height: 8px; border-radius: 4px; background: var(--recess); overflow: hidden; }
@@ -513,12 +539,18 @@ svg { display: block; flex: none; }
 .zone-seg { border-radius: 2px; background: var(--good); }
 .zone-seg[data-level="warn"] { background: var(--warn); }
 .zone-seg[data-level="bad"] { background: var(--bad); }
+/* Where frames are drawn in glass, the good zone is the same spectrum. */
+.zone[data-glass] .zone-seg[data-level="good"] { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 .zone-seg:first-child { border-radius: 4px 2px 2px 4px; }
 .zone-seg:last-child { border-radius: 2px 4px 4px 2px; }
-.zone-words { display: flex; gap: 2px; margin-top: 6px; font-size: 12px; line-height: 16px; color: var(--ink-2); }
-.zone-words span { text-align: center; white-space: nowrap; overflow: hidden; }
-.zone-ticks { position: relative; height: 16px; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
-.zone-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+/* The key: each zone's swatch, name and range, one per line, so nothing is squeezed into a narrow zone. */
+.zone-key { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; font-size: 12px; line-height: 18px; }
+.zone-key-row { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 8px; color: var(--ink); }
+.zone-key-row .num { color: var(--ink-3); }
+.zone-swatch { width: 8px; height: 8px; border-radius: 2px; background: var(--good); }
+.zone-swatch[data-level="warn"] { background: var(--warn); }
+.zone-swatch[data-level="bad"] { background: var(--bad); }
+.zone[data-glass] .zone-swatch[data-level="good"] { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 .zone-marker { position: absolute; top: 20px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; box-shadow: 0 0 0 2px var(--paper); z-index: 1; }
 .zone-marker-label {
   position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
@@ -879,6 +911,9 @@ svg { display: block; flex: none; }
 .stat-value { font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); white-space: nowrap; }
 .stat-value span { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); margin-left: 4px; }
 .stat-sub { font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-info { text-align: left; cursor: help; transition: box-shadow var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out); }
+.stat-info[data-open] { box-shadow: inset 0 0 0 1px var(--ring-firm); background: var(--hover); }
+@media (hover: hover) and (pointer: fine) { .stat-info:hover { box-shadow: inset 0 0 0 1px var(--ring-firm); background: var(--hover); } }
 
 /* Sections beside the cause, sharing a top edge. */
 .dash-split { display: grid; gap: 16px; align-items: start; }
@@ -1047,11 +1082,12 @@ svg { display: block; flex: none; }
 .home-sec:not([data-shown]):not(.runs) > * { opacity: 0; transform: translateY(12px) scale(0.99); }
 .runs > * { transition: none; }
 /* How it works: three steps, each with a small picture on top. */
-.how-grid { list-style: none; display: grid; gap: 16px; }
+.how-grid { list-style: none; display: grid; gap: 32px 16px; }
 @media (min-width: 600px) { .how-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.how-step { padding: 16px; display: flex; flex-direction: column; }
-.how-visual { height: 76px; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.how-title { margin: 14px 0 2px; font-size: 15px; line-height: 20px; font-weight: 500; }
+.how-step { display: flex; flex-direction: column; }
+/* Each step's picture sits in its own recessed panel; the words sit below it, unboxed. */
+.how-visual { height: 152px; border-radius: 6px; background: var(--recess); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.how-title { margin: 16px 0 2px; font-size: 15px; line-height: 20px; font-weight: 500; }
 
 /* The demo's mistakes, as tags. */
 .example-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
@@ -1066,6 +1102,18 @@ svg { display: block; flex: none; }
 .free-tile { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 
 /* Run a test: the setup row, then the two ways to open a page. */
+.test-card { display: grid; }
+.test-pane { padding: 20px; display: flex; flex-direction: column; min-width: 0; }
+@media (min-width: 760px) and (pointer: fine) {
+  .test-card { grid-template-columns: minmax(0, 1fr) 264px; }
+  .test-card .qr-card { box-shadow: inset 1px 0 0 var(--ring); }
+}
+/* The address that will open, with ?perf marked in glass. */
+.test-link { display: flex; align-items: center; gap: 2px; min-width: 0; margin-top: 12px; font: 400 13px/24px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink-2); }
+.test-link-url { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.test-link-perf { flex: none; display: flex; align-items: center; height: 24px; padding: 0 6px; color: var(--ink); }
+.test-link[data-empty] { color: var(--ink-3); }
+.test-link[data-empty] .test-link-perf { --c: var(--data-line); color: var(--ink-3); }
 .test-stack { display: flex; flex-direction: column; gap: 16px; }
 .runs { display: block; }
 .nowrap { white-space: nowrap; }
@@ -1081,10 +1129,11 @@ svg { display: block; flex: none; }
   .rails .subtitle { font-size: 30px; line-height: 38px; letter-spacing: -0.025em; }
   .rails .home-head .lede { max-width: 640px; }
   .home-sec[data-split] { grid-template-columns: 320px minmax(0, 1fr); gap: 48px; }
-  .rails .home-body .meta, .rails .start-card .meta { font-size: 15px; line-height: 24px; }
-  .rails .example-title, .rails .how-title, .rails .start-card .h2 { font-size: 17px; line-height: 24px; }
-  .rails .how-step, .rails .example { padding: 24px; }
-  .rails .how-visual { height: 96px; }
+  .rails .home-body .meta, .rails .test-pane .meta { font-size: 15px; line-height: 24px; }
+  .rails .example-title, .rails .how-title, .rails .test-pane .h2 { font-size: 17px; line-height: 24px; }
+  .rails .example { padding: 24px; }
+  .rails .how-visual { height: 200px; }
+  .rails .how-visual > * { scale: 1.25; }
   .rails .example-tag { height: 28px; padding: 0 10px; font-size: 13px; }
   .rails .example-go { font-size: 15px; }
   .rails .runs .h2 { font-size: 19px; }
@@ -1172,12 +1221,14 @@ svg { display: block; flex: none; }
 /* Glass frames: a row per device, one pane per screen refresh, standing
    flat like the hero's. Each rises when its refresh passed. The device's
    mark and frame rate lead each row. */
-.frames { margin: 0; display: flex; flex-direction: column; gap: 28px; }
-.frames-row { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; align-items: end; }
-.frames-name { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: 6px; color: var(--ink); }
-.frames-name svg { width: 18px; height: 18px; }
-.frames-fps { font-size: 13px; line-height: 16px; color: var(--ink-2); white-space: nowrap; }
-.frames-unit { margin-left: 3px; color: var(--ink-3); }
+.frames { margin: 0; display: flex; flex-direction: column; gap: 24px; }
+.frames-row { display: flex; flex-direction: column; gap: 4px; }
+.frames-head { display: flex; align-items: center; gap: 10px; height: 28px; }
+.frames-icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; background: var(--recess); color: var(--ink); }
+.frames-icon svg { width: 14px; height: 14px; }
+.frames-device { flex: 1; font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.frames-fps { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.frames-unit { margin-left: 4px; font-weight: 400; color: var(--ink-3); }
 .frames-track { position: relative; height: 88px; }
 .frames-slab { position: absolute; bottom: 10px; height: 72px; width: calc(100% / 30 * .62); transform-origin: 50% 100%; transform: scaleY(0); }
 .frames[data-play] .frames-slab { animation: frames-rise var(--dur-base) var(--ease-out) var(--t) both; }
@@ -1186,40 +1237,61 @@ svg { display: block; flex: none; }
 .frames-shadow { position: absolute; left: 0; right: 0; bottom: 2px; height: 16px; border-radius: 50%; background: radial-gradient(closest-side, var(--shadow), transparent); opacity: .35; }
 @media (prefers-reduced-motion: reduce) { .frames-slab { transform: none; animation: none !important; } }
 @media (min-width: 1024px) {
-  .frames { gap: 32px; }
-  .frames-row { grid-template-columns: 56px minmax(0, 1fr); gap: 24px; }
-  .frames-name svg { width: 20px; height: 20px; }
-  .rails .frames-fps { font-size: 15px; line-height: 20px; }
+  .frames { gap: 28px; }
+  .frames-head { height: 32px; gap: 12px; }
+  .frames-icon { width: 32px; height: 32px; }
+  .frames-icon svg { width: 16px; height: 16px; }
+  .rails .frames-device, .rails .frames-fps { font-size: 17px; line-height: 24px; }
   .frames-track { height: 104px; }
   .frames-slab { height: 88px; }
 }
 
 /* How it works, in glass. */
-.how-probe { position: relative; width: 168px; height: 52px; }
-.how-probe-back { position: absolute; width: 140px; height: 40px; }
-.how-probe-back:nth-child(1) { left: 0; top: 0; }
-.how-probe-back:nth-child(2) { left: 10px; top: 6px; }
+.how-probe { position: relative; width: 176px; height: 64px; }
+.how-probe-back { position: absolute; left: 0; top: 0; width: 148px; height: 52px; padding: 7px 8px; }
+.how-probe-file { display: block; font: 400 10px/12px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; color: var(--ink-3); }
 .how-probe-front {
-  position: absolute; right: 0; bottom: 0; width: 140px; height: 40px;
+  position: absolute; right: 0; bottom: 0; width: 132px; height: 36px;
   display: flex; align-items: center; justify-content: center;
   font: 500 13px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink);
 }
+/* The probe drops into the layout when the section comes into view. */
+.home-sec[data-shown] .how-probe-front { animation: how-drop var(--dur-slow) var(--ease-out) 300ms both; }
+@keyframes how-drop { from { opacity: 0; transform: translate(12px, -14px) scale(1.06); } }
 .how-scroll {
-  position: relative; width: 140px; height: 100%; overflow: hidden;
+  position: relative; width: 140px; height: 120px; overflow: hidden;
   mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent);
 }
 .how-scroll-track { position: absolute; left: 12px; right: 12px; top: 0; display: flex; flex-direction: column; gap: 8px; animation: how-scroll 6s linear infinite; }
+/* The lit copy shows only inside the window. */
+.how-scroll-lit { position: absolute; inset: 0; clip-path: inset(calc(50% - 20px) 4px round 6px); }
 .how-strip { display: block; height: 14px; flex: none; }
 @keyframes how-scroll { to { transform: translateY(calc(-50% - 4px)); } }
-.how-window { position: absolute; left: 4px; top: 50%; width: calc(100% - 8px); height: 40px; transform: translateY(-50%); overflow: visible; }
-.how-window rect { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 5 4; animation: how-march 1.2s linear infinite; }
-@keyframes how-march { to { stroke-dashoffset: -18; } }
+.how-window {
+  position: absolute; left: 4px; right: 4px; top: 50%; height: 40px; transform: translateY(-50%); border-radius: 6px;
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 30%);
+  box-shadow: inset 0 0 0 1px var(--ring-firm), inset 0 1px 0 rgba(255,255,255,.9), 0 2px 6px rgba(0,0,0,.08), 0 8px 20px -6px rgba(0,0,0,.12);
+}
+:root[data-theme="dark"] .how-window {
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0) 45%);
+  box-shadow: inset 0 0 0 1px var(--ring-firm), inset 0 1px 0 rgba(255,255,255,.14), 0 2px 6px rgba(0,0,0,.4), 0 8px 20px -6px rgba(0,0,0,.5);
+}
+/* Frame times against the budget: bars grow from zero in turn. */
+.how-budget { position: relative; height: 64px; padding-right: 52px; }
+.how-budget-bars { display: flex; align-items: flex-end; gap: 4px; height: 100%; }
+.how-bar { width: 8px; height: var(--h); transform-origin: 50% 100%; }
+.home-sec[data-shown] .how-bar { animation: frames-rise var(--dur-slow) var(--ease-out) calc(300ms + var(--i) * 40ms) both; }
+.how-budget-line { position: absolute; left: -6px; right: 0; height: 0; border-top: 1.5px dashed var(--ink); }
+.how-budget-line span {
+  position: absolute; right: 0; top: -8px; padding-left: 6px; background: var(--recess);
+  font: 400 10px/14px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; color: var(--ink-2); white-space: nowrap;
+}
 .how-frames { display: flex; align-items: flex-end; gap: 4px; height: 48px; }
 .how-frame { width: 8px; height: 100%; }
-@media (prefers-reduced-motion: reduce) { .how-scroll-track, .how-window rect { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .how-scroll-track, .how-probe-front, .how-bar { animation: none !important; } }
 
 /* No runs yet: a row of gray panes, nothing recorded, inside a dashed
-   outline like the ?perf step's window. */
+   outline. */
 .runs-empty {
   display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 32px 24px;
   border: 1px dashed var(--ring-firm); border-radius: 6px;
