@@ -19,7 +19,8 @@ const Pointer = ({ x, y, className }: { x: number; y: number; className?: string
 );
 
 /** The probe: the app's layout file, oversized and cropped, with the
- *  component dropping into its slot from the pointer. */
+ *  pointer carrying the component down its dashed trail into the slot. The
+ *  trail starts where the pointer picks it up, so it never comes from nowhere. */
 export function ProbePane() {
   const lines = [[96, 120], [116, 92], [136, 70], [196, 104], [216, 80]];
   return (
@@ -29,13 +30,14 @@ export function ProbePane() {
       {lines.map(([y, w], i) => <rect key={i} className="art-a2" x={i === 1 || i === 4 ? 92 : 72} y={y - 6} width={w} height="12" rx="6" />)}
       {/* The slot the probe lands in. */}
       <rect className="art-slot" x="92" y="148" width="150" height="34" rx="8" />
+      {/* The trail runs from where the pointer starts to where it lands. */}
+      <path className="art-trail" d="M292 52 C300 96 276 142 244 168" />
       <g className="art-drop">
         <rect className="art-ink" x="92" y="148" width="150" height="34" rx="8" />
         <text className="art-code" x="167" y="170" textAnchor="middle">{"<Cadence />"}</text>
         <Handle x={242} y={148} />
         <Pointer x={236} y={170} />
       </g>
-      <path className="art-trail" d="M286 74 C270 96 262 120 250 140" />
     </svg>
   );
 }
@@ -63,8 +65,8 @@ export function ScrollPanes() {
       <g clipPath="url(#art-page)">{draw("art-a2")}</g>
       <g clipPath="url(#art-window)">{draw("art-a3")}</g>
       {/* The scrollbar, chunky, its thumb running with the page. */}
-      <rect className="art-a1 art-edge" x="246" y="-20" width="16" height="240" rx="8" />
-      <rect className="art-a3 art-thumb" x="249" y="20" width="10" height="44" rx="5" />
+      <rect className="art-a1 art-edge" x="268" y="-20" width="16" height="240" rx="8" />
+      <rect className="art-a3 art-thumb" x="271" y="20" width="10" height="44" rx="5" />
       <rect className="art-frame" x="58" y="78" width="184" height="52" rx="10" />
       {[[58, 78], [242, 78], [58, 130], [242, 130]].map(([x, y]) => <Handle key={`${x}${y}`} x={x} y={y} className="art-handle art-handle-ink" />)}
       <rect className="art-ink" x="20" y="28" width="64" height="28" rx="6" />
@@ -73,8 +75,9 @@ export function ScrollPanes() {
   );
 }
 
-/** The verdict: a dial hung from above, oversized and cropped, its violet
- *  needle swinging over from smooth into the inked ticks where frames run late. */
+/** The verdict: a gauge hung from above, oversized and cropped. Its needle
+ *  hangs straight down to a tag with the frame rate, and the dial turns under
+ *  it until the needle sits in the inked ticks where frames run late. */
 export function MiniFrames() {
   const C = { x: 150, y: -70 };
   const tick = (deg: number, r0: number, r1: number) => {
@@ -84,12 +87,14 @@ export function MiniFrames() {
   const ticks = Array.from({ length: 15 }, (_, i) => 24 + i * 9.5);
   return (
     <svg {...STAGE}>
-      <circle className="art-a1 art-edge" cx={C.x} cy={C.y} r="232" />
-      {ticks.map((d) => <line key={d} className={d < 72 ? "art-tick art-tick-late" : "art-tick"} {...tick(d, 196, 216)} />)}
-      <g className="art-needle">
-        <line className="art-stem" x1={C.x} y1={C.y} x2={C.x} y2={C.y + 178} />
-        <circle className="art-pop" cx={C.x} cy={C.y + 186} r="12" />
+      <g className="art-dial">
+        <circle className="art-a1 art-edge" cx={C.x} cy={C.y} r="232" />
+        {ticks.map((d) => <line key={d} className={d < 72 ? "art-tick art-tick-late" : "art-tick"} {...tick(d, 202, 220)} />)}
       </g>
+      <line className="art-stem" x1={C.x} y1={C.y} x2={C.x} y2={C.y + 166} />
+      <rect className="art-ink" x={C.x - 50} y={C.y + 164} width="100" height="34" rx="8" />
+      <circle className="art-pop" cx={C.x - 30} cy={C.y + 181} r="5" />
+      <text className="art-code art-label" x={C.x + 8} y={C.y + 186} textAnchor="middle">38 fps</text>
     </svg>
   );
 }

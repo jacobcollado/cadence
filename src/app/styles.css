@@ -1247,6 +1247,8 @@ svg { display: block; flex: none; }
    (data-empty) is the lightest tone. */
 .art { border-radius: 4px; background: var(--art-3); }
 .art[data-miss] { background: none; box-shadow: inset 0 0 0 2px var(--art-line); }
+/* In the device rows a missed frame is a red bar, so the phone's chop reads at a glance. */
+.frames-slab.art[data-miss] { background: var(--bad); box-shadow: none; }
 .art[data-empty] { background: var(--art-1); }
 .free-tile.art, .test-link-perf.art { background: var(--art-1); }
 
@@ -1313,19 +1315,20 @@ svg { display: block; flex: none; }
 .art-stem { stroke: var(--art-line); stroke-width: 4; }
 /* The probe drops into its slot, the page scrolls under the window, and the
    needle swings into the late ticks, each once the section is in view. */
-.art-drop, .art-needle { transform-box: view-box; }
-.home-sec[data-shown] .art-drop { animation: how-drop var(--dur-slow) var(--ease-out) 300ms both; }
-@keyframes how-drop { from { opacity: 0; transform: translate(28px, -36px) scale(1.04); } }
+.art-drop { transform-box: view-box; }
+.home-sec[data-shown] .art-drop { animation: how-drop 900ms var(--ease-in-out) 400ms both; }
+@keyframes how-drop { from { transform: translate(56px, -118px); } }
 .art-scroll { animation: art-scroll 8s linear infinite; }
 @keyframes art-scroll { to { transform: translateY(var(--loop)); } }
 .art-thumb { animation: art-thumb 8s linear infinite; }
 @keyframes art-thumb { to { transform: translateY(100px); } }
-.art-needle { transform-origin: 150px -70px; transform: rotate(30deg); }
-.home-sec[data-shown] .art-needle { animation: art-swing 1400ms var(--ease-out) 300ms both; }
-@keyframes art-swing { from { transform: rotate(30deg); } 70% { transform: rotate(-32deg); } to { transform: rotate(-26deg); } }
+.art-label { font-family: "Satoshi", system-ui, sans-serif; font-size: 15px; font-weight: 500; }
+.art-dial { transform-box: view-box; transform-origin: 150px -70px; transform: rotate(-40deg); }
+.home-sec[data-shown] .art-dial { animation: art-turn 1400ms var(--ease-out) 300ms both; }
+@keyframes art-turn { from { transform: rotate(-40deg); } 70% { transform: rotate(47deg); } to { transform: rotate(42deg); } }
 @media (prefers-reduced-motion: reduce) {
   .art-drop, .art-scroll, .art-thumb { animation: none !important; }
-  .art-needle { animation: none !important; transform: rotate(-26deg); }
+  .art-dial { animation: none !important; transform: rotate(42deg); }
 }
 
 .how-frames { display: flex; align-items: flex-end; gap: 4px; height: 48px; }

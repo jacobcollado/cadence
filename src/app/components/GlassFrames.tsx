@@ -5,8 +5,8 @@ import { CountUp } from "./ui";
 
 // Half a second of the same scroll on three devices, in the home page's flat
 // art: one bar per screen refresh on a chunky rail. A refresh that got a new
-// frame is a gray bar; one the page missed is an empty outlined slot, so
-// every chop shows as a hole exactly where it happened. The first time the rows come into view,
+// frame is a gray bar; one the page missed is a red bar, so every chop
+// shows exactly where it happened. The first time the rows come into view,
 // each bar rises when its refresh passed. Each row is headed by its device
 // and the frame rate it reached.
 
@@ -61,7 +61,7 @@ export function GlassFrames() {
   }, []);
 
   return (
-    <figure ref={el} className="frames" data-play={play || undefined} aria-label="Half a second of the same scroll on a laptop, an iPhone and an Android phone, one bar per screen refresh, an empty slot where the page missed one">
+    <figure ref={el} className="frames" data-play={play || undefined} aria-label="Half a second of the same scroll on a laptop, an iPhone and an Android phone, one bar per screen refresh, red where the page missed one">
       {ROWS.map((row) => (
         <div key={row.name} className="frames-row">
           <div className="frames-head">
