@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import { Icon, ScoreRing } from "./ui";
-import { GlassRow } from "./HowVisuals";
 import { tint } from "../glass";
 
 // Small diagrams for the docs, built from the same pieces as the product.
@@ -43,7 +42,18 @@ export function TilesSpecimen() {
   );
 }
 
-/** A run of frames in glass, the way the home page draws them: a missed frame is a gray pane, a freeze a run of them. */
+/** A short run of frames in glass: tinted where drawn, gray where missed. */
+function GlassRow({ run }: { run: number[] }) {
+  return (
+    <span className="how-frames" aria-hidden="true">
+      {run.map((drawn, i) => (
+        <span key={i} className="glass how-frame" data-off={!drawn || undefined} style={{ "--c": drawn ? tint(i / run.length) : undefined } as CSSProperties} />
+      ))}
+    </span>
+  );
+}
+
+/** A run of frames in glass, the way the reports draw them: a missed frame is a gray pane, a freeze a run of them. */
 export function FrameStrip({ kind }: { kind: "dropped" | "freeze" }) {
   const run = Array.from({ length: 16 }, (_, i) => (kind === "dropped" ? i !== 9 : i < 7 || i > 11) ? 1 : 0);
   return (

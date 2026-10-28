@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, ScoreRing, splitName, StatusIcon } from "../components/ui";
-import { GlassRow, MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
+import { MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
 import { GlassFrames } from "../components/GlassFrames";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
@@ -21,8 +21,8 @@ type IconName = ComponentProps<typeof Icon>["name"];
 // budget, the demo keeps blowing through it.
 const SMOOTH = [16, 17, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16];
 const SLOW = [16, 17, 34, 16, 15, 50, 66, 33, 16, 17, 48, 16, 35, 52, 16, 17, 33, 16, 58, 16, 17, 40];
-// Nothing recorded yet: every pane gray.
-const NONE = Array(12).fill(0);
+// Nothing recorded yet: empty frame slots at a scroll's uneven heights.
+const NONE = [44, 52, 40, 60, 48, 36, 56, 64, 44, 50, 38, 58, 46, 62, 42, 54, 48, 40, 60, 46, 52, 38, 56, 44];
 
 // What the slow demo gets wrong, one mistake per section.
 const MISTAKES = ["Glowing canvas", "Forced layout", "Blocking tracker", "Script animation", "Resizing form"];
@@ -278,8 +278,8 @@ export function Home() {
 
       <section className="home-sec runs" id="runs">
         <div className="runs-head">
-          <h2 className="h2">
-            Runs {runs.length > 0 && <span className="muted num">{runs.length}</span>}
+          <h2 className="subtitle runs-title">
+            Your runs {runs.length > 0 && <span className="muted num">{runs.length}</span>}
           </h2>
           {runs.length >= 2 && selected.length < 2 && <span className="runs-hint">Select two or more to compare</span>}
           {selected.length >= 2 && (
@@ -306,7 +306,10 @@ export function Home() {
 
         {runs.length === 0 ? (
           <div className="runs-empty">
-            <GlassRow run={NONE} quiet className="runs-empty-row" />
+            {/* The frames a run will fill, as empty slots running off both sides. */}
+            <span className="runs-empty-art" aria-hidden="true">
+              {NONE.map((h, i) => <span key={i} className="art" data-empty style={{ height: `${h}%` }} />)}
+            </span>
             <strong>No runs yet</strong>
             Finish a run on any device and open its report. It lands here, ready to compare.
           </div>

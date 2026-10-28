@@ -282,8 +282,12 @@ svg { display: block; flex: none; }
 .qr-card { align-items: stretch; }
 .qr-card .qr { width: 100%; max-width: 112px; align-self: center; margin-top: auto; }
 /* The controls sit on the card's bottom edge, level with the QR beside it. */
-.runs-head { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 12px; }
-.runs-head .h2 { flex: 1; }
+/* The runs are a tool, not a pitch: the heading sits left with the actions
+   on its right, at the section heading size. */
+.runs-head { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 16px; }
+.runs-title { font-weight: 500; }
+.runs-title .muted { margin-left: 4px; }
+.runs-head .runs-title { flex: 1; }
 .runs-hint { font-size: 13px; line-height: 20px; color: var(--ink-3); margin-right: 8px; }
 @media (max-width: 600px) { .runs-hint { display: none; } }
 /* The runs sit in one card whose edge lines up with the heading above it;
@@ -1263,7 +1267,7 @@ svg { display: block; flex: none; }
   .rails .how-title { margin-top: 20px; }
   .rails .example-tag { height: 28px; padding: 0 10px; font-size: 13px; }
   .rails .example-go { font-size: 15px; }
-  .rails .runs .h2 { font-size: 19px; }
+  .rails .runs-head { margin-bottom: 24px; }
   .rails .setup-btn { font-size: 15px; }
   .rails .free-grid { gap: 16px; }
   .rails .free { padding: 24px; gap: 24px; }
@@ -1440,16 +1444,21 @@ svg { display: block; flex: none; }
 .how-frames { display: flex; align-items: flex-end; gap: 4px; height: 48px; }
 .how-frame { width: 8px; height: 100%; }
 
-/* No runs yet: a row of gray panes, nothing recorded, inside a dashed
-   outline. */
+/* No runs yet: the frames a run will fill, as empty slots in the lightest
+   art tone running off both sides, inside the dashed outline the site uses
+   for a place waiting for something. */
 .runs-empty {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 32px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 24px 32px; overflow: hidden;
   border: 1px dashed var(--ring-firm); border-radius: 6px;
   text-align: center; color: var(--ink-3); line-height: 22px;
 }
 .runs-empty strong { color: var(--ink); font-weight: 500; }
-.runs-empty-row { display: flex; align-items: flex-end; gap: 4px; height: 28px; margin-bottom: 12px; }
-.runs-empty-row .how-frame { width: 6px; }
+.runs-empty-art {
+  align-self: stretch; display: flex; align-items: flex-end; gap: 6px; height: 96px; margin: 0 -24px 24px; padding-top: 24px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
+}
+.runs-empty-art .art { flex: 1; min-width: 0; box-shadow: inset 0 0 0 2px var(--art-line); }
 @media (min-width: 1024px) { .rails .runs-empty { font-size: 15px; line-height: 24px; } }
 
 /* Report in the rails: the header, the overview and the open tab are one

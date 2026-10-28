@@ -109,13 +109,3 @@ export function MiniFrames() {
     </svg>
   );
 }
-
-/** A short run of frames as flat bars: gray where drawn, an empty
- *  outlined slot where missed. Quiet rows (nothing recorded yet) are all empty slots. */
-export function GlassRow({ run, quiet, className = "how-frames" }: { run: number[]; quiet?: boolean; className?: string }) {
-  return (
-    <span className={className} aria-hidden="true">
-      {run.map((drawn, i) => <span key={i} className="art how-frame" data-miss={(!drawn && !quiet) || undefined} data-empty={quiet || undefined} />)}
-    </span>
-  );
-}
