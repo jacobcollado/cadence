@@ -1373,9 +1373,6 @@ svg { display: block; flex: none; }
 .art-handle-ink { stroke: var(--ink); stroke-width: 2.5; }
 .art-frame { fill: none; stroke: var(--ink); stroke-width: 2.5; }
 .art-trail { fill: none; stroke: var(--art-line); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 12; }
-.art-tick { stroke: var(--art-line); stroke-width: 5; stroke-linecap: round; }
-.art-tick-late { stroke: var(--ink); }
-.art-stem { stroke: var(--art-line); stroke-width: 4; }
 /* The probe drops into its slot, the page scrolls under the window, and the
    needle swings into the late ticks, each once the section is in view. */
 .art-drop { transform-box: view-box; }
@@ -1386,12 +1383,18 @@ svg { display: block; flex: none; }
 .art-thumb { animation: art-thumb 8s linear infinite; }
 @keyframes art-thumb { to { transform: translateY(100px); } }
 .art-label { font-family: "Satoshi", system-ui, sans-serif; font-size: 15px; font-weight: 500; }
-.art-dial { transform-box: view-box; transform-origin: 150px -70px; transform: rotate(-40deg); }
-.home-sec[data-shown] .art-dial { animation: art-turn 1400ms var(--ease-out) 300ms both; }
-@keyframes art-turn { from { transform: rotate(-40deg); } 70% { transform: rotate(47deg); } to { transform: rotate(42deg); } }
+.art-tag { font-size: 13px; }
+.art-bad { fill: var(--bad); }
+/* The report's rows grow from zero in turn; the frame and its cause land on the short one after. */
+.art-grow { transform-box: fill-box; transform-origin: 0 50%; }
+.home-sec[data-shown] .art-grow { animation: art-grow var(--dur-slow) var(--ease-out) calc(300ms + var(--i) * 80ms) both; }
+@keyframes art-grow { from { transform: scaleX(0); } }
+.home-sec:not([data-shown]) .art-flag { opacity: 0; }
+.home-sec[data-shown] .art-flag { animation: art-land var(--dur-slow) var(--ease-out) 900ms both; }
+@keyframes art-land { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) {
   .art-drop, .art-scroll, .art-thumb { animation: none !important; }
-  .art-dial { animation: none !important; transform: rotate(42deg); }
+  .art-grow, .art-flag { animation: none !important; }
 }
 
 .how-frames { display: flex; align-items: flex-end; gap: 4px; height: 48px; }

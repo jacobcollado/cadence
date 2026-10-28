@@ -75,26 +75,29 @@ export function ScrollPanes() {
   );
 }
 
-/** The verdict: a gauge hung from above, oversized and cropped. Its needle
- *  hangs straight down to a tag with the frame rate, and the dial turns under
- *  it until the needle sits in the inked ticks where frames run late. */
+/** The verdict: the report, oversized and cropped, one row per section with
+ *  a bar for how smoothly it scrolled. The one that stuttered is short and
+ *  red, held in a selection frame with its cause tagged on the edge, and the
+ *  pointer on it. */
 export function MiniFrames() {
-  const C = { x: 150, y: -70 };
-  const tick = (deg: number, r0: number, r1: number) => {
-    const a = (deg * Math.PI) / 180;
-    return { x1: C.x + Math.cos(a) * r0, y1: C.y + Math.sin(a) * r0, x2: C.x + Math.cos(a) * r1, y2: C.y + Math.sin(a) * r1 };
-  };
-  const ticks = Array.from({ length: 15 }, (_, i) => 24 + i * 9.5);
+  const rows = [{ y: 74, w: 156 }, { y: 104, w: 138 }, { y: 150, w: 58, bad: true }, { y: 196, w: 150 }];
   return (
     <svg {...STAGE}>
-      <g className="art-dial">
-        <circle className="art-a1 art-edge" cx={C.x} cy={C.y} r="232" />
-        {ticks.map((d) => <line key={d} className={d < 72 ? "art-tick art-tick-late" : "art-tick"} {...tick(d, 202, 220)} />)}
+      <rect className="art-a1 art-edge" x="22" y="22" width="420" height="280" rx="16" />
+      <rect className="art-a2" x="42" y="40" width="64" height="12" rx="6" />
+      {rows.map((r, i) => (
+        <g key={r.y}>
+          <rect className="art-a2" x="44" y={r.y - 6} width="36" height="12" rx="6" />
+          <rect className={r.bad ? "art-bad art-grow" : "art-a3 art-grow"} style={{ "--i": i } as CSSProperties} x="92" y={r.y - 8} width={r.w} height="16" rx="8" />
+        </g>
+      ))}
+      <g className="art-flag">
+        <rect className="art-frame" x="32" y="130" width="236" height="40" rx="10" />
+        {[[32, 130], [268, 130], [32, 170], [268, 170]].map(([x, y]) => <Handle key={`${x}${y}`} x={x} y={y} className="art-handle art-handle-ink" />)}
+        <rect className="art-ink" x="152" y="116" width="112" height="28" rx="6" />
+        <text className="art-code art-label art-tag" x="208" y="135" textAnchor="middle">Forced layout</text>
+        <Pointer x={176} y={156} />
       </g>
-      <line className="art-stem" x1={C.x} y1={C.y} x2={C.x} y2={C.y + 166} />
-      <rect className="art-ink" x={C.x - 50} y={C.y + 164} width="100" height="34" rx="8" />
-      <circle className="art-pop" cx={C.x - 30} cy={C.y + 181} r="5" />
-      <text className="art-code art-label" x={C.x + 8} y={C.y + 186} textAnchor="middle">38 fps</text>
     </svg>
   );
 }
