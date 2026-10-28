@@ -389,21 +389,57 @@ svg { display: block; flex: none; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* Compare */
-.compare-summary { font-size: 17px; line-height: 26px; color: var(--ink-2); max-width: 60ch; margin-top: 8px; }
-.compare-legend { display: flex; flex-direction: column; margin: 24px 0 24px; }
-.compare-legend-row { display: flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px; line-height: 20px; }
-.compare-legend-row + .compare-legend-row { box-shadow: inset 0 1px 0 var(--grid); }
-.compare-legend-row .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
-.group { display: grid; grid-template-columns: 128px 1fr; gap: 16px; align-items: center; padding: 12px 0; box-shadow: inset 0 1px 0 var(--grid); }
-.group:first-child { box-shadow: none; }
+/* Compare, in the rails like the report: the header, a card per run, then
+   the chart. */
+.compare-head { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.compare-back { display: inline-flex; align-items: center; gap: 4px; height: 28px; margin-bottom: 8px; font-size: 13px; line-height: 1; font-weight: 500; color: var(--ink-2); transition: color var(--dur-fast) var(--ease-out); }
+.compare-back:hover { color: var(--ink); }
+.compare-summary { font-size: 15px; line-height: 24px; color: var(--ink-2); max-width: 60ch; text-wrap: pretty; }
+.compare-runs { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
+.compare-run { display: flex; flex-direction: column; gap: 16px; padding: 16px; transition: background-color var(--dur-fast) var(--ease-out); }
+.compare-run[href]:hover { background: var(--hover); }
+.compare-run-top { display: flex; align-items: center; justify-content: space-between; }
+/* The run's color in the chart, as a small square key. */
+.compare-key { width: 12px; height: 12px; border-radius: 3px; }
+.compare-run-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.compare-device { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compare-run .meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compare-run-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: auto; }
+.compare-fps { display: flex; align-items: baseline; gap: 4px; font-size: 28px; line-height: 32px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); }
+.compare-fps > span:last-child { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
+.compare-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; min-width: 0; }
+/* The chart: a row per section, its runs' bars stacked, on gridlines at
+   each tick. The whole run leads, set apart. */
+.compare-chart { position: relative; --label: 160px; }
+.compare-grid { position: absolute; inset: 0 0 20px; display: grid; grid-template-columns: var(--label) 1fr; gap: 16px; pointer-events: none; }
+.compare-grid-lines { position: relative; margin-right: 40px; }
+.compare-grid-lines i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+.group { position: relative; display: grid; grid-template-columns: var(--label) 1fr; gap: 16px; align-items: center; padding: 14px 0; box-shadow: inset 0 1px 0 var(--grid); }
+.group:first-of-type { box-shadow: none; }
+.group[data-whole] { padding-bottom: 18px; box-shadow: none; }
+.group[data-whole] + .group { box-shadow: inset 0 1px 0 var(--ring-firm); }
 .group-label { font-size: 13px; line-height: 18px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.group-bars { display: flex; flex-direction: column; gap: 2px; position: relative; }
+.group[data-whole] .group-label { color: var(--ink); font-weight: 500; }
+.group-bars { display: flex; flex-direction: column; gap: 4px; position: relative; }
 .gbar-row { display: flex; align-items: center; gap: 8px; height: 12px; font-size: 12px; color: var(--ink-2); position: relative; }
-.gbar { height: 10px; width: 0; border-radius: 0 4px 4px 0; transition: width var(--dur-slow) var(--ease-out); }
-.gbar-hit { position: absolute; inset: -1px 0; }
-.axis { display: grid; grid-template-columns: 128px 1fr; gap: 16px; margin-top: 4px; }
-.axis-ticks { position: relative; height: 16px; font-size: 12px; color: var(--ink-3); }
+.gbar { height: 12px; width: 0; border-radius: 0 4px 4px 0; transition: width var(--dur-slow) var(--ease-out); }
+.gbar-hit { position: absolute; inset: -2px 0; cursor: default; }
+.axis { position: relative; display: grid; grid-template-columns: var(--label) 1fr; gap: 16px; margin-top: 4px; }
+.axis-ticks { position: relative; height: 16px; margin-right: 40px; font-size: 12px; color: var(--ink-3); }
 .axis-ticks span { position: absolute; transform: translateX(-50%); }
+/* Phones: each section's name sits above its bars. */
+@media (max-width: 600px) {
+  .compare-chart { --label: 0px; }
+  .group { grid-template-columns: 1fr; gap: 8px; }
+  .compare-grid, .axis { grid-template-columns: 1fr; gap: 0; }
+  .compare-grid > span, .axis > span { display: none; }
+}
+@media (min-width: 1024px) {
+  .rails .compare-summary { font-size: 17px; line-height: 28px; }
+  .rails .compare-device { font-size: 17px; line-height: 24px; }
+  .rails .compare-run { padding: 20px; }
+  .rails .compare-runs { gap: 16px; }
+}
 
 /* Page enter: content rises into place. */
 .enter > * { animation: rise var(--dur-slow) var(--ease-out) both; }
@@ -646,15 +682,6 @@ svg { display: block; flex: none; }
   .run-row .run-sub { display: block; font-size: 13px; line-height: 20px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 
-.compare-legend-row { display: grid; grid-template-columns: 8px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 104px 56px; gap: 16px; }
-.compare-legend-head { min-height: 32px; font-size: 12px; line-height: 16px; color: var(--ink-3); }
-.compare-legend-head .r { text-align: right; }
-@media (max-width: 600px) {
-  .compare-legend-row { grid-template-columns: 8px minmax(0, 1fr) auto 48px; }
-  .compare-legend-row .col-browser, .compare-legend-row .col-mode, .compare-legend-row .col-when { display: none; }
-  .compare-legend-head { display: none; }
-}
-.report-head.compare-head { flex-direction: column; align-items: flex-start; gap: 0; }
 
 .install-steps { display: grid; gap: 12px; }
 

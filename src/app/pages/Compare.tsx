@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Run } from "../../shared/run";
 import { computeStats, MODE_LABEL, type RunStats } from "../../shared/stats";
-import { Bar, RatingTag, splitName } from "../components/ui";
+import { Bar, CountUp, Icon, RatingTag, splitName } from "../components/ui";
 import { TopBar } from "../components/TopBar";
-import { decodeRun, listRuns, pathOf, when, SERIES } from "../lib";
+import { decodeRun, listRuns, navigate, pathOf, when, SERIES } from "../lib";
 
 interface Entry {
   run: Run;
@@ -80,9 +80,13 @@ export function Compare() {
     return (
       <div className="shell">
         <TopBar />
-        <div className="recess empty enter" style={{ marginTop: 48 }}>
-          <strong>Pick two runs or more</strong>
-          Select runs in the list, then compare them.
+        <div className="rails report">
+          <section className="report-sec report-top">
+            <div className="recess empty enter">
+              <strong>Pick two runs or more</strong>
+              Select runs in the list, then compare them.
+            </div>
+          </section>
         </div>
       </div>
     );
@@ -106,6 +110,7 @@ export function Compare() {
       return { label, values: found.map((s) => s?.fps ?? null), dropped: found.map((s) => s?.dropped ?? null) };
     }),
   ];
+  const saved = listRuns();
   const max = Math.max(...entries.map((e) => e.run.hz));
   const ticks = [0, 30, 60, 90, 120, 144, 240].filter((t) => t <= max);
 
@@ -132,84 +137,105 @@ export function Compare() {
   return (
     <div className="shell">
       <TopBar />
-      <header className="report-head compare-head enter">
-        <h1 className="subtitle">Compare runs</h1>
-        <p className="compare-summary">{summary(entries, groups)}</p>
-      </header>
+      <div className="rails report compare">
+        <section className="report-sec report-top">
+          <header className="compare-head enter">
+            <a href="/#runs" className="compare-back" onClick={(e) => { e.preventDefault(); navigate("/#runs"); }}>
+              <Icon name="back" size={14} />Runs
+            </a>
+            <h1 className="subtitle">Compare {entries.length} runs</h1>
+            <p className="compare-summary">{summary(entries, groups)}</p>
+          </header>
+        </section>
 
-      <div className="compare-legend enter">
-        <div className="compare-legend-row compare-legend-head" aria-hidden="true">
-          <span />
-          <span>Device</span>
-          <span className="col-browser">Browser</span>
-          <span className="col-mode">Mode</span>
-          <span className="col-when">When</span>
-          <span>Rating</span>
-          <span className="r">Frame rate</span>
-        </div>
-        {entries.map((e) => { const n = splitName(e.run.device.name); return (
-          <div className="compare-legend-row" key={e.run.id}>
-            <i className="dot" style={{ background: e.color }} />
-            <span className="run-cell" style={{ color: "var(--ink)" }}>{n.device}</span>
-            <span className="run-cell col-browser">{n.browser}</span>
-            <span className="run-cell col-mode">{MODE_LABEL[e.run.mode]}</span>
-            <span className="run-cell col-when">{when(e.run.at)}</span>
-            <span><RatingTag rating={e.stats.rating} /></span>
-            <div className="run-fps">
-              <strong className="num">{Math.round(e.stats.fps)}</strong>
-              <span>fps</span>
-            </div>
+        {/* One card per run, keyed by its color in the chart below; each opens its report. */}
+        <section className="report-sec">
+          <div className="compare-runs enter">
+            {entries.map((e) => {
+              const n = splitName(e.run.device.name);
+              const data = saved.find((r) => r.id === e.run.id)?.data;
+              const href = data ? `/r#${data}` : undefined;
+              return (
+                <a key={e.run.id} className="card compare-run" href={href} onClick={(ev) => { if (!href) return; ev.preventDefault(); navigate(href); }}>
+                  <span className="compare-run-top">
+                    <i className="compare-key" style={{ background: e.color }} />
+                    <RatingTag rating={e.stats.rating} />
+                  </span>
+                  <span className="compare-run-name">
+                    <span className="compare-device">{n.device}</span>
+                    <span className="meta">{n.browser}</span>
+                  </span>
+                  <span className="compare-run-foot">
+                    <span className="compare-fps num"><CountUp value={Math.round(e.stats.fps)} /><span>fps</span></span>
+                    <span className="compare-tags">
+                      <span className="example-tag">{MODE_LABEL[e.run.mode]}</span>
+                      <span className="example-tag">{when(e.run.at)}</span>
+                    </span>
+                  </span>
+                </a>
+              );
+            })}
           </div>
-        ); })}
-      </div>
+        </section>
 
-      <section className="card block enter">
-        <div className="block-head">
-          <div className="block-title">
-            <h2 className="h2">Frame rate by section</h2>
-            <p className="meta">Longer bars held more frames a second, out of {max}.</p>
-          </div>
-        </div>
-        <div ref={chart} style={{ position: "relative" }} onPointerLeave={() => setHover(null)}>
-          {groups.map((g, gi) => (
-            <div className="group" key={g.label}>
-              <span className="group-label">{g.label}</span>
-              <div className="group-bars">
-                {entries.map((e, ei) => {
-                  const v = g.values[ei];
-                  return (
-                    <div className="gbar-row" key={e.run.id}>
-                      {v === null ? (
-                        <span className="brief">Too brief</span>
-                      ) : (
-                        <>
-                          <div style={{ flex: `0 0 calc((100% - 32px) * ${v / max})`, minWidth: 2 }}>
-                            <Bar value={1} className="gbar" color={e.color} delay={gi * 30 + ei * 20} />
-                          </div>
-                          <span className="num">{Math.round(v)}</span>
-                        </>
-                      )}
-                      {v !== null && (
-                        <span
-                          className="gbar-hit"
-                          onPointerEnter={(ev) => showTip(gi, ei, ev.currentTarget.previousElementSibling as HTMLElement)}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+        <section className="report-sec report-panel">
+          <section className="card block enter">
+            <div className="block-head">
+              <div className="block-title">
+                <h2 className="h2">Frame rate by section</h2>
+                <p className="meta">Longer bars held more frames a second, out of {max}.</p>
               </div>
             </div>
-          ))}
-          <div className="axis">
-            <span />
-            <div className="axis-ticks" style={{ marginRight: 32 }}>
-              {ticks.map((t) => <span key={t} className="num" style={{ left: `${(t / max) * 100}%` }}>{t}</span>)}
+            <div ref={chart} className="compare-chart" onPointerLeave={() => setHover(null)}>
+              {/* Gridlines at each tick, behind the bars. */}
+              <div className="compare-grid" aria-hidden="true">
+                <span />
+                <div className="compare-grid-lines">
+                  {ticks.map((t) => <i key={t} style={{ left: `${(t / max) * 100}%` }} />)}
+                </div>
+              </div>
+              {groups.map((g, gi) => (
+                <div className="group" data-whole={gi === 0 || undefined} key={g.label}>
+                  <span className="group-label">{g.label}</span>
+                  <div className="group-bars">
+                    {entries.map((e, ei) => {
+                      const v = g.values[ei];
+                      return (
+                        <div className="gbar-row" key={e.run.id}>
+                          {v === null ? (
+                            <span className="brief">Too brief</span>
+                          ) : (
+                            <>
+                              <div style={{ flex: `0 0 calc((100% - 40px) * ${v / max})`, minWidth: 2 }}>
+                                <Bar value={1} className="gbar" color={e.color} delay={gi * 30 + ei * 20} />
+                              </div>
+                              <span className="num">{Math.round(v)}</span>
+                            </>
+                          )}
+                          {v !== null && (
+                            <span
+                              className="gbar-hit"
+                              onPointerEnter={(ev) => ev.pointerType === "mouse" && showTip(gi, ei, ev.currentTarget.parentElement!.firstElementChild as HTMLElement)}
+                              onClick={(ev) => showTip(gi, ei, ev.currentTarget.parentElement!.firstElementChild as HTMLElement)}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className="axis">
+                <span />
+                <div className="axis-ticks">
+                  {ticks.map((t) => <span key={t} className="num" style={{ left: `${(t / max) * 100}%` }}>{t}</span>)}
+                </div>
+              </div>
+              {tip}
             </div>
-          </div>
-          {tip}
-        </div>
-      </section>
+          </section>
+        </section>
+      </div>
     </div>
   );
 }
