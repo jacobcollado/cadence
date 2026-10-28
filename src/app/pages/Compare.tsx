@@ -218,7 +218,7 @@ export function Compare() {
                 {entries.map((e, i) => <span key={e.run.id}><i className="swatch" style={{ background: e.color }} />Run {i + 1}</span>)}
               </div>
             </div>
-            <div ref={chart} className="compare-chart" onPointerLeave={() => setHover(null)}>
+            <div ref={chart} className="compare-chart" data-hover={hover ? true : undefined} onPointerLeave={() => setHover(null)}>
               {/* Gridlines at each tick, behind the bars. */}
               <div className="compare-grid" aria-hidden="true">
                 <span />
@@ -235,7 +235,7 @@ export function Compare() {
                       return (
                         // Each run's row: its color key, its bar in a faint track out to the
                         // top refresh rate, and its value in a fixed column at the end.
-                        <div className="gbar-row" key={e.run.id}>
+                        <div className="gbar-row" key={e.run.id} data-on={hover?.group === gi && hover.entry === ei || undefined}>
                           <i className="gbar-key" style={{ background: e.color }} aria-label={`Run ${ei + 1}`} />
                           <div className="gbar-track">
                             {v === null ? (
