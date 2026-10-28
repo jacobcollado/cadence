@@ -835,24 +835,35 @@ svg { display: block; flex: none; }
 
 /* Privacy: a report link split into the part the server sees and the part it
    never does. */
-.cipher { margin: 0; padding: 20px; border-radius: 6px; background: var(--recess); box-shadow: inset 0 0 0 1px var(--ring); overflow: hidden; }
+/* The privacy link in the flat art: the address the server sees as a solid
+   ink pill, the # as a ringed handle where the link splits, and the run as a
+   light pill with the art outline that runs off the panel's right edge,
+   locked. A bracket under each half names where it goes. */
+.cipher { margin: 0; padding: 32px 0 28px 24px; border-radius: 6px; background: var(--recess); overflow: hidden; }
 .cipher-line {
-  display: flex; white-space: nowrap; overflow: hidden;
-  font: 400 13px/20px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0;
-  -webkit-mask-image: linear-gradient(to right, #000 75%, transparent); mask-image: linear-gradient(to right, #000 75%, transparent);
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  font: 400 13px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0;
 }
-.cipher-host { color: var(--ink); }
-.cipher-hash { color: var(--good); font-weight: 600; padding: 0 1px; }
-.cipher-data { color: var(--ink-3); font-variant-numeric: tabular-nums; }
-/* Brackets under each half: a hairline with ticks at both ends, and its label. */
-.cipher-keys { display: flex; margin-top: 10px; font-size: 12px; line-height: 16px; }
-.cipher-key { position: relative; display: flex; align-items: center; gap: 6px; padding-top: 10px; color: var(--ink-3); white-space: nowrap; }
+.cipher-host { flex: none; display: flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 6px; background: var(--solid); color: var(--on-solid); font-weight: 500; }
+.cipher-hash {
+  flex: none; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); color: var(--ink); font-weight: 600;
+}
+.cipher-data {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 14px; overflow: hidden;
+  border-radius: 6px 0 0 6px; background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line); color: var(--ink-3); font-variant-numeric: tabular-nums;
+  -webkit-mask-image: linear-gradient(to right, #000 70%, transparent); mask-image: linear-gradient(to right, #000 70%, transparent);
+}
+.cipher-data svg { flex: none; color: var(--ink); }
+/* Brackets under each half: an outline with ticks at both ends, and its label. */
+.cipher-keys { display: flex; margin-top: 12px; padding-right: 24px; font-size: 13px; line-height: 16px; }
+.cipher-key { position: relative; display: flex; align-items: center; gap: 6px; padding-top: 14px; color: var(--ink-2); white-space: nowrap; }
 .cipher-key::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
-  border: 1px solid var(--ring-firm); border-top: 0; border-radius: 0 0 3px 3px;
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 7px;
+  border: 2px solid var(--art-line); border-top: 0; border-radius: 0 0 4px 4px;
 }
 .cipher-key:first-child { width: var(--host-w, 120px); }
-.cipher-key-private { flex: 1; margin-left: 6px; color: var(--ink-2); }
+.cipher-key-private { flex: 1; margin-left: 44px; color: var(--ink); font-weight: 500; }
 .cipher-key-private::before { border-color: color-mix(in srgb, var(--good) 55%, transparent); }
 .cipher-key-private svg { color: var(--good); }
 
@@ -862,17 +873,6 @@ svg { display: block; flex: none; }
 .doc-tag { height: 28px; padding: 0 10px; border-radius: 6px; display: inline-flex; align-items: center; background: var(--recess); color: var(--ink-2); font-size: 13px; line-height: 1; }
 
 /* Pass meter: a little page with the viewport window travelling down it. */
-.pass { position: relative; width: 32px; height: 32px; border-radius: 6px; background: var(--recess); overflow: hidden; display: block; flex: none; }
-.pass-page { position: absolute; left: 8px; right: 8px; top: 5px; bottom: 5px; display: flex; flex-direction: column; justify-content: space-between; }
-.pass-page i { display: block; height: 2px; border-radius: 1px; background: var(--data); }
-.pass-page i:nth-child(2n) { width: 70%; }
-.pass-window { position: absolute; left: 5px; right: 5px; height: 9px; top: 4px; border-radius: 3px; box-shadow: inset 0 0 0 1.5px var(--ink); }
-.pass[data-pass="steady"] .pass-window { animation: pass-steady 4s linear infinite; }
-.pass[data-pass="fast"] .pass-window { animation: pass-steady 1s linear infinite; }
-.pass[data-pass="idle"] .pass-window { top: 11px; }
-.pass[data-pass="manual"] .pass-window { animation: pass-manual 3.2s var(--ease-in-out) infinite; }
-@keyframes pass-steady { from { top: 4px; } to { top: 19px; } }
-@keyframes pass-manual { 0% { top: 4px; } 25% { top: 12px; } 45% { top: 12px; } 60% { top: 7px; } 80% { top: 19px; } 100% { top: 4px; } }
 
 /* Report tiles, small, with each tile's meaning beneath it in the same column. */
 .specimen-wrap { display: flex; flex-direction: column; gap: 14px; }
@@ -916,10 +916,8 @@ svg { display: block; flex: none; }
 .doc-body .props-type { background: none; padding: 0; color: var(--ink-3); }
 .doc-body .props-default { justify-self: start; }
 
-@media (prefers-reduced-motion: reduce) { .pass-window { animation: none !important; } }
 .doc-code code { font: inherit; }
 .props-plain { font-size: 13px; color: var(--ink-2); }
-.pass-window { background: color-mix(in srgb, var(--paper) 70%, transparent); }
 
 /* Report as a dashboard: a row of key numbers, then the cards in a grid. */
 .stat-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -1549,27 +1547,37 @@ svg { display: block; flex: none; }
 
 
 /* The docs' pictures, in the home page's flat art. */
-/* A pass: an art badge with the page as gray pills and the window as an ink
-   frame moving down it at the pass's speed. */
-.doc-card-icon:has(.pass) { width: 44px; height: 44px; background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line); }
-.doc-card-icon .pass { width: 44px; height: 44px; background: none; }
-.pass-page { left: 11px; right: 11px; top: 8px; bottom: 8px; }
-.pass-page i { height: 3px; border-radius: 2px; background: var(--art-3); }
-.pass-window { left: 6px; right: 6px; height: 12px; top: 5px; border-radius: 4px; border: none; background: none; box-shadow: inset 0 0 0 2px var(--ink); }
-.pass[data-pass="steady"] .pass-window { animation: pass-run 4s linear infinite; }
-.pass[data-pass="fast"] .pass-window { animation: pass-run 1s linear infinite; }
-.pass[data-pass="idle"] .pass-window { top: 16px; }
-.pass[data-pass="manual"] .pass-window { animation: pass-hand 3.2s var(--ease-in-out) infinite; }
-@keyframes pass-run { from { top: 5px; } to { top: 27px; } }
-@keyframes pass-hand { 0% { top: 5px; } 25% { top: 16px; } 45% { top: 16px; } 60% { top: 10px; } 80% { top: 27px; } 100% { top: 5px; } }
+/* A pass card opens on its scene, flush with the card's top and sides (inset
+   by its ring, corners concentric), the words padded below. */
+.doc-card[data-visual] { padding: 0 0 16px; overflow: hidden; }
+.doc-card[data-visual] > :not(.pass-scene) { margin-left: 16px; margin-right: 16px; }
+.pass-scene { position: relative; display: block; height: 136px; margin: 1px 1px 4px; border-radius: 5px 5px 0 0; background: var(--recess); overflow: hidden; }
+.pass-sheet {
+  position: absolute; left: 50%; top: -16px; bottom: -16px; width: 136px; transform: translateX(-50%); overflow: hidden;
+  border-radius: 14px; background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line);
+}
+.pass-track { position: absolute; left: 16px; right: 16px; top: 0; display: flex; flex-direction: column; gap: 10px; }
+.pass-track i { display: block; flex: none; border-radius: 6px; background: var(--art-2); }
+.pass-frame { position: absolute; left: 50%; top: 50%; width: 168px; height: 48px; transform: translate(-50%, -50%); border-radius: 10px; box-shadow: inset 0 0 0 2px var(--ink); }
+.pass-frame .vs-handle { background: var(--recess); }
+.pass-pulse { position: absolute; right: 22px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: var(--art-pop); animation: pass-pulse 1.2s var(--ease-in-out) infinite; }
+.pass-pointer { position: absolute; left: calc(50% + 70px); top: calc(50% + 10px); width: 24px; height: 24px; fill: var(--art-3); animation: pass-drag 3.2s var(--ease-in-out) infinite; }
+/* One run of the blocks is half the track, so the loop never shows a seam. */
+.pass-scene[data-pass="steady"] .pass-track { animation: pass-scroll 6s linear infinite; }
+.pass-scene[data-pass="fast"] .pass-track { animation: pass-scroll 1.5s linear infinite; }
+.pass-scene[data-pass="manual"] .pass-track { animation: pass-drag 3.2s var(--ease-in-out) infinite; }
+@keyframes pass-scroll { to { transform: translateY(calc(-50% - 5px)); } }
+@keyframes pass-drag { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-48px); } 55% { transform: translateY(-48px); } 75% { transform: translateY(-20px); } }
+@keyframes pass-pulse { 50% { transform: scale(.55); opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .pass-track, .pass-pointer, .pass-pulse { animation: none !important; } }
 /* A term's picture: a recessed panel, frames under a dashed budget line,
    running off both sides. */
-.strip { position: relative; display: block; height: 96px; padding: 0; border-radius: 6px; background: var(--recess); overflow: hidden; }
-.strip-bars { position: absolute; left: -8px; right: -8px; top: 16px; bottom: 14px; display: flex; align-items: flex-end; gap: 5px; }
+.strip { position: relative; display: block; height: 152px; padding: 0; border-radius: 6px; background: var(--recess); overflow: hidden; }
+.strip-bars { position: absolute; left: -8px; right: -8px; top: 20px; bottom: 14px; display: flex; align-items: flex-end; gap: 5px; }
 .strip-bar { flex: 1; min-width: 0; height: var(--h); }
 .strip-bar[data-late] { background: var(--bad); }
 .strip-budget { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dashed var(--art-line); }
-.causes { height: 96px; justify-content: center; align-content: center; gap: 8px; padding: 12px; border-radius: 6px; background: var(--recess); }
+.causes { height: 152px; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 12px; border-radius: 6px; background: var(--recess); }
 .causes .cause {
   height: 28px; padding: 0 10px; gap: 6px; border-radius: 6px; font-size: 13px; color: var(--ink);
   background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line);
