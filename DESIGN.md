@@ -7,6 +7,7 @@ Cadence is read by developers and engineers who need to know what's wrong, quick
 The hero's visual is the mark drawn huge in the home page's flat art (`HeroOrbit.tsx`, SVG): the ring lies back as a wide ellipse spanning the page under the copy, kept inside the page's frame and tilted enough to read as a ring, never flattened into bands across the screen. It is a thick gray tube (`--art-2`) with an outline (`--art-line`), over a faint flat shadow of itself (half a step off the paper, thinner than the tube, so it reads as floor and not a second ring), gap and dot included. The dot is the page's one violet moment (`--art-pop`), riding in the ring's gap at the mark's proportions. It turns at a steady beat and all but stops once a lap, like a missed frame, growing as it comes round the front.
 
 - Everything is sized from its box, so it fills the space under the copy at any width.
+- It fades out toward the section's sides and floor, so it blends into the hero instead of sitting in it as a picture with edges.
 - It stops moving off screen and rests at the front right, as in the mark, under reduced motion.
 
 ## Logo

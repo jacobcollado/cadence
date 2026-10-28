@@ -1287,7 +1287,15 @@ svg { display: block; flex: none; }
 /* The hero's ring in flat art (HeroOrbit.tsx), kept inside the page's frame.
    Its shadow is half a step off the paper, so it reads as floor, not a
    second ring. */
-.hero-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* It fades out toward the section's sides and floor, so the ring rises out
+   of the page instead of sitting on it as a picture with edges. */
+.hero-ring svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(#000 55%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(#000 55%, transparent);
+  mask-composite: intersect;
+}
 .hero-ring { --floor: color-mix(in oklab, var(--art-1) 55%, var(--paper)); }
 .hero-ring-shadow { fill: none; stroke: var(--floor); stroke-linecap: round; }
 .hero-ring-dot-shadow { fill: var(--floor); }
