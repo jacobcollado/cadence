@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Run } from "../../shared/run";
 import { computeStats, MODE_LABEL, type RunStats } from "../../shared/stats";
 import { Bar, CountUp, Fields, Icon, RatingTag, splitName } from "../components/ui";
@@ -24,41 +24,60 @@ interface Hover {
   y: number;
 }
 
-// What tells runs apart in a sentence: the device, then the page, the mode or
-// the time when the same device ran more than once.
-function names(entries: Entry[]): string[] {
-  return entries.map((e) => {
-    const name = e.run.device.name.replace(" · ", " ");
-    const same = entries.filter((o) => o.run.device.name === e.run.device.name);
-    if (same.length === 1) return name;
-    const page = pathOf(e.run.url);
-    if (same.filter((o) => pathOf(o.run.url) === page).length === 1) return `${name} on ${page}`;
-    if (same.filter((o) => o.run.mode === e.run.mode).length === 1) return `${name}, ${MODE_LABEL[e.run.mode].toLowerCase()}`;
-    return `${name}, ${when(e.run.at).toLowerCase()}`;
-  });
-}
+type Verdict =
+  | { kind: "line"; text: string }
+  | { kind: "split"; slow: number; fast: number; gap?: { label: string; min: number; max: number } };
 
-function summary(entries: Entry[], groups: Group[]): string {
+/** The answer, as parts: one line when the runs agree, or which run was
+ *  slowest, which fastest and where they split furthest apart. */
+function verdict(entries: Entry[], groups: Group[]): Verdict {
   const r = Math.round;
-  if (entries.every((e) => e.stats.rating === "smooth")) return `All ${entries.length} runs were smooth.`;
-  const label = names(entries);
+  if (entries.every((e) => e.stats.rating === "smooth")) return { kind: "line", text: `All ${entries.length} runs were smooth.` };
   const fps = entries.map((e) => e.stats.fps);
-  const lo = fps.indexOf(Math.min(...fps));
-  const hi = fps.indexOf(Math.max(...fps));
-  if (r(fps[lo]) === r(fps[hi])) return `All ${entries.length} runs averaged ${r(fps[lo])} fps.`;
-  let text = `${label[lo]} was the slowest at ${r(fps[lo])} fps, against ${r(fps[hi])} on ${label[hi]}.`;
+  const slow = fps.indexOf(Math.min(...fps));
+  const fast = fps.indexOf(Math.max(...fps));
+  if (r(fps[slow]) === r(fps[fast])) return { kind: "line", text: `All ${entries.length} runs averaged ${r(fps[slow])} fps.` };
   // The section where the runs split furthest apart.
-  let widest: { label: string; min: number; max: number } | undefined;
+  let gap: { label: string; min: number; max: number } | undefined;
   for (const g of groups.slice(1)) {
     const v = g.values.filter((x): x is number => x !== null);
     if (v.length < 2) continue;
     const min = Math.min(...v), max = Math.max(...v);
-    if (!widest || max - min > widest.max - widest.min) widest = { label: g.label, min, max };
+    if (!gap || max - min > gap.max - gap.min) gap = { label: g.label, min, max };
   }
-  if (widest && r(widest.max - widest.min) >= 5) {
-    text += ` The widest gap was in ${widest.label}, ${r(widest.min)} against ${r(widest.max)} fps.`;
-  }
-  return text;
+  return { kind: "split", slow, fast, gap: gap && r(gap.max - gap.min) >= 5 ? gap : undefined };
+}
+
+/** The summary panel: labeled rows, each run named by its key and number
+ *  so the two sides of the comparison never run together. */
+function Summary({ entries, groups }: { entries: Entry[]; groups: Group[] }) {
+  const v = verdict(entries, groups);
+  if (v.kind === "line") return <p className="compare-summary">{v.text}</p>;
+  const run = (i: number) => {
+    const n = splitName(entries[i].run.device.name);
+    return (
+      <>
+        <span className="verdict-run">
+          <i className="gbar-key" style={{ background: entries[i].color }} />
+          <span className="verdict-name">Run {i + 1}<span className="meta">{n.device}</span></span>
+        </span>
+        <span className="verdict-value num">{Math.round(entries[i].stats.fps)} fps</span>
+      </>
+    );
+  };
+  return (
+    <dl className="verdict">
+      <div><dt>Slowest</dt>{run(v.slow)}</div>
+      <div><dt>Fastest</dt>{run(v.fast)}</div>
+      {v.gap && (
+        <div>
+          <dt>Widest gap</dt>
+          <span className="verdict-run"><span className="verdict-name">{v.gap.label}</span></span>
+          <span className="verdict-value num">{Math.round(v.gap.min)} to {Math.round(v.gap.max)} fps</span>
+        </div>
+      )}
+    </dl>
+  );
 }
 
 export function Compare() {
@@ -150,7 +169,7 @@ export function Compare() {
             {/* The verdict, labeled, so it reads as the answer and not as more title. */}
             <div className="compare-verdict">
               <span className="field-label">Summary</span>
-              <p className="compare-summary">{summary(entries, groups)}</p>
+              <Summary entries={entries} groups={groups} />
             </div>
           </header>
         </section>
@@ -164,7 +183,7 @@ export function Compare() {
               const data = saved.find((r) => r.id === e.run.id)?.data;
               const href = data ? `/r#${data}` : undefined;
               return (
-                <a key={e.run.id} className="card compare-run" href={href} onClick={(ev) => { if (!href) return; ev.preventDefault(); navigate(href); }}>
+                <a key={e.run.id} className="card compare-run" style={{ "--key": e.color } as CSSProperties} href={href} onClick={(ev) => { if (!href) return; ev.preventDefault(); navigate(href); }}>
                   <span className="compare-run-top">
                     <span className="compare-run-label"><i className="compare-key" style={{ background: e.color }} />Run {i + 1}</span>
                     <RatingTag rating={e.stats.rating} />
@@ -211,22 +230,25 @@ export function Compare() {
                     {entries.map((e, ei) => {
                       const v = g.values[ei];
                       return (
+                        // Each run's row: its color key, its bar in a faint track out to the
+                        // top refresh rate, and its value in a fixed column at the end.
                         <div className="gbar-row" key={e.run.id}>
-                          {v === null ? (
-                            <span className="brief">Too brief</span>
-                          ) : (
-                            <>
-                              <div style={{ flex: `0 0 calc((100% - 40px) * ${v / max})`, minWidth: 2 }}>
+                          <i className="gbar-key" style={{ background: e.color }} aria-label={`Run ${ei + 1}`} />
+                          <div className="gbar-track">
+                            {v === null ? (
+                              <span className="brief">Too brief</span>
+                            ) : (
+                              <div className="gbar-fill" style={{ width: `${(v / max) * 100}%` }}>
                                 <Bar value={1} className="gbar" color={e.color} delay={gi * 30 + ei * 20} />
                               </div>
-                              <span className="num">{Math.round(v)}</span>
-                            </>
-                          )}
+                            )}
+                          </div>
+                          <span className="num gbar-val">{v === null ? "" : Math.round(v)}</span>
                           {v !== null && (
                             <span
                               className="gbar-hit"
-                              onPointerEnter={(ev) => ev.pointerType === "mouse" && showTip(gi, ei, ev.currentTarget.parentElement!.firstElementChild as HTMLElement)}
-                              onClick={(ev) => showTip(gi, ei, ev.currentTarget.parentElement!.firstElementChild as HTMLElement)}
+                              onPointerEnter={(ev) => ev.pointerType === "mouse" && showTip(gi, ei, ev.currentTarget.parentElement!.querySelector(".gbar-fill") as HTMLElement)}
+                              onClick={(ev) => showTip(gi, ei, ev.currentTarget.parentElement!.querySelector(".gbar-fill") as HTMLElement)}
                             />
                           )}
                         </div>

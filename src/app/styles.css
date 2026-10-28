@@ -401,6 +401,17 @@ svg { display: block; flex: none; }
 .compare-verdict .field-label { margin-bottom: 4px; }
 .compare-summary { font-size: 15px; line-height: 24px; color: var(--ink); text-wrap: pretty; }
 .compare-sec-title { margin-bottom: 12px; }
+/* The summary's rows: a label, the run (its key, number and device) and the
+   value at the end, one row per fact, hairlines between. */
+.verdict { display: flex; flex-direction: column; }
+.verdict > div { display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 40px; }
+.verdict > div + div { box-shadow: inset 0 1px 0 var(--grid); }
+.verdict dt { font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.verdict-run { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.verdict-name { display: flex; align-items: baseline; gap: 8px; min-width: 0; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.verdict-name .meta { font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
+.verdict-value { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+@media (max-width: 600px) { .verdict > div { grid-template-columns: 72px minmax(0, 1fr) auto; gap: 8px; } }
 .compare-runs { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
 /* Each run card carries its chart color as a band along its top edge, so
    the runs read apart at a glance and match their bars. */
