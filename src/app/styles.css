@@ -1284,12 +1284,13 @@ svg { display: block; flex: none; }
   .rails .hero-ring { flex: 1; height: auto; min-height: 440px; }
 }
 
-/* The hero's ring in flat art (HeroOrbit.tsx). The page is wider than the
-   ring's box on purpose: the ring runs off both sides of the screen, so the
-   box reaches the viewport edges and clips there. */
-.hero-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.hero-ring-shadow { fill: none; stroke: var(--art-1); stroke-linecap: round; }
-.hero-ring-dot-shadow { fill: var(--art-1); }
+/* The hero's ring in flat art (HeroOrbit.tsx), kept inside the page's frame.
+   Its shadow is half a step off the paper, so it reads as floor, not a
+   second ring. */
+.hero-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-ring { --floor: color-mix(in oklab, var(--art-1) 55%, var(--paper)); }
+.hero-ring-shadow { fill: none; stroke: var(--floor); stroke-linecap: round; }
+.hero-ring-dot-shadow { fill: var(--floor); }
 .hero-ring-edge { fill: none; stroke: var(--art-line); stroke-linecap: round; }
 .hero-ring-tube { fill: none; stroke: var(--art-2); stroke-linecap: round; }
 .hero-ring-dot { fill: var(--art-pop); }

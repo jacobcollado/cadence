@@ -2,9 +2,9 @@ import { useEffect, useRef } from "react";
 import { reducedMotion } from "../../shared/motion";
 
 // The hero's visual: the mark drawn huge in the home page's flat art. The
-// ring lies back as a wide ellipse that runs off both sides of the page, a
-// thick gray tube with an outline, over a flat shadow of itself, gap and
-// dot included. The dot, the page's
+// ring lies back as a wide ellipse spanning the page under the copy, a thick
+// gray tube with an outline, over a faint flat shadow of itself, gap and dot
+// included. The dot, the page's
 // one violet moment, rides in the ring's gap: it turns at a steady beat and
 // all but stops once a lap, like a missed frame, growing as it comes to the
 // front. Everything is sized from the box, so it fills it at any width.
@@ -40,21 +40,22 @@ export function HeroOrbit() {
     const size = () => {
       const { width: w, height: h } = box.getBoundingClientRect();
       root.setAttribute("viewBox", `0 0 ${w} ${h}`);
-      // Wide enough to run off both sides of the screen; as tall as the box allows.
-      const rx = Math.max(w, document.documentElement.clientWidth) * 0.58;
-      ry = Math.min(h * 0.3, rx * 0.36);
-      cy = h * 0.46;
-      const stroke = Math.max(18, Math.min(ry * 0.26, 52));
+      // Nearly the page's width, tilted enough to read as a ring, and as tall
+      // as the box allows with its shadow under it.
+      const stroke = Math.max(16, Math.min(w * 0.034, 40));
+      const rx = w / 2 - stroke * 1.6;
+      ry = Math.min(rx * 0.4, (h - stroke * 3) * 0.38);
+      cy = h * 0.42;
       r = stroke * 1.25;
       // Drawn from the right-hand end, clockwise on screen, so it comes round the front first.
       const ring = (y: number) => `M ${w / 2 + rx} ${y} A ${rx} ${ry} 0 1 1 ${w / 2 - rx} ${y} A ${rx} ${ry} 0 1 1 ${w / 2 + rx} ${y}`;
       for (const p of [edge, tube]) p.setAttribute("d", ring(cy));
       // The shadow is the same ring dropped straight down onto the floor.
-      drop = ry * 0.5;
+      drop = ry * 0.32 + stroke;
       shadow.setAttribute("d", ring(cy + drop));
       edge.style.strokeWidth = `${stroke + 6}`;
       tube.style.strokeWidth = `${stroke}`;
-      shadow.style.strokeWidth = `${stroke}`;
+      shadow.style.strokeWidth = `${stroke * 0.8}`;
       len = tube.getTotalLength();
       // Room for the dot and a clear space either side of it, past the tube's round ends.
       gap = r * 2 + stroke + r * 1.1;
@@ -87,10 +88,7 @@ export function HeroOrbit() {
     place(REST);
     const ro = new ResizeObserver(() => { size(); if (still) place(REST); });
     ro.observe(box);
-    // Past the page's width the box stops growing, but the screen still does.
-    const widen = () => { size(); if (still) place(REST); };
-    addEventListener("resize", widen);
-    if (still) return () => { ro.disconnect(); removeEventListener("resize", widen); };
+    if (still) return () => ro.disconnect();
 
     // Off screen, nothing moves.
     const io = new IntersectionObserver(([e]) => {
@@ -99,7 +97,7 @@ export function HeroOrbit() {
       if (visible) raf = requestAnimationFrame(frame);
     });
     io.observe(box);
-    return () => { cancelAnimationFrame(raf); io.disconnect(); ro.disconnect(); removeEventListener("resize", widen); };
+    return () => { cancelAnimationFrame(raf); io.disconnect(); ro.disconnect(); };
   }, []);
 
   return (
