@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, ScoreRing, splitName, StatusIcon } from "../components/ui";
 import { GlassRow, MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
@@ -17,11 +17,12 @@ const TARGET = "cadence.target";
 
 type IconName = ComponentProps<typeof Icon>["name"];
 
-// The example cards' runs: the studio site scrolls clean, the demo keeps missing frames.
-const SMOOTH = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+// The example cards' runs, as frame times in ms: the studio site holds the
+// budget, the demo keeps blowing through it.
+const SMOOTH = [16, 17, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16];
+const SLOW = [16, 17, 34, 16, 15, 50, 66, 33, 16, 17, 48, 16, 35, 52, 16, 17, 33, 16, 58, 16, 17, 40];
 // Nothing recorded yet: every pane gray.
 const NONE = Array(12).fill(0);
-const SLOW = [1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1];
 
 // What the slow demo gets wrong, one mistake per section.
 const MISTAKES = ["Glowing canvas", "Forced layout", "Blocking tracker", "Script animation", "Resizing form"];
@@ -185,7 +186,7 @@ export function Home() {
       <Reveal split title="See it in action" lede="A real report, and a page that's slow on purpose.">
         <div className="example-cards">
           <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
-            <GlassRow run={SMOOTH} className="example-run" />
+            <ExampleArt times={SMOOTH} fps={60} />
             <span className="example-copy">
               <span className="example-title">Inertia, our studio's site</span>
               <span className="meta">Smooth scrolling, but the largest paint takes {"5.4 s"}.</span>
@@ -193,7 +194,7 @@ export function Home() {
             <span className="example-go">Open report<Icon name="forward" size={14} /></span>
           </a>
           <a className="card example" href="/demo.html" target="_blank" rel="noopener">
-            <GlassRow run={SLOW} className="example-run" />
+            <ExampleArt times={SLOW} fps={38} />
             <span className="example-copy">
               <span className="example-title">A page that's slow on purpose</span>
               <span className="example-tags">
@@ -404,6 +405,28 @@ function Setup() {
 
 /** A home section: its heading above the content (beside it when split), rising
     into place the first time it scrolls into view. */
+const CAP = 72; // ms at the panel's full height
+const BUDGET = 1000 / 60;
+
+/** An example's picture: its frames as bars standing under a dashed line at
+ *  the 16.7 ms budget, running off the panel's sides. Frames over the budget
+ *  are red, so a clean run sits flat under the line and a broken one spikes
+ *  through it. The frame rate it reached is tagged in the corner. */
+function ExampleArt({ times, fps }: { times: number[]; fps: number }) {
+  return (
+    <span className="example-art" aria-hidden="true">
+      <span className="example-bars">
+        {times.map((ms, i) => (
+          <span key={i} className="art example-bar" data-late={ms > BUDGET + 1 || undefined}
+            style={{ "--h": `${(ms / CAP) * 100}%`, "--i": i } as CSSProperties} />
+        ))}
+      </span>
+      <span className="example-budget" style={{ bottom: `calc(var(--floor) + (100% - var(--floor)) * ${(BUDGET / CAP).toFixed(4)} * var(--reach))` } as CSSProperties} />
+      <span className="example-fps num">{fps} fps</span>
+    </span>
+  );
+}
+
 function Reveal({ title, lede, split, children }: { title: string; lede?: string; split?: boolean; children: ReactNode }) {
   const el = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(reducedMotion);
