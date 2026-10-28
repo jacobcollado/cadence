@@ -222,8 +222,15 @@ export function Home() {
       </Reveal>
 
       <Reveal title="Run a test" lede="Install once, then open any page here or on a phone.">
-        <div className="test-stack">
-          <Setup />
+        {/* Two steps, numbered on ringed handles joined by a dashed trail:
+            install once, then open a page. */}
+        <ol className="test-stack">
+          <li className="test-step">
+            <span className="test-num num">1</span>
+            <Setup />
+          </li>
+          <li className="test-step">
+          <span className="test-num num">2</span>
           {/* One panel, two ways to open the page: here, or on a phone by its code. */}
           <div className="card test-card">
             <div className="test-pane">
@@ -258,10 +265,15 @@ export function Home() {
                   <p className="meta">Scan to open it there.</p>
                 </span>
               </div>
-              {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
+              {/* The code held in a selection frame with ringed corners, ready to scan. */}
+              <div className="qr-frame" data-empty={!link || undefined}>
+                {["tl", "tr", "bl", "br"].map((c) => <span key={c} className="vs-handle" data-at={c} />)}
+                {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
+              </div>
             </div>
           </div>
-        </div>
+          </li>
+        </ol>
       </Reveal>
 
       <section className="home-sec runs" id="runs">

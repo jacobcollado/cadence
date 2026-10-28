@@ -113,7 +113,7 @@ The window in How it works is a selection frame: an ink outline with ringed corn
 
 ## Run a test
 
-The two ways to open a page (this device, a phone) share one panel, divided by a hairline, not two cards. Under the field, the exact address that will open is shown in mono with the added ?perf in a flat light tag (muted until a page is entered).
+Run a test is two numbered steps in a centered column (920px at most): install, then open a page. Each number sits on a ringed handle, joined to the next by a dashed trail. The two ways to open a page (this device, a phone) share one panel, not two cards; the phone's half is a recessed panel with the QR code held in an ink selection frame with ringed corners. Under the field, the exact address that will open is shown in mono with the added ?perf in a flat light tag (muted until a page is entered).
 
 ## Why not Lighthouse or DevTools
 

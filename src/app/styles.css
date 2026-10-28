@@ -1202,18 +1202,39 @@ svg { display: block; flex: none; }
 
 /* Run a test: the setup row, then the two ways to open a page. */
 .test-card { display: grid; }
+@media (min-width: 1024px) {
+  .test-step { grid-template-columns: 32px minmax(0, 1fr); gap: 20px; }
+  .test-num { width: 32px; height: 32px; margin-top: 14px; font-size: 15px; }
+  .test-step:not(:last-child)::before { left: 15px; top: 54px; }
+}
 .test-pane { padding: 20px; display: flex; flex-direction: column; min-width: 0; }
 @media (min-width: 760px) and (pointer: fine) {
   .test-card { grid-template-columns: minmax(0, 1fr) 264px; }
-  .test-card .qr-card { box-shadow: inset 1px 0 0 var(--ring); }
 }
-/* The address that will open, with ?perf marked in glass. */
+/* The address that will open, with ?perf marked in a flat art tag. */
 .test-link { display: flex; align-items: center; gap: 2px; min-width: 0; margin-top: 12px; font: 400 13px/24px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink-2); }
 .test-link-url { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .test-link-perf { flex: none; display: flex; align-items: center; height: 24px; padding: 0 6px; color: var(--ink); }
 .test-link[data-empty] { color: var(--ink-3); }
 .test-link[data-empty] .test-link-perf { --c: var(--data-line); color: var(--ink-3); }
-.test-stack { display: flex; flex-direction: column; gap: 16px; }
+/* The two steps sit in a centered column under the centered heading, each
+   numbered on a ringed handle, joined to the next by a dashed trail. */
+.test-stack { list-style: none; display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 920px; margin: 0 auto; }
+.test-step { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; }
+.test-num {
+  display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-top: 10px; border-radius: 50%;
+  background: var(--paper); box-shadow: inset 0 0 0 2px var(--art-line); font-size: 13px; line-height: 1; font-weight: 600; color: var(--ink);
+}
+.test-step:not(:last-child)::before {
+  content: ""; position: absolute; left: 13px; top: 46px; bottom: -14px; border-left: 2px dashed var(--art-line);
+}
+/* The phone's half is a recessed panel, inset by the card's ring with concentric corners. */
+.test-card .qr-card { margin: 1px; border-radius: 0 5px 5px 0; background: var(--recess); }
+.qr-frame { position: relative; align-self: center; margin-top: auto; padding: 10px; border-radius: 10px; box-shadow: inset 0 0 0 2px var(--ink); }
+.qr-frame[data-empty] { box-shadow: none; }
+.qr-frame[data-empty] .vs-handle { display: none; }
+.qr-frame .vs-handle { background: var(--recess); }
+.qr-frame .qr, .qr-frame .qr-empty { width: 132px; max-width: none; margin: 0; }
 .runs { display: block; }
 .nowrap { white-space: nowrap; }
 
