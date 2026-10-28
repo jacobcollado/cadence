@@ -298,7 +298,7 @@ export interface Zone {
  * Thresholds as a color-coded bar: each zone in its status color with its
  * word under it, the cutoffs labeled, and an optional marker for this run.
  */
-export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel, glass }: {
+export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel }: {
   zones: Zone[];
   /** Where the bar starts, when the low end isn't worth the room. */
   min?: number;
@@ -306,8 +306,6 @@ export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel, glas
   format: (v: number) => string;
   marker?: number;
   markerLabel?: string;
-  /** Draw the good zone in the glass spectrum, to match frames drawn in it. */
-  glass?: boolean;
 }) {
   const range = max - min;
   const pct = (v: number) => `${((Math.min(max, Math.max(min, v)) - min) / range) * 100}%`;
@@ -318,7 +316,7 @@ export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel, glas
     return s;
   });
   return (
-    <div className="zone" data-marked={marker !== undefined || undefined} data-glass={glass || undefined}>
+    <div className="zone" data-marked={marker !== undefined || undefined}>
       {marker !== undefined && (
         <div className="zone-marker" data-edge={(marker - min) / range < 0.15 ? "start" : (marker - min) / range > 0.85 ? "end" : undefined} style={{ left: pct(marker) }}>
           <span className="zone-marker-label num">{markerLabel ?? format(marker)}</span>

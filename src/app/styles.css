@@ -556,8 +556,6 @@ svg { display: block; flex: none; }
 .zone-seg { border-radius: 2px; background: var(--good); }
 .zone-seg[data-level="warn"] { background: var(--warn); }
 .zone-seg[data-level="bad"] { background: var(--bad); }
-/* Where frames are drawn in glass, the good zone is the same spectrum. */
-.zone[data-glass] .zone-seg[data-level="good"] { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 .zone-seg:first-child { border-radius: 4px 2px 2px 4px; }
 .zone-seg:last-child { border-radius: 2px 4px 4px 2px; }
 /* The key: each zone's swatch, name and range, one per line, so nothing is squeezed into a narrow zone. */
@@ -567,7 +565,6 @@ svg { display: block; flex: none; }
 .zone-swatch { width: 8px; height: 8px; border-radius: 2px; background: var(--good); }
 .zone-swatch[data-level="warn"] { background: var(--warn); }
 .zone-swatch[data-level="bad"] { background: var(--bad); }
-.zone[data-glass] .zone-swatch[data-level="good"] { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 .zone-marker { position: absolute; top: 20px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); border-radius: 1px; box-shadow: 0 0 0 2px var(--paper); z-index: 1; }
 .zone-marker-label {
   position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
@@ -1142,12 +1139,12 @@ svg { display: block; flex: none; }
 @media (min-width: 600px) {
   .free { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; }
 }
-/* Each fact's icon sits on a pane of the page's glass, stepping through the spectrum. */
+/* Each fact's icon sits on an art badge. */
 .free-tile { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 
 /* Why not Lighthouse or DevTools: the same scroll read three ways, in rows
    headed like the frame rows. Lighthouse's track is empty, DevTools' is raw
-   gray bars, Cadence's is glass split by section with the cause named. */
+   gray bars, Cadence's is flat art split by section with the cause named. */
 .vs { margin: 0; display: grid; gap: 16px; }
 /* Each row: the tool and its verdict, then what it shows of the scroll in a
    panel. From 760px the names take a column, so the panels line up and the
@@ -1347,20 +1344,9 @@ svg { display: block; flex: none; }
 /* A badge in the art: the lightest tone with the art's outline, ink icon. */
 .free-tile.art { background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line); border-radius: 6px; }
 
-/* Glass: the material the reports' panes are drawn in.
-   A pane is tinted by --c, densest at the top and clearing toward its base,
-   with a colored edge and a lit top. A pane the page missed (data-off) is
-   the same glass in gray. */
-.glass {
-  border-radius: 4px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 56%, transparent), color-mix(in srgb, var(--c) 22%, transparent) 55%, color-mix(in srgb, var(--c) 6%, transparent));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.7);
-}
-:root[data-theme="dark"] .glass { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 75%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
-.glass[data-off] { --c: var(--data-line); }
 
-/* Glass frames: a row per device, one pane per screen refresh, standing
-   flat like the hero's. Each rises when its refresh passed. The device's
+/* Frame rows: a row per device, one bar per screen refresh, on a rail.
+   Each rises when its refresh passed. The device's
    mark and frame rate lead each row. */
 .frames { margin: 0; display: flex; flex-direction: column; gap: 24px; }
 .frames-row { display: flex; flex-direction: column; gap: 4px; }
@@ -1470,18 +1456,6 @@ svg { display: block; flex: none; }
   .report > .report-panel { padding-bottom: 72px; }
 }
 
-/* Report colors from the glass: each category has its tint (--c on its tile,
-   --cat on its tab). The selected tile is a pane of that glass; on-time
-   frames and good bars take it too, while late and poor stay amber and red. */
-.report .tile[aria-selected="true"] {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 18%, var(--raised)), var(--raised) 75%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(0,0,0,.06), 0 6px 16px -8px var(--shadow);
-}
-:root[data-theme="dark"] .report .tile[aria-selected="true"] {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.12), 0 6px 16px -8px var(--shadow);
-}
-.report .bar[data-rating="smooth"], .report .bar[data-level="good"], .report .scale-track .bar:not([data-level]) { background: color-mix(in srgb, var(--cat) 70%, transparent); }
-.swatch-glass { background: linear-gradient(90deg, #7c5ce6, #3d6fe0, #1fa2c9, #2fb67c); opacity: .8; }
 
 /* Score rings: a score out of 100 in its band's color, like Lighthouse.
    The arc starts at the top and fills clockwise. */
@@ -1592,10 +1566,6 @@ svg { display: block; flex: none; }
   background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line);
 }
 .causes .cause svg { color: var(--ink-2); }
-.specimen-tile[data-selected] {
-  background: linear-gradient(180deg, color-mix(in srgb, #7c5ce6 18%, var(--raised)), var(--raised) 75%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, #7c5ce6 45%, transparent), 0 1px 2px rgba(0,0,0,.06);
-}
 .doc-tag { background: none; box-shadow: inset 0 0 0 1px var(--ring-firm); }
 @media (max-width: 480px) { .specimen-value span { display: none; } }
 .specimen-label { gap: 6px; }
