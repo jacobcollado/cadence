@@ -101,9 +101,10 @@ export function MiniFrames() {
       <g className="art-flag">
         <rect className="art-frame" x="32" y="130" width="236" height="40" rx="10" />
         {[[32, 130], [268, 130], [32, 170], [268, 170]].map(([x, y]) => <Handle key={`${x}${y}`} x={x} y={y} className="art-handle art-handle-ink" />)}
-        <rect className="art-ink" x="152" y="116" width="112" height="28" rx="6" />
-        <text className="art-code art-label art-tag" x="208" y="135" textAnchor="middle">Forced layout</text>
-        <Pointer x={176} y={156} />
+        {/* On the frame's top edge, clear of both corner handles. */}
+        <rect className="art-ink" x="120" y="116" width="112" height="28" rx="6" />
+        <text className="art-code art-label art-tag" x="176" y="135" textAnchor="middle">Forced layout</text>
+        <Pointer x={196} y={156} />
       </g>
     </svg>
   );
