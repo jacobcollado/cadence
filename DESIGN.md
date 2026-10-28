@@ -117,7 +117,7 @@ The two ways to open a page (this device, a phone) share one panel, divided by a
 
 ## Why not Lighthouse or DevTools
 
-One scroll read three ways, in rows headed like the device rows. Lighthouse shows a good score over a dashed "Scroll not measured" track. DevTools shows the same frame times as plain gray bars with no names. Cadence shows them as flat gray bars, late frames as empty slots, with each section named under its frames and the cause under the one that stuttered. No feature tables or comparison cards.
+One scroll read three ways, in aligned rows: the tool's name and a short verdict in a left column (above the panel on phones), and what it shows of the scroll in a recessed panel, so the same frames line up down all three. Lighthouse shows a good score beside "Load only" over a dashed "Scroll not measured" panel. DevTools shows the frame times as light gray bars with no names. Cadence shows them as flat gray bars with late frames in red, each section named under its frames, and the section that stuttered held in an ink selection frame with ringed corners and a black cause tag on its top edge. No feature tables or comparison cards.
 
 ## Report readability
 

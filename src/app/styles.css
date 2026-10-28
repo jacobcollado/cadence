@@ -1144,32 +1144,56 @@ svg { display: block; flex: none; }
 /* Why not Lighthouse or DevTools: the same scroll read three ways, in rows
    headed like the frame rows. Lighthouse's track is empty, DevTools' is raw
    gray bars, Cadence's is glass split by section with the cause named. */
-.vs { margin: 0; display: flex; flex-direction: column; gap: 24px; }
-.vs-row { display: flex; flex-direction: column; gap: 8px; }
-.vs-tool { flex: 1; font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink-2); }
-.vs-ours { font-size: 17px; font-weight: 650; letter-spacing: -0.035em; color: var(--ink); }
-.vs-value { font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.vs { margin: 0; display: grid; gap: 16px; }
+/* Each row: the tool and its verdict, then what it shows of the scroll in a
+   panel. From 760px the names take a column, so the panels line up and the
+   same frames sit at the same place down all three. */
+.vs-row { display: grid; gap: 8px; }
+.vs-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; }
+.vs-tool { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); }
+.vs-ours { font-size: 17px; font-weight: 650; letter-spacing: -0.035em; }
+.vs-verdict { display: flex; align-items: center; gap: 8px; height: 28px; font-size: 13px; line-height: 1; color: var(--ink-3); white-space: nowrap; }
 .vs-ring { width: 28px; height: 28px; }
-.vs-track { display: flex; gap: 8px; }
-.vs-group { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.vs-bars { align-self: stretch; height: 64px; display: flex; align-items: flex-end; gap: 3px; }
-.vs-bar { flex: 1; min-width: 0; height: var(--h); transform-origin: 50% 100%; transform: scaleY(0); }
-.vs-raw { border-radius: 2px; background: var(--data); }
+@media (min-width: 760px) {
+  .vs-row { grid-template-columns: 176px minmax(0, 1fr); align-items: center; gap: 24px; }
+  .vs-head { flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; }
+}
+.vs-panel { position: relative; display: flex; height: 112px; padding: 16px; border-radius: 6px; background: var(--recess); }
+.vs-row-ours .vs-panel { height: 172px; padding-top: 40px; }
+.vs-track { flex: 1; min-width: 0; display: flex; gap: 20px; }
+.vs-group { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.vs-bars { align-self: stretch; flex: 1; min-height: 0; display: flex; align-items: flex-end; gap: 3px; }
+.vs-bar { flex: 1; min-width: 0; height: var(--h); border-radius: 2px; transform-origin: 50% 100%; transform: scaleY(0); }
+.vs-raw { background: var(--art-2); }
+.vs-bar.art[data-late] { background: var(--bad); }
 .vs[data-play] .vs-bar { animation: frames-rise var(--dur-base) var(--ease-out) calc(200ms + var(--t)) both; }
 /* Nothing to show: the dashed outline the site uses for anything missing. */
 .vs-blind {
-  height: 64px; align-items: center; justify-content: center; border: 1px dashed var(--ring-firm); border-radius: 6px;
+  align-items: center; justify-content: center; background: none; border: 1px dashed var(--ring-firm);
   font-size: 13px; line-height: 20px; color: var(--ink-3);
 }
-.vs-label { display: flex; align-items: center; gap: 4px; height: 16px; font-size: 12px; line-height: 1; color: var(--ink-3); white-space: nowrap; }
-.vs-label[data-bad] { color: var(--ink); font-weight: 500; }
-.vs-label svg { color: var(--bad); }
-.vs-cause { margin-top: -4px; font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; }
-/* Section names land once the bars are up; the cause follows its section. */
-.vs[data-play] .vs-label, .vs[data-play] .vs-cause { animation: vs-land var(--dur-slow) var(--ease-out) 1100ms both; }
-.vs[data-play] .vs-cause { animation-delay: 1250ms; }
+.vs-label { height: 16px; font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; }
+.vs-group[data-flagged] .vs-label { color: var(--ink); font-weight: 500; }
+/* The section that stuttered, held in a selection frame with ringed corners
+   and tagged with its cause on the top edge. */
+.vs-flag { position: absolute; inset: -8px -8px -6px; border-radius: 8px; box-shadow: inset 0 0 0 2px var(--ink); pointer-events: none; }
+.vs-handle { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--recess); box-shadow: inset 0 0 0 2px var(--ink); }
+.vs-handle[data-at^="t"] { top: -4px; }
+.vs-handle[data-at^="b"] { bottom: -4px; }
+.vs-handle[data-at$="l"] { left: -4px; }
+.vs-handle[data-at$="r"] { right: -4px; }
+.vs-cause {
+  position: absolute; left: 50%; top: -14px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 6px;
+  background: var(--solid); color: var(--on-solid); font-size: 13px; line-height: 1; font-weight: 500; white-space: nowrap;
+}
+.vs-cause svg { color: var(--bad); }
+/* Section names land once the bars are up; the frame and its cause follow. */
+.vs[data-play] .vs-label { animation: vs-land var(--dur-slow) var(--ease-out) 1100ms both; }
+.vs[data-play] .vs-flag { animation: vs-land var(--dur-slow) var(--ease-out) 1250ms both; }
+.vs:not([data-play]) .vs-flag { opacity: 0; }
 @keyframes vs-land { from { opacity: 0; transform: translateY(4px); filter: blur(2px); } }
-@media (prefers-reduced-motion: reduce) { .vs-bar { transform: none; animation: none !important; } .vs-label, .vs-cause { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .vs-bar { transform: none; animation: none !important; } .vs-label, .vs-flag { animation: none !important; } }
 
 /* Run a test: the setup row, then the two ways to open a page. */
 .test-card { display: grid; }
@@ -1215,12 +1239,15 @@ svg { display: block; flex: none; }
   .rails .setup-btn { font-size: 15px; }
   .rails .free-grid { gap: 16px; }
   .rails .vs-tool { font-size: 17px; line-height: 24px; }
+  .rails .vs-verdict { font-size: 15px; }
   .rails .vs-ours { font-size: 19px; }
-  .rails .vs-value, .rails .vs-blind { font-size: 15px; }
-  .rails .vs { gap: 36px; }
-  .rails .vs-bars, .rails .vs-blind { height: 120px; }
+  .rails .vs-blind { font-size: 15px; }
+  .rails .vs { gap: 20px; }
+  .rails .vs-row { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; }
+  .rails .vs-panel { height: 144px; padding: 20px 24px; }
+  .rails .vs-row-ours .vs-panel { height: 216px; padding-top: 48px; }
+  .rails .vs-track { gap: 28px; }
   .rails .vs-bars { gap: 4px; }
-  .rails .vs-track { gap: 12px; }
   .rails .vs-label, .rails .vs-cause { font-size: 13px; }
   #root:has(.rails) .topbar { height: 72px; }
   #root:has(.rails) .topbar-link { font-size: 15px; }
