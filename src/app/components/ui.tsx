@@ -33,6 +33,7 @@ const paths = {
   steady: <path d="M8 2.5v11M4.5 10L8 13.5 11.5 10" />,
   fast: <path d="M4.5 3.5L8 7l3.5-3.5M4.5 9L8 12.5 11.5 9" />,
   idle: <path d="M6 3.5v9M10 3.5v9" />,
+  brief: <><circle cx="8" cy="9" r="5" /><path d="M8 6.5V9l1.5 1.5M6.5 2h3" /></>,
   manual: <path d="M6.5 8.5V3.25a1.25 1.25 0 012.5 0V8M9 7.5V6.75a1.25 1.25 0 012.5 0V9.5c0 2.5-1.75 4-4 4H7c-1.6 0-2.6-.9-3.3-2.1L2.6 9.6a1.2 1.2 0 012-1.2l1.9 2.1" />,
   lock: <><rect x="3" y="7" width="10" height="6.5" rx="1.5" /><path d="M5.25 7V5a2.75 2.75 0 015.5 0v2" /></>,
   markdown: <><rect x="1.75" y="3.5" width="12.5" height="9" rx="1.5" /><path d="M4.25 10V6l1.75 2 1.75-2v4M10.5 6v4M9.25 8.75l1.25 1.25 1.25-1.25" /></>,
@@ -124,6 +125,12 @@ export function StatusTag({ level, label, size = 24 }: { level: Level; label?: s
 }
 
 /** How a stretch of frames felt. */
+/** In place of a rating, for a section on screen too briefly to judge: the
+ *  same tag shape, with a stopwatch and a dashed outline, since nothing was graded. */
+export function BriefTag() {
+  return <span className="rating brief-tag"><Icon name="brief" size={12} />Too brief</span>;
+}
+
 export function RatingTag({ rating, size = 24 }: { rating: Rating; size?: 24 | 28 }) {
   return <StatusTag level={RATING_LEVEL[rating]} label={RATING_LABEL[rating]} size={size} />;
 }

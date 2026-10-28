@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Run } from "../../shared/run";
 import { computeStats, MODE_LABEL, type RunStats } from "../../shared/stats";
-import { Bar, CountUp, Fields, Icon, RatingTag, splitName } from "../components/ui";
+import { Bar, BriefTag, CountUp, Fields, Icon, RatingTag, splitName } from "../components/ui";
 import { TopBar } from "../components/TopBar";
 import { decodeRun, listRuns, navigate, pathOf, when, SERIES } from "../lib";
 
@@ -239,7 +239,7 @@ export function Compare() {
                           <i className="gbar-key" style={{ background: e.color }} aria-label={`Run ${ei + 1}`} />
                           <div className="gbar-track">
                             {v === null ? (
-                              <span className="brief">Too brief</span>
+                              <BriefTag />
                             ) : (
                               <div className="gbar-fill" style={{ width: `${(v / max) * 100}%` }}>
                                 <Bar value={1} className="gbar" color={e.color} delay={gi * 30 + ei * 20} />

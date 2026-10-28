@@ -4,7 +4,7 @@ import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Icon, Info, InfoTile, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, usePresence, ZoneBar } from "../components/ui";
+import { Bar, BriefTag, CopyButton, CountUp, Icon, Info, InfoTile, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, usePresence, ZoneBar } from "../components/ui";
 import { scoreLevel, scores, type Scores } from "../../shared/score";
 import { heapMissing, LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
@@ -435,7 +435,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), pin(s.index))}
                     >
                       <td className="clip">{s.label}</td>
-                      <td>{judged ? <RatingTag rating={s.rating} /> : <span className="brief">Too brief</span>}</td>
+                      <td>{judged ? <RatingTag rating={s.rating} /> : <BriefTag />}</td>
                       <td>
                         <div className="fps-cell">
                           <Bar value={s.fps / run.hz} rating={judged ? s.rating : undefined} delay={i * 40} />
