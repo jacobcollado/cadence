@@ -1542,6 +1542,15 @@ svg { display: block; flex: none; }
 }
 /* Text keeps a readable measure inside the wider cells. */
 .doc-frame .doc-head > *, .doc-frame .doc-section > * { max-width: 720px; }
+/* Pictures, cards, code and tables take the cell's full width, so wide
+   screens have no empty lane beside the text; only prose keeps the measure. */
+.doc-frame .doc-section > :is(.doc-cards, .specimen-wrap, .cipher, .doc-code, .props, .install-steps, figure, pre) { max-width: none; }
+/* With the room, a grid fills whole rows: the four passes in one row, the
+   six tips in two rows of three. */
+@media (min-width: 1200px) {
+  .doc-frame .doc-cards:has(> :last-child:nth-child(4)) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .doc-frame .doc-cards:has(> :last-child:nth-child(6)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 .doc-frame .doc-toc { margin: 0; }
 .doc-frame .doc-fade { margin-left: 0; margin-right: 0; }
 
