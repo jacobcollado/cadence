@@ -1093,6 +1093,10 @@ svg { display: block; flex: none; }
 @media (min-width: 860px) { .home-sec[data-split] { grid-template-columns: 240px minmax(0, 1fr); } }
 .home-head { display: flex; flex-direction: column; gap: 8px; }
 .home-head .lede { max-width: 560px; }
+/* Section headings are centered over their content; only a split section
+   keeps its heading to the left, beside the content. */
+.home-sec:not([data-split]):not(.runs) .home-head { align-items: center; text-align: center; }
+.home-head .subtitle, .home-head .lede { text-wrap: balance; }
 .home-body { min-width: 0; }
 .home-sec > * { transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
 .home-sec > :nth-child(2) { transition-delay: 60ms; }
@@ -1175,21 +1179,24 @@ svg { display: block; flex: none; }
   .rails .lede { font-size: 17px; line-height: 28px; }
   .rails .subtitle { font-size: 30px; line-height: 38px; letter-spacing: -0.0475em; }
   .rails .home-head .lede { max-width: 640px; }
-  .home-sec[data-split] { grid-template-columns: 320px minmax(0, 1fr); gap: 48px; }
+  .home-sec[data-split] { grid-template-columns: 320px minmax(0, 1fr); gap: 64px; align-items: center; }
+  .rails .home-sec:not([data-split]) { gap: 48px; }
   .rails .home-body .meta, .rails .test-pane .meta { font-size: 15px; line-height: 24px; }
   .rails .example-title, .rails .how-title, .rails .test-pane .h2 { font-size: 17px; line-height: 24px; }
   .rails .example { padding: 24px; }
-  .rails .how-visual { height: 200px; }
+  .rails .how-grid { gap: 24px; }
+  .rails .how-visual { height: auto; aspect-ratio: 5 / 4; }
+  .rails .how-title { margin-top: 20px; }
   .rails .example-tag { height: 28px; padding: 0 10px; font-size: 13px; }
   .rails .example-go { font-size: 15px; }
   .rails .runs .h2 { font-size: 19px; }
   .rails .setup-btn { font-size: 15px; }
   .rails .free-grid { gap: 16px; }
-  .rails .vs { gap: 28px; }
   .rails .vs-tool { font-size: 17px; line-height: 24px; }
   .rails .vs-ours { font-size: 19px; }
   .rails .vs-value, .rails .vs-blind { font-size: 15px; }
-  .rails .vs-bars, .rails .vs-blind { height: 88px; }
+  .rails .vs { gap: 36px; }
+  .rails .vs-bars, .rails .vs-blind { height: 120px; }
   .rails .vs-bars { gap: 4px; }
   .rails .vs-track { gap: 12px; }
   .rails .vs-label, .rails .vs-cause { font-size: 13px; }
@@ -1286,13 +1293,13 @@ svg { display: block; flex: none; }
 .frames-rail::after { right: 0; }
 @media (prefers-reduced-motion: reduce) { .frames-slab { transform: none; animation: none !important; } }
 @media (min-width: 1024px) {
-  .frames { gap: 28px; }
   .frames-head { height: 32px; gap: 12px; }
   .frames-icon { width: 32px; height: 32px; }
   .frames-icon svg { width: 16px; height: 16px; }
   .rails .frames-device, .rails .frames-fps { font-size: 17px; line-height: 24px; }
-  .frames-track { height: 104px; }
-  .frames-slab { height: 88px; }
+  .frames { gap: 36px; }
+  .frames-track { height: 144px; }
+  .frames-slab { height: 124px; }
 }
 
 /* How it works, as flat art (HowVisuals.tsx): each picture fills its panel
