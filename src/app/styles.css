@@ -362,6 +362,26 @@ svg { display: block; flex: none; }
 .bar[data-rating="uneven"] { background: var(--warn); }
 .bar[data-rating="choppy"] { background: var(--bad); }
 .table-scroll { overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
+/* Sections: each row can be picked (tap, click or Enter) to highlight its
+   frames in the chart. The table reaches 12px past the card's content on
+   both sides and its outer cells pad by 12px, so the text stays on the
+   content edge while a highlighted row has room around its words. */
+.table-scroll:has(.sec-table) { padding: 0 8px; }
+.sec-table th:first-child, .sec-table td:first-child { padding-left: 12px; }
+.sec-table th:last-child, .sec-table td:last-child { padding-right: 12px; }
+.sec-table tbody tr { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.sec-table tbody tr:focus-visible { outline: none; }
+.sec-table tbody td:first-child { border-radius: 6px 0 0 6px; }
+.sec-table tbody td:last-child { border-radius: 0 6px 6px 0; }
+.sec-table tbody tr:focus-visible td { box-shadow: inset 0 2px 0 var(--ink), inset 0 -2px 0 var(--ink); }
+.sec-table tbody tr:focus-visible td:first-child { box-shadow: inset 2px 2px 0 var(--ink), inset 0 -2px 0 var(--ink); }
+.sec-table tbody tr:focus-visible td:last-child { box-shadow: inset -2px 2px 0 var(--ink), inset 0 -2px 0 var(--ink); }
+/* The highlighted row: a recessed band with rounded ends; the hairlines
+   above and below it step aside so the band reads whole. */
+.sec-table tbody tr[data-on] td { background: var(--recess); }
+.sec-table tbody tr[data-on] td, .sec-table tbody tr[data-on] + tr td { box-shadow: none; }
+.sec-table tbody tr[data-pinned] td:first-child { color: var(--ink); font-weight: 500; }
+@media (hover: none) { .sec-table tbody tr:hover:not([data-on]) td { background: none; } }
 @media (max-width: 600px) { .table .wide { display: none; } }
 .note { font-size: 13px; color: var(--ink-3); line-height: 20px; }
 .cause { font-size: 14px; line-height: 22px; color: var(--ink-2); max-width: 68ch; margin-top: 4px; }

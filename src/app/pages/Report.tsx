@@ -272,6 +272,14 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
   setHighlight: (i: number | null) => void;
 }) {
   const rows = stats.sections.filter((s) => s.frames > 0);
+  // A section picked by tap or click stays highlighted in the chart until
+  // it's tapped again; hovering with a mouse previews another meanwhile.
+  const [pinned, setPinned] = useState<number | null>(null);
+  const pin = (i: number) => {
+    const next = pinned === i ? null : i;
+    setPinned(next);
+    setHighlight(next);
+  };
   const judged = stats.judged;
   const smoothCount = judged.filter((s) => s.rating === "smooth").length;
   const budget = Math.round(stats.interval);
@@ -347,11 +355,12 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
               <Info title="Sections">
                 <p>The parts of the page, top to bottom, found from its landmarks and headings. Each frame counts toward the section crossing the middle of the screen when it was drawn.</p>
                 <p>So a slow section is where to look in the code.</p>
+                <p>Tap a section, or hover it, to see its frames in the chart above. Tap it again to clear.</p>
               </Info>
             </div>
           </div>
           <div className="table-scroll">
-            <table className="table">
+            <table className="table sec-table">
               <thead>
                 <tr>
                   <th>Section</th>
@@ -416,8 +425,14 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                     <tr
                       key={s.index}
                       data-dim={!judged || undefined}
-                      onPointerEnter={() => setHighlight(s.index)}
-                      onPointerLeave={() => setHighlight(null)}
+                      data-on={highlight === s.index || undefined}
+                      data-pinned={pinned === s.index || undefined}
+                      tabIndex={0}
+                      aria-label={`${s.label}: show its frames in the chart`}
+                      onPointerEnter={(e) => e.pointerType === "mouse" && setHighlight(s.index)}
+                      onPointerLeave={(e) => e.pointerType === "mouse" && setHighlight(pinned)}
+                      onClick={() => pin(s.index)}
+                      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), pin(s.index))}
                     >
                       <td className="clip">{s.label}</td>
                       <td>{judged ? <RatingTag rating={s.rating} /> : <span className="brief">Too brief</span>}</td>

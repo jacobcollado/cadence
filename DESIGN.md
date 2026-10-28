@@ -64,6 +64,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 
 ## Components
 
+- **Section rows highlight on tap**: on the report a section row is picked by tap, click or Enter and stays highlighted in the chart until tapped again; a mouse hover previews meanwhile. A highlighted row is a recessed band with rounded ends that reaches 12px past the text on both sides, never flush with the words, and the hairlines beside it step aside.
 - **Popups open from their trigger**: info cards and the Details popover grow out of the button that opened them and shrink back into it when they close (origin measured from the button when they open, wherever the layout puts the panel). A card above its trigger hangs from its bottom edge. Scrolling closes an info card at once, since its place was measured from the trigger. Chart readouts that follow the pointer are exempt.
 
 - **Score ring** (`ScoreRing`): a score out of 100 as a ring, like Lighthouse: the arc fills to the score in its band's status color (90+ good, 50 to 89 needs work, under 50 poor) with the number inside, and both count up. 56px for the report's overall score beside the device name, 28px on each overview tile (where it replaces the status icon) and in the runs list. A score always sits in the band its word says.
