@@ -1133,11 +1133,16 @@ svg { display: block; flex: none; }
 .example-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
 .example-tag { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; box-shadow: inset 0 0 0 1px var(--ring-firm); color: var(--ink-2); font-size: 12px; line-height: 1; }
 
-/* Why it's free: four short facts, icon beside each. */
+/* Why it's free: four short facts. On phones each is a row, badge beside the
+   words; from 600px each is a card, badge above them. */
 .free-grid { list-style: none; display: grid; gap: 12px; }
 @media (min-width: 600px) { .free-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 860px) { .free-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.free { display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 16px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); }
+.free { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 14px 16px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); }
+.free .free-tile { width: 44px; height: 44px; }
+@media (min-width: 600px) {
+  .free { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; }
+}
 /* Each fact's icon sits on a pane of the page's glass, stepping through the spectrum. */
 .free-tile { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 
@@ -1238,6 +1243,9 @@ svg { display: block; flex: none; }
   .rails .runs .h2 { font-size: 19px; }
   .rails .setup-btn { font-size: 15px; }
   .rails .free-grid { gap: 16px; }
+  .rails .free { padding: 24px; gap: 24px; }
+  .rails .free .free-tile { width: 48px; height: 48px; }
+  .rails .free .free-tile svg { width: 18px; height: 18px; }
   .rails .vs-tool { font-size: 17px; line-height: 24px; }
   .rails .vs-verdict { font-size: 15px; }
   .rails .vs-ours { font-size: 19px; }
@@ -1313,7 +1321,9 @@ svg { display: block; flex: none; }
 /* In the device rows a missed frame is a red bar, so the phone's chop reads at a glance. */
 .frames-slab.art[data-miss] { background: var(--bad); box-shadow: none; }
 .art[data-empty] { background: var(--art-1); }
-.free-tile.art, .test-link-perf.art { background: var(--art-1); }
+.test-link-perf.art { background: var(--art-1); }
+/* A badge in the art: the lightest tone with the art's outline, ink icon. */
+.free-tile.art { background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line); border-radius: 6px; }
 
 /* Glass: the material the reports' panes are drawn in.
    A pane is tinted by --c, densest at the top and clearing toward its base,
