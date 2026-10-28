@@ -741,8 +741,8 @@ svg { display: block; flex: none; }
 .start-top .title { text-wrap: balance; }
 .start-top .lede { max-width: 21em; text-wrap: balance; }
 @media (min-width: 760px) { .start-top .lede { max-width: 30em; } }
-.orbit-3d { align-self: stretch; height: 300px; }
-@media (min-width: 760px) { .orbit-3d { height: 400px; } }
+.hero-ring { position: relative; align-self: stretch; height: 300px; }
+@media (min-width: 760px) { .hero-ring { height: 400px; } }
 
 /* Top bar text link. */
 .topbar-link { font-size: 13px; font-weight: 500; line-height: 1; color: var(--ink-2); transition: color var(--dur-fast) var(--ease-out); }
@@ -1281,17 +1281,18 @@ svg { display: block; flex: none; }
   .rails .start { --chrome: 72px; min-height: min(calc(100svh - var(--chrome)), 960px); padding-bottom: 0; }
   #root:has(.banner) .rails .start { --chrome: 112px; }
   .rails .start-top { flex: 1; gap: 32px; }
-  .rails .orbit-3d { flex: 1; height: auto; min-height: 440px; }
+  .rails .hero-ring { flex: 1; height: auto; min-height: 440px; }
 }
 
-/* The orbit in glass: its canvas fills the box and rises in once the first
-   frame is drawn. Without WebGL, the plain mark stands in. */
-.orbit-3d[data-fallback] { display: flex; align-items: center; justify-content: center; color: var(--ink); }
-.orbit-3d { position: relative; }
-/* Out of the flow, so the canvas never sizes its own box. */
-.orbit-3d canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: 0; transform: translateY(12px); filter: blur(6px); }
-.orbit-3d[data-ready] canvas { opacity: 1; transform: none; filter: none; transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out), filter var(--dur-slow) var(--ease-out); }
-@media (prefers-reduced-motion: reduce) { .orbit-3d canvas { transform: none; filter: none; } }
+/* The hero's ring in flat art (HeroOrbit.tsx). The page is wider than the
+   ring's box on purpose: the ring runs off both sides of the screen, so the
+   box reaches the viewport edges and clips there. */
+.hero-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hero-ring-shadow { fill: none; stroke: var(--art-1); stroke-linecap: round; }
+.hero-ring-dot-shadow { fill: var(--art-1); }
+.hero-ring-edge { fill: none; stroke: var(--art-line); stroke-linecap: round; }
+.hero-ring-tube { fill: none; stroke: var(--art-2); stroke-linecap: round; }
+.hero-ring-dot { fill: var(--art-pop); }
 
 
 /* Art: the flat material the home page's pictures are drawn in. A gray bar

@@ -4,11 +4,10 @@ Cadence is read by developers and engineers who need to know what's wrong, quick
 
 ## Hero orbit
 
-The hero's visual is the mark as a real 3D object (three.js, `orbitScene.ts`): a glass ring running through the spectrum, lying back in space, with the dot riding in its gap at the mark's proportions. It turns at a steady beat and all but stops once a lap, like a missed frame, and floats over a floor where its light falls as the ring's arc in its colors with the dot's spot at the gap, flattened from the orbit every frame so it turns and leans with it. It leans toward the pointer.
+The hero's visual is the mark drawn huge in the home page's flat art (`HeroOrbit.tsx`, SVG): the ring lies back as a wide ellipse that runs off both sides of the screen, a thick gray tube (`--art-2`) with an outline (`--art-line`), over its own flat shadow (`--art-1`) dropped straight down, gap and dot included. The dot is the page's one violet moment (`--art-pop`), riding in the ring's gap at the mark's proportions. It turns at a steady beat and all but stops once a lap, like a missed frame, growing as it comes round the front.
 
-- Each mode lights it its own way. Light: clear glass with white reflections and a soft shadow. Dark: the glass glows in its own colors and reflects in them, with no white light, since nothing white is there to reflect.
-- The camera frames the whole scene, floor light included, to fill its box at any size.
-- It loads after the page, rises in on its first frame, stops drawing off screen, holds still under reduced motion, and shows the plain mark without WebGL.
+- Everything is sized from the box and the screen, so it fills the space under the copy at any width.
+- It stops moving off screen and rests at the front right, as in the mark, under reduced motion.
 
 ## Logo
 
@@ -79,7 +78,7 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - **Disclosure**: only for reference material that isn't graded.
 - **Footer**: under a hairline, on the page's content edges: the logo with who makes it and the license, then link groups (Product, Follow) with a 13px heading in ink and links in ink-2.
 - **Device marks**: where a chart names devices, each name carries its platform's mark (Apple, Android) in ink, beside the name and always visible. A device with no single platform, like a laptop, gets a plain solid drawing at the same weight. This overrides "logos on hover only" for device names.
-- **Art** (`.art`, `--art-*`, home page below the hero): the home page's pictures are flat illustrations, not glass. Three gray tones (`--art-1` to `--art-3`) and an outline (`--art-line`), with oversized shapes that run off their panel's edges, thick strokes, ringed handles and dashed trails. Solid ink marks interface (a code pill, a selection frame). Color appears at most once per picture, as the brand violet (`--art-pop`). A frame drawn is a gray bar. In the device rows (Fast on your laptop) a missed frame is a red bar (`--bad`), so the phone's chop reads at a glance; elsewhere a missed frame is an empty outlined slot (`data-miss`). No device mockups. The hero's 3D orbit is the one exception. Glass (`.glass`) stays the reports' material.
+- **Art** (`.art`, `--art-*`, home page below the hero): the home page's pictures are flat illustrations, not glass. Three gray tones (`--art-1` to `--art-3`) and an outline (`--art-line`), with oversized shapes that run off their panel's edges, thick strokes, ringed handles and dashed trails. Solid ink marks interface (a code pill, a selection frame). Color appears at most once per picture, as the brand violet (`--art-pop`). A frame drawn is a gray bar. In the device rows (Fast on your laptop) a missed frame is a red bar (`--bad`), so the phone's chop reads at a glance; elsewhere a missed frame is an empty outlined slot (`data-miss`). No device mockups. The hero's ring is drawn in the same art. Glass (`.glass`) stays the reports' material.
 - **Empty states** (home page): a dashed outline in `--ring-firm` marks a place waiting for something (no runs yet, no QR code yet), never a gray filled box. An empty runs list shows a row of empty light slots above its line.
 - **Charts**: the frame timeline and memory spark are canvas or SVG, gray data, status color only for problems, hover tooltips as white raised cards.
 
