@@ -397,25 +397,19 @@ svg { display: block; flex: none; }
 .compare-title { display: flex; align-items: center; gap: 12px; }
 /* How many runs, as a badge beside the title, so it reads as a count and not more heading. */
 .compare-count { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring-firm); font-size: 13px; line-height: 1; font-weight: 500; color: var(--ink-2); }
-.compare-verdict { display: flex; flex-direction: column; margin-top: 16px; padding: 14px 16px; border-radius: 6px; background: var(--recess); max-width: 720px; }
-.compare-verdict .field-label { margin-bottom: 4px; }
-.compare-summary { font-size: 15px; line-height: 24px; color: var(--ink); text-wrap: pretty; }
+.compare-agree { font-size: 15px; line-height: 24px; color: var(--ink); }
 .compare-sec-title { margin-bottom: 12px; }
-/* The summary's rows: a label, the run (its key, number and device) and the
-   value at the end, one row per fact, hairlines between. */
-.verdict { display: flex; flex-direction: column; }
-.verdict > div { display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 40px; }
-.verdict > div + div { box-shadow: inset 0 1px 0 var(--grid); }
-.verdict dt { font-size: 13px; line-height: 20px; color: var(--ink-3); }
-.verdict-run { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.verdict-name { display: flex; align-items: baseline; gap: 8px; min-width: 0; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ink); white-space: nowrap; }
-.verdict-name .meta { font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
-.verdict-value { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink); white-space: nowrap; }
-@media (max-width: 600px) { .verdict > div { grid-template-columns: 72px minmax(0, 1fr) auto; gap: 8px; } }
+@media (min-width: 1024px) { .rails .compare-sec-title { margin-bottom: 16px; } }
+/* The summary's stat cards: three across, or two with the gap beneath on phones. */
+.compare-stats { margin-bottom: 0; }
+@media (min-width: 720px) { .compare-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 719px) { .compare-gap { grid-column: 1 / -1; } }
+.compare-who { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.compare-who .gbar-key { flex: none; }
+.compare-who-run { flex: none; font-weight: 500; color: var(--ink); }
+.compare-who-device { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .compare-runs { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
-/* Each run card carries its chart color as a band along its top edge, so
-   the runs read apart at a glance and match their bars. */
-.compare-run { display: flex; flex-direction: column; gap: 16px; padding: 16px; box-shadow: inset 0 0 0 1px var(--ring), inset 0 4px 0 var(--key); transition: background-color var(--dur-fast) var(--ease-out); }
+.compare-run { display: flex; flex-direction: column; gap: 16px; padding: 16px; transition: background-color var(--dur-fast) var(--ease-out); }
 .compare-run[href]:hover { background: var(--hover); }
 .compare-run-top { display: flex; align-items: center; justify-content: space-between; }
 .compare-run-label { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1; font-weight: 600; color: var(--ink); }
@@ -471,7 +465,7 @@ svg { display: block; flex: none; }
   .axis > span { display: none; }
 }
 @media (min-width: 1024px) {
-  .rails .compare-summary { font-size: 17px; line-height: 28px; }
+  .rails .compare-agree { font-size: 17px; line-height: 28px; }
   .rails .compare-device { font-size: 17px; line-height: 24px; }
   .rails .compare-run { padding: 20px; }
   .rails .compare-runs { gap: 16px; }

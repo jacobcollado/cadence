@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Run } from "../../shared/run";
 import { computeStats, MODE_LABEL, type RunStats } from "../../shared/stats";
 import { Bar, CountUp, Fields, Icon, RatingTag, splitName } from "../components/ui";
@@ -48,35 +48,38 @@ function verdict(entries: Entry[], groups: Group[]): Verdict {
   return { kind: "split", slow, fast, gap: gap && r(gap.max - gap.min) >= 5 ? gap : undefined };
 }
 
-/** The summary panel: labeled rows, each run named by its key and number
- *  so the two sides of the comparison never run together. */
+/** The summary as stat cards, like the report's: each card says what it
+ *  measures, then the number, then whose it is. */
 function Summary({ entries, groups }: { entries: Entry[]; groups: Group[] }) {
   const v = verdict(entries, groups);
-  if (v.kind === "line") return <p className="compare-summary">{v.text}</p>;
-  const run = (i: number) => {
-    const n = splitName(entries[i].run.device.name);
-    return (
-      <>
-        <span className="verdict-run">
-          <i className="gbar-key" style={{ background: entries[i].color }} />
-          <span className="verdict-name">Run {i + 1}<span className="meta">{n.device}</span></span>
-        </span>
-        <span className="verdict-value num">{Math.round(entries[i].stats.fps)} fps</span>
-      </>
-    );
-  };
+  if (v.kind === "line") return <p className="compare-agree">{v.text}</p>;
+  const who = (i: number) => (
+    <span className="stat-sub compare-who">
+      <i className="gbar-key" style={{ background: entries[i].color }} />
+      <span className="compare-who-run">Run {i + 1}</span>
+      <span className="compare-who-device">{splitName(entries[i].run.device.name).device}</span>
+    </span>
+  );
   return (
-    <dl className="verdict">
-      <div><dt>Slowest</dt>{run(v.slow)}</div>
-      <div><dt>Fastest</dt>{run(v.fast)}</div>
+    <div className="stat-row compare-stats">
+      <div className="stat">
+        <span className="stat-label">Slowest run</span>
+        <span className="stat-value num">{Math.round(entries[v.slow].stats.fps)}<span>fps</span></span>
+        {who(v.slow)}
+      </div>
+      <div className="stat">
+        <span className="stat-label">Fastest run</span>
+        <span className="stat-value num">{Math.round(entries[v.fast].stats.fps)}<span>fps</span></span>
+        {who(v.fast)}
+      </div>
       {v.gap && (
-        <div>
-          <dt>Widest gap</dt>
-          <span className="verdict-run"><span className="verdict-name">{v.gap.label}</span></span>
-          <span className="verdict-value num">{Math.round(v.gap.min)} to {Math.round(v.gap.max)} fps</span>
+        <div className="stat compare-gap">
+          <span className="stat-label">Widest gap</span>
+          <span className="stat-value num">{Math.round(v.gap.max - v.gap.min)}<span>fps</span></span>
+          <span className="stat-sub">{v.gap.label}, {Math.round(v.gap.min)} to {Math.round(v.gap.max)} fps</span>
         </div>
       )}
-    </dl>
+    </div>
   );
 }
 
@@ -166,12 +169,12 @@ export function Compare() {
               <h1 className="subtitle">Compare runs</h1>
               <span className="compare-count num">{entries.length} runs</span>
             </div>
-            {/* The verdict, labeled, so it reads as the answer and not as more title. */}
-            <div className="compare-verdict">
-              <span className="field-label">Summary</span>
-              <Summary entries={entries} groups={groups} />
-            </div>
           </header>
+        </section>
+
+        <section className="report-sec">
+          <h2 className="h2 compare-sec-title">Summary</h2>
+          <Summary entries={entries} groups={groups} />
         </section>
 
         {/* One card per run, keyed by its color in the chart below; each opens its report. */}
@@ -183,7 +186,7 @@ export function Compare() {
               const data = saved.find((r) => r.id === e.run.id)?.data;
               const href = data ? `/r#${data}` : undefined;
               return (
-                <a key={e.run.id} className="card compare-run" style={{ "--key": e.color } as CSSProperties} href={href} onClick={(ev) => { if (!href) return; ev.preventDefault(); navigate(href); }}>
+                <a key={e.run.id} className="card compare-run" href={href} onClick={(ev) => { if (!href) return; ev.preventDefault(); navigate(href); }}>
                   <span className="compare-run-top">
                     <span className="compare-run-label"><i className="compare-key" style={{ background: e.color }} />Run {i + 1}</span>
                     <RatingTag rating={e.stats.rating} />
