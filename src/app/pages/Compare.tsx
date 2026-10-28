@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Run } from "../../shared/run";
 import { computeStats, MODE_LABEL, type RunStats } from "../../shared/stats";
-import { Bar, CountUp, Icon, RatingTag, splitName } from "../components/ui";
+import { Bar, CountUp, Fields, Icon, RatingTag, splitName } from "../components/ui";
 import { TopBar } from "../components/TopBar";
 import { decodeRun, listRuns, navigate, pathOf, when, SERIES } from "../lib";
 
@@ -141,37 +141,43 @@ export function Compare() {
         <section className="report-sec report-top">
           <header className="compare-head enter">
             <a href="/#runs" className="compare-back" onClick={(e) => { e.preventDefault(); navigate("/#runs"); }}>
-              <Icon name="back" size={14} />Runs
+              <Icon name="back" size={14} />All runs
             </a>
-            <h1 className="subtitle">Compare {entries.length} runs</h1>
-            <p className="compare-summary">{summary(entries, groups)}</p>
+            <div className="compare-title">
+              <h1 className="subtitle">Compare runs</h1>
+              <span className="compare-count num">{entries.length} runs</span>
+            </div>
+            {/* The verdict, labeled, so it reads as the answer and not as more title. */}
+            <div className="compare-verdict">
+              <span className="field-label">Summary</span>
+              <p className="compare-summary">{summary(entries, groups)}</p>
+            </div>
           </header>
         </section>
 
         {/* One card per run, keyed by its color in the chart below; each opens its report. */}
         <section className="report-sec">
+          <h2 className="h2 compare-sec-title">Runs</h2>
           <div className="compare-runs enter">
-            {entries.map((e) => {
+            {entries.map((e, i) => {
               const n = splitName(e.run.device.name);
               const data = saved.find((r) => r.id === e.run.id)?.data;
               const href = data ? `/r#${data}` : undefined;
               return (
                 <a key={e.run.id} className="card compare-run" href={href} onClick={(ev) => { if (!href) return; ev.preventDefault(); navigate(href); }}>
                   <span className="compare-run-top">
-                    <i className="compare-key" style={{ background: e.color }} />
+                    <span className="compare-run-label"><i className="compare-key" style={{ background: e.color }} />Run {i + 1}</span>
                     <RatingTag rating={e.stats.rating} />
                   </span>
                   <span className="compare-run-name">
                     <span className="compare-device">{n.device}</span>
                     <span className="meta">{n.browser}</span>
                   </span>
-                  <span className="compare-run-foot">
+                  <span className="compare-run-stat">
+                    <span className="field-label">Average frame rate</span>
                     <span className="compare-fps num"><CountUp value={Math.round(e.stats.fps)} /><span>fps</span></span>
-                    <span className="compare-tags">
-                      <span className="example-tag">{MODE_LABEL[e.run.mode]}</span>
-                      <span className="example-tag">{when(e.run.at)}</span>
-                    </span>
                   </span>
+                  <Fields items={[["Mode", MODE_LABEL[e.run.mode]], ["Page", pathOf(e.run.url)], ["Tested", when(e.run.at)]]} />
                 </a>
               );
             })}
@@ -184,6 +190,10 @@ export function Compare() {
               <div className="block-title">
                 <h2 className="h2">Frame rate by section</h2>
                 <p className="meta">Longer bars held more frames a second, out of {max}.</p>
+              </div>
+              {/* Which color is which run, matching the cards above. */}
+              <div className="legend">
+                {entries.map((e, i) => <span key={e.run.id}><i className="swatch" style={{ background: e.color }} />Run {i + 1}</span>)}
               </div>
             </div>
             <div ref={chart} className="compare-chart" onPointerLeave={() => setHover(null)}>

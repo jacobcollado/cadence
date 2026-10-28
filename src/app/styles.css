@@ -394,20 +394,29 @@ svg { display: block; flex: none; }
 .compare-head { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .compare-back { display: inline-flex; align-items: center; gap: 4px; height: 28px; margin-bottom: 8px; font-size: 13px; line-height: 1; font-weight: 500; color: var(--ink-2); transition: color var(--dur-fast) var(--ease-out); }
 .compare-back:hover { color: var(--ink); }
-.compare-summary { font-size: 15px; line-height: 24px; color: var(--ink-2); max-width: 60ch; text-wrap: pretty; }
+.compare-title { display: flex; align-items: center; gap: 12px; }
+/* How many runs, as a badge beside the title, so it reads as a count and not more heading. */
+.compare-count { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring-firm); font-size: 13px; line-height: 1; font-weight: 500; color: var(--ink-2); }
+.compare-verdict { display: flex; flex-direction: column; margin-top: 16px; padding: 14px 16px; border-radius: 6px; background: var(--recess); max-width: 720px; }
+.compare-verdict .field-label { margin-bottom: 4px; }
+.compare-summary { font-size: 15px; line-height: 24px; color: var(--ink); text-wrap: pretty; }
+.compare-sec-title { margin-bottom: 12px; }
 .compare-runs { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
 .compare-run { display: flex; flex-direction: column; gap: 16px; padding: 16px; transition: background-color var(--dur-fast) var(--ease-out); }
 .compare-run[href]:hover { background: var(--hover); }
 .compare-run-top { display: flex; align-items: center; justify-content: space-between; }
+.compare-run-label { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1; font-weight: 500; color: var(--ink-2); }
+.compare-run-stat { display: flex; flex-direction: column; }
+.compare-run-stat .field-label { margin-bottom: 2px; }
+.compare-run .fields { margin-top: auto; padding-top: 12px; gap: 8px 20px; box-shadow: inset 0 1px 0 var(--grid); }
+.compare-run .fields dd { max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
 /* The run's color in the chart, as a small square key. */
 .compare-key { width: 12px; height: 12px; border-radius: 3px; }
 .compare-run-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .compare-device { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .compare-run .meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.compare-run-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: auto; }
 .compare-fps { display: flex; align-items: baseline; gap: 4px; font-size: 28px; line-height: 32px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); }
 .compare-fps > span:last-child { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
-.compare-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; min-width: 0; }
 /* The chart: a row per section, its runs' bars stacked, on gridlines at
    each tick. The whole run leads, set apart. */
 .compare-chart { position: relative; --label: 160px; }
