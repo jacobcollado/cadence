@@ -902,9 +902,6 @@ svg { display: block; flex: none; }
 .doc-term-title { margin-top: 14px; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--ink); }
 .doc-term p { margin-top: 4px; font-size: 14px; line-height: 22px; }
 .strip { display: flex; align-items: flex-end; gap: 2px; height: 56px; padding: 10px; border-radius: 6px; background: var(--recess); }
-.strip i { flex: 1; border-radius: 1px; background: var(--data); }
-.strip i.gap { background: none; box-shadow: inset 0 -2px 0 var(--warn); height: 100% !important; }
-.strip i.freeze { background: var(--bad); }
 .causes { display: flex; flex-wrap: wrap; gap: 4px; height: 76px; align-content: center; padding: 10px; border-radius: 6px; background: var(--recess); }
 .causes span { height: 24px; padding: 0 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; background: var(--paper); color: var(--ink-2); font-size: 12px; line-height: 1; box-shadow: inset 0 0 0 1px var(--ring); }
 .causes svg { color: var(--ink-3); }
@@ -1551,14 +1548,33 @@ svg { display: block; flex: none; }
 .doc-frame .doc-fade { margin-left: 0; margin-right: 0; }
 
 
-/* The docs' pictures, in the same glass as the home page. */
-.doc-card-icon .pass { background: none; }
-.pass-page i { background: color-mix(in srgb, var(--ink) 30%, transparent); }
-.pass-window { box-shadow: none; border: 1.5px dashed var(--ink); background: none; }
-.strip { display: flex; align-items: center; justify-content: center; height: 76px; padding: 0; background: none; }
-.causes { background: none; justify-content: center; }
-.causes .glass { color: var(--ink); }
-.causes .glass svg { color: var(--ink-2); }
+/* The docs' pictures, in the home page's flat art. */
+/* A pass: an art badge with the page as gray pills and the window as an ink
+   frame moving down it at the pass's speed. */
+.doc-card-icon:has(.pass) { width: 44px; height: 44px; background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line); }
+.doc-card-icon .pass { width: 44px; height: 44px; background: none; }
+.pass-page { left: 11px; right: 11px; top: 8px; bottom: 8px; }
+.pass-page i { height: 3px; border-radius: 2px; background: var(--art-3); }
+.pass-window { left: 6px; right: 6px; height: 12px; top: 5px; border-radius: 4px; border: none; background: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.pass[data-pass="steady"] .pass-window { animation: pass-run 4s linear infinite; }
+.pass[data-pass="fast"] .pass-window { animation: pass-run 1s linear infinite; }
+.pass[data-pass="idle"] .pass-window { top: 16px; }
+.pass[data-pass="manual"] .pass-window { animation: pass-hand 3.2s var(--ease-in-out) infinite; }
+@keyframes pass-run { from { top: 5px; } to { top: 27px; } }
+@keyframes pass-hand { 0% { top: 5px; } 25% { top: 16px; } 45% { top: 16px; } 60% { top: 10px; } 80% { top: 27px; } 100% { top: 5px; } }
+/* A term's picture: a recessed panel, frames under a dashed budget line,
+   running off both sides. */
+.strip { position: relative; display: block; height: 96px; padding: 0; border-radius: 6px; background: var(--recess); overflow: hidden; }
+.strip-bars { position: absolute; left: -8px; right: -8px; top: 16px; bottom: 14px; display: flex; align-items: flex-end; gap: 5px; }
+.strip-bar { flex: 1; min-width: 0; height: var(--h); }
+.strip-bar[data-late] { background: var(--bad); }
+.strip-budget { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dashed var(--art-line); }
+.causes { height: 96px; justify-content: center; align-content: center; gap: 8px; padding: 12px; border-radius: 6px; background: var(--recess); }
+.causes .cause {
+  height: 28px; padding: 0 10px; gap: 6px; border-radius: 6px; font-size: 13px; color: var(--ink);
+  background: var(--art-1); box-shadow: inset 0 0 0 2px var(--art-line);
+}
+.causes .cause svg { color: var(--ink-2); }
 .specimen-tile[data-selected] {
   background: linear-gradient(180deg, color-mix(in srgb, #7c5ce6 18%, var(--raised)), var(--raised) 75%);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, #7c5ce6 45%, transparent), 0 1px 2px rgba(0,0,0,.06);

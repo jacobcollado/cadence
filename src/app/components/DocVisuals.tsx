@@ -1,8 +1,8 @@
 import type { CSSProperties } from "react";
 import { Icon, ScoreRing } from "./ui";
-import { tint } from "../glass";
 
-// Small diagrams for the docs, built from the same pieces as the product.
+// Small diagrams for the docs, drawn in the home page's flat art: gray
+// tones with an outline, ink for the interface, red for a freeze.
 
 export type Pass = "steady" | "fast" | "idle" | "manual";
 
@@ -42,23 +42,24 @@ export function TilesSpecimen() {
   );
 }
 
-/** A short run of frames in glass: tinted where drawn, gray where missed. */
-function GlassRow({ run }: { run: number[] }) {
-  return (
-    <span className="how-frames" aria-hidden="true">
-      {run.map((drawn, i) => (
-        <span key={i} className="glass how-frame" data-off={!drawn || undefined} style={{ "--c": drawn ? tint(i / run.length) : undefined } as CSSProperties} />
-      ))}
-    </span>
-  );
-}
+const BUDGET = 1000 / 60;
+const CAP = 64; // ms at the panel's full height
 
-/** A run of frames in glass, the way the reports draw them: a missed frame is a gray pane, a freeze a run of them. */
+/** A short run of frames in the home page's flat art, standing under a
+ *  dashed line at the 16.7 ms budget. A dropped frame is an empty outlined
+ *  slot where a frame should have been; a freeze is one red bar that shoots
+ *  far past the line. */
 export function FrameStrip({ kind }: { kind: "dropped" | "freeze" }) {
-  const run = Array.from({ length: 16 }, (_, i) => (kind === "dropped" ? i !== 9 : i < 7 || i > 11) ? 1 : 0);
+  const times = [16, 15, 17, 16, 16, 15, 17, 16, 16, kind === "freeze" ? 58 : 0, 16, 17, 15, 16, 16, 17];
   return (
     <span className="strip" aria-hidden="true">
-      <GlassRow run={run} />
+      <span className="strip-bars">
+        {times.map((ms, i) => (
+          <span key={i} className="art strip-bar" data-miss={ms === 0 || undefined} data-late={ms > BUDGET + 1 || undefined}
+            style={{ "--h": `${((ms || 16) / CAP) * 100}%` } as CSSProperties} />
+        ))}
+      </span>
+      <span className="strip-budget" style={{ bottom: `calc(14px + (100% - 30px) * ${(BUDGET / CAP).toFixed(4)})` }} />
     </span>
   );
 }
@@ -67,9 +68,9 @@ export function FrameStrip({ kind }: { kind: "dropped" | "freeze" }) {
 export function CauseTags() {
   return (
     <span className="causes" aria-hidden="true">
-      <span className="glass" style={{ "--c": tint(0) } as CSSProperties}><Icon name="code" size={12} />Script</span>
-      <span className="glass" style={{ "--c": tint(0.5) } as CSSProperties}><Icon name="layout" size={12} />Layout</span>
-      <span className="glass" style={{ "--c": tint(1) } as CSSProperties}><Icon name="drawing" size={12} />Drawing</span>
+      <span className="cause"><Icon name="code" size={12} />Script</span>
+      <span className="cause"><Icon name="layout" size={12} />Layout</span>
+      <span className="cause"><Icon name="drawing" size={12} />Drawing</span>
     </span>
   );
 }
