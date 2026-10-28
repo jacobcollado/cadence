@@ -2,6 +2,14 @@
 
 Cadence is read by developers and engineers who need to know what's wrong, quickly. Every graded thing leads with a verdict, then the number, then the detail.
 
+## Hero orbit
+
+The hero's visual is the mark as a real 3D object (three.js, `orbitScene.ts`): a glass ring running through the spectrum, lying back in space, with the dot riding in its gap at the mark's proportions. It turns at a steady beat and all but stops once a lap, like a missed frame, and floats over a floor where its light falls as the ring's arc in its colors with the dot's spot at the gap, flattened from the orbit every frame so it turns and leans with it. It leans toward the pointer.
+
+- Each mode lights it its own way. Light: clear glass with white reflections and a soft shadow. Dark: the glass glows in its own colors and reflects in them, with no white light, since nothing white is there to reflect.
+- The camera frames the whole scene, floor light included, to fill its box at any size.
+- It loads after the page, rises in on its first frame, stops drawing off screen, holds still under reduced motion, and shows the plain mark without WebGL.
+
 ## Logo
 
 - The mark is an orbit: a ring with a dot riding on it, in a gap. The wordmark is lowercase "cadence" in Satoshi, a touch heavier and tighter than body text.
@@ -23,7 +31,7 @@ All live in `src/app/styles.css` (`:root`) and are mirrored in `src/probe/styles
 | Status | `--good`, `--warn`, `--warn-ink`, `--bad` | `#0ca30c`, `#f5a623`, `#d38900`, `#d03b3b` |
 | Motion | `--dur-*`, `--ease-*` | from `src/shared/motion.ts` |
 
-Type is Satoshi. Sizes in use: 28 title, 24 subtitle, 17 card heading and hero sentence, 15 and 14 body and buttons, 13 meta, 12 labels, tags and axis ticks. Nothing goes under 12. Fields are 16 on phones so iOS doesn't zoom in. Don't add new sizes.
+Type is Satoshi, set tight: body text at -0.0375em, headings from -0.0375em (17) to -0.0525em (40), tighter as they grow. Sizes in use: 28 title, 24 subtitle, 17 card heading and hero sentence, 15 and 14 body and buttons, 13 meta, 12 labels, tags and axis ticks. Nothing goes under 12. Fields are 16 on phones so iOS doesn't zoom in. Don't add new sizes.
 
 ## Themes
 
@@ -50,6 +58,8 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - Double rails: on wide screens each rail is two hairlines 4px apart, and the hairlines between sections run to the inner line. No marks at the joints, and the rails carry nothing else: no ticks, live data or scroll traces.
 - Home sections alternate: most put the heading and one short line above the content; a few (copy beside a chart or a pair of cards) split into a heading column and content. Never all one layout. Sections get real room: 96px above and below on desktop, 56px on phones. One heading, one line, one visual per section; no paragraphs.
 - From 1024px the home page widens to 1200px and steps its type up: 40 hero title, 30 section headings, 17 ledes and card titles, 15 body, meta, nav and footer, 13 chart labels and tags. These sizes are for the home page on desktop only.
+- The hero is centered: the line, lede and actions at the top, the orbit beneath them. On desktop (from 1024px) it fills the first screen under the top bar and banner, capped at 960px tall, and the orbit takes all the room the copy leaves. The type stays at 40 (weight 500); the visual carries the scale. Section headings on the home page match the hero at weight 500; headings in the app stay at 600.
+- A heading is always the widest line of text in its stack. The lede under it is narrower, in even lines (`text-wrap: balance` on both, the hero lede capped at 30em, 21em on phones), so the stack narrows from heading to lede to actions.
 - Every other page uses the same `.shell` (960px, 16 or 32px gutters). The scrollbar takes room only when the page scrolls; no gutter is reserved, so full-width bars reach the window edge.
 
 ## Components
@@ -69,8 +79,8 @@ One scale for everything graded, defined in `src/shared/vitals.ts`:
 - **Disclosure**: only for reference material that isn't graded.
 - **Footer**: under a hairline, on the page's content edges: the logo with who makes it and the license, then link groups (Product, Follow) with a 13px heading in ink and links in ink-2.
 - **Device marks**: where a chart names devices, each name carries its platform's mark (Apple, Android) in ink, beside the name and always visible. A device with no single platform, like a laptop, gets a plain solid drawing at the same weight. This overrides "logos on hover only" for device names.
-- **Glass** (`.glass`, home page): the home page's visuals share one material, from the hero's fan down. A pane is tinted by `--c` from the cool end of the hero's spectrum (violet, blue, cyan, green), densest at the top, with a colored edge and a lit top, on plain paper (never a recessed tray). A frame the page missed is the same pane in gray (`data-off`), never red, so a chop shows exactly where it happened.
-- **Empty states** (home page): a dashed outline in `--ring-firm` marks a place waiting for something (no runs yet, no QR code yet), never a gray filled box. An empty runs list shows a row of gray glass panes above its line.
+- **Art** (`.art`, `--art-*`, home page below the hero): the home page's pictures are flat illustrations, not glass. Three gray tones (`--art-1` to `--art-3`) and an outline (`--art-line`), with oversized shapes that run off their panel's edges, thick strokes, ringed handles and dashed trails. Solid ink marks interface (a code pill, a selection frame). Color appears at most once per picture, as the brand violet (`--art-pop`). A frame drawn is a gray bar; a frame the page missed is an empty outlined slot (`data-miss`), never red, so a chop shows as a hole exactly where it happened. No device mockups. The hero's 3D orbit is the one exception. Glass (`.glass`) stays the reports' material.
+- **Empty states** (home page): a dashed outline in `--ring-firm` marks a place waiting for something (no runs yet, no QR code yet), never a gray filled box. An empty runs list shows a row of empty light slots above its line.
 - **Charts**: the frame timeline and memory spark are canvas or SVG, gray data, status color only for problems, hover tooltips as white raised cards.
 
 ## Writing
@@ -99,11 +109,15 @@ A recessed panel (step visuals, icon tiles) is the recess fill alone, with no ou
 
 ## The ?perf window
 
-The window in How it works is a clear glass lens: a firm hairline, a lit top edge and a soft shadow, with the sections gray outside it and in color inside it. No dashed or marching outline.
+The window in How it works is a selection frame: an ink outline with ringed corners over the scrolling page, the page's blocks a tone darker inside it. No dashed or marching outline.
 
 ## Run a test
 
-The two ways to open a page (this device, a phone) share one panel, divided by a hairline, not two cards. Under the field, the exact address that will open is shown in mono with the added ?perf in a glass tag (gray until a page is entered).
+The two ways to open a page (this device, a phone) share one panel, divided by a hairline, not two cards. Under the field, the exact address that will open is shown in mono with the added ?perf in a flat light tag (muted until a page is entered).
+
+## Why not Lighthouse or DevTools
+
+One scroll read three ways, in rows headed like the device rows. Lighthouse shows a good score over a dashed "Scroll not measured" track. DevTools shows the same frame times as plain gray bars with no names. Cadence shows them as flat gray bars, late frames as empty slots, with each section named under its frames and the cause under the one that stuttered. No feature tables or comparison cards.
 
 ## Report readability
 

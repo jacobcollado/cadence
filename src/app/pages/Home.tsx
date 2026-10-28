@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, ScoreRing, splitName, StatusIcon } from "../components/ui";
 import { GlassRow, MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
-import { tint } from "../glass";
 import { GlassFrames } from "../components/GlassFrames";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
-import { GlassFan } from "../components/GlassFan";
+import { HeroOrbit } from "../components/HeroOrbit";
+import { VsFrames } from "../components/VsFrames";
 import { OPEN_SETUP } from "../components/Footer";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
@@ -51,7 +51,7 @@ function LinkPreview({ link }: { link: string }) {
   return (
     <p className="test-link" data-empty={!link || undefined}>
       <span className="test-link-url">{shown.slice(0, cut)}</span>
-      {cut < shown.length && <span className="glass test-link-perf" style={link ? { "--c": tint(1 / 3) } as CSSProperties : undefined}>{shown.slice(cut)}</span>}
+      {cut < shown.length && <span className="art test-link-perf" data-empty={!link || undefined}>{shown.slice(cut)}</span>}
     </p>
   );
 }
@@ -154,7 +154,7 @@ export function Home() {
               <a href={`/r?example#${INERTIA_RUN}`} className="btn btn-lg btn-secondary" onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>See a report</a>
             </div>
           </div>
-          <GlassFan />
+          <HeroOrbit />
         </div>
       </section>
 
@@ -205,11 +205,15 @@ export function Home() {
         </div>
       </Reveal>
 
+      <Reveal title="Why not Lighthouse or DevTools?" lede="They grade the load on your machine. Sites stutter on the scroll, on their phones.">
+        <VsFrames />
+      </Reveal>
+
       <Reveal title="Free, open and private">
         <ul className="free-grid">
-          {FREE.map((f, i) => (
+          {FREE.map((f) => (
             <li key={f.title} className="free">
-              <span className="glass free-tile" style={{ "--c": tint(i / (FREE.length - 1)) } as CSSProperties}><Icon name={f.icon} size={16} /></span>
+              <span className="art free-tile"><Icon name={f.icon} size={16} /></span>
               <span className="example-title">{f.title}</span>
             </li>
           ))}
@@ -223,7 +227,7 @@ export function Home() {
           <div className="card test-card">
             <div className="test-pane">
               <div className="start-card-head">
-                <span className="glass free-tile" style={{ "--c": tint(1 / 3) } as CSSProperties}><Icon name="device" size={16} /></span>
+                <span className="art free-tile"><Icon name="device" size={16} /></span>
                 <span>
                   <h3 className="h2">Test on this device</h3>
                   <p className="meta">Opens the page with the probe on.</p>
@@ -247,7 +251,7 @@ export function Home() {
             </div>
             <div className="test-pane qr-card">
               <div className="start-card-head">
-                <span className="glass free-tile" style={{ "--c": tint(2 / 3) } as CSSProperties}><Icon name="phone" size={16} /></span>
+                <span className="art free-tile"><Icon name="phone" size={16} /></span>
                 <span>
                   <h3 className="h2">Test on a phone</h3>
                   <p className="meta">Scan to open it there.</p>
@@ -289,7 +293,7 @@ export function Home() {
 
         {runs.length === 0 ? (
           <div className="runs-empty">
-            <GlassRow run={NONE} className="runs-empty-row" />
+            <GlassRow run={NONE} quiet className="runs-empty-row" />
             <strong>No runs yet</strong>
             Finish a run on any device and open its report. It lands here, ready to compare.
           </div>
@@ -381,7 +385,7 @@ function Setup() {
   return (
     <div className="card setup" id="setup" ref={el} data-open={open || undefined}>
       <button className="setup-btn" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className="glass free-tile" style={{ "--c": tint(0) } as CSSProperties}><Icon name="terminal" size={16} /></span>
+        <span className="art free-tile"><Icon name="terminal" size={16} /></span>
         <span className="setup-title">Add Cadence to your site</span>
         <span className="setup-peek">npm install cadence-probe</span>
         <Icon name="chevron" size={16} />

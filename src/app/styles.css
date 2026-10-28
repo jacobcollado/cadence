@@ -26,6 +26,13 @@
   --warn-dim: #fbe4bd;
   --bad-dim: #f2c4c4;
   --budget: #d6d5cf;
+  /* Art: the home page's flat illustrations. Three gray tones, an outline,
+     and one pop of the brand's violet, used once per picture at most. */
+  --art-1: #e9e9e5;
+  --art-2: #dbdad5;
+  --art-3: #c2c1bb;
+  --art-line: #b3b2ac;
+  --art-pop: #7c5ce6;
   /* Solid fills: the primary button and the selected tile. Black in light mode, light in dark. */
   --solid: #1a1a1a;
   --solid-face: linear-gradient(180deg, #3b3b3b 0%, #1d1d1d 52%, #141414 100%);
@@ -72,6 +79,10 @@
   --warn-dim: #4d3c18;
   --bad-dim: #4d2323;
   --budget: #353531;
+  --art-1: #222221;
+  --art-2: #2f2f2d;
+  --art-3: #4a4a47;
+  --art-line: #5d5c58;
   --solid: #ecebe7;
   --solid-face: linear-gradient(180deg, #ffffff 0%, #ecebe7 52%, #dddcd7 100%);
   --solid-edge: inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(0,0,0,.3);
@@ -94,7 +105,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font: 400 14px/1.5 "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.0375em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
@@ -125,10 +136,10 @@ svg { display: block; flex: none; }
 .topbar .spacer { flex: 1; }
 
 /* Type */
-.title { font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.025em; }
-.subtitle { font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.02em; }
+.title { font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.0475em; }
+.subtitle { font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.0425em; }
 .lede { font-size: 15px; line-height: 24px; color: var(--ink-2); }
-.h2 { font-size: 17px; line-height: 24px; font-weight: 600; letter-spacing: -0.015em; }
+.h2 { font-size: 17px; line-height: 24px; font-weight: 600; letter-spacing: -0.0375em; }
 .meta { font-size: 13px; line-height: 20px; color: var(--ink-3); }
 
 /* Buttons and controls. Heights are fixed; padding never sets them. */
@@ -258,6 +269,8 @@ svg { display: block; flex: none; }
 @media (min-width: 760px) { .start { padding: 64px 0; } }
 .start-copy { display: flex; flex-direction: column; gap: 12px; max-width: 780px; }
 .start-copy .lede { max-width: 640px; }
+/* The home page's headings are lighter than the app's: the hero and its sections both at 500. */
+.start .title, .home-head .subtitle { font-weight: 500; }
 @media (min-width: 760px) and (pointer: fine) { .start-card-head { padding-right: 8px; } }
 .start-card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
 .start-card-head > span:last-child { display: flex; flex-direction: column; gap: 2px; }
@@ -718,14 +731,18 @@ svg { display: block; flex: none; }
 .gh-star:hover { color: var(--ink); background: var(--hover); }
 .gh-count { padding-left: 6px; box-shadow: inset 1px 0 0 var(--ring-firm); color: var(--ink-3); }
 
-/* Hero top: the line and lede beside the orbit field; on phones the field
-   sits under the lede, scaled to the width. */
-.start-top { display: grid; align-items: center; gap: 24px; }
-.glass-fan { justify-self: center; }
-@media (min-width: 860px) {
-  .start-top { grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; }
-  .glass-fan { justify-self: end; }
-}
+/* Hero: the line, lede and actions centered at the top, and the fan
+   the orbit beneath them, filling the rest of the screen. */
+.start-top { display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; }
+.start-top .start-copy { align-items: center; }
+.start-top .start-actions { justify-content: center; }
+/* The lede sits inside the heading's width, in two even lines, so the
+   heading stays the widest thing and the eye reads down a narrowing stack. */
+.start-top .title { text-wrap: balance; }
+.start-top .lede { max-width: 21em; text-wrap: balance; }
+@media (min-width: 760px) { .start-top .lede { max-width: 30em; } }
+.orbit-3d { align-self: stretch; height: 300px; }
+@media (min-width: 760px) { .orbit-3d { height: 400px; } }
 
 /* Top bar text link. */
 .topbar-link { font-size: 13px; font-weight: 500; line-height: 1; color: var(--ink-2); transition: color var(--dur-fast) var(--ease-out); }
@@ -1086,7 +1103,7 @@ svg { display: block; flex: none; }
 @media (min-width: 600px) { .how-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .how-step { display: flex; flex-direction: column; }
 /* Each step's picture sits in its own recessed panel; the words sit below it, unboxed. */
-.how-visual { height: 152px; border-radius: 6px; background: var(--recess); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.how-visual { position: relative; height: 152px; border-radius: 6px; background: var(--recess); overflow: hidden; }
 .how-title { margin: 16px 0 2px; font-size: 15px; line-height: 20px; font-weight: 500; }
 
 /* The demo's mistakes, as tags. */
@@ -1100,6 +1117,36 @@ svg { display: block; flex: none; }
 .free { display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 16px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--ring); }
 /* Each fact's icon sits on a pane of the page's glass, stepping through the spectrum. */
 .free-tile { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+
+/* Why not Lighthouse or DevTools: the same scroll read three ways, in rows
+   headed like the frame rows. Lighthouse's track is empty, DevTools' is raw
+   gray bars, Cadence's is glass split by section with the cause named. */
+.vs { margin: 0; display: flex; flex-direction: column; gap: 24px; }
+.vs-row { display: flex; flex-direction: column; gap: 8px; }
+.vs-tool { flex: 1; font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink-2); }
+.vs-ours { font-size: 17px; font-weight: 650; letter-spacing: -0.035em; color: var(--ink); }
+.vs-value { font-size: 13px; line-height: 20px; color: var(--ink-3); }
+.vs-ring { width: 28px; height: 28px; }
+.vs-track { display: flex; gap: 8px; }
+.vs-group { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.vs-bars { align-self: stretch; height: 64px; display: flex; align-items: flex-end; gap: 3px; }
+.vs-bar { flex: 1; min-width: 0; height: var(--h); transform-origin: 50% 100%; transform: scaleY(0); }
+.vs-raw { border-radius: 2px; background: var(--data); }
+.vs[data-play] .vs-bar { animation: frames-rise var(--dur-base) var(--ease-out) calc(200ms + var(--t)) both; }
+/* Nothing to show: the dashed outline the site uses for anything missing. */
+.vs-blind {
+  height: 64px; align-items: center; justify-content: center; border: 1px dashed var(--ring-firm); border-radius: 6px;
+  font-size: 13px; line-height: 20px; color: var(--ink-3);
+}
+.vs-label { display: flex; align-items: center; gap: 4px; height: 16px; font-size: 12px; line-height: 1; color: var(--ink-3); white-space: nowrap; }
+.vs-label[data-bad] { color: var(--ink); font-weight: 500; }
+.vs-label svg { color: var(--bad); }
+.vs-cause { margin-top: -4px; font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; }
+/* Section names land once the bars are up; the cause follows its section. */
+.vs[data-play] .vs-label, .vs[data-play] .vs-cause { animation: vs-land var(--dur-slow) var(--ease-out) 1100ms both; }
+.vs[data-play] .vs-cause { animation-delay: 1250ms; }
+@keyframes vs-land { from { opacity: 0; transform: translateY(4px); filter: blur(2px); } }
+@media (prefers-reduced-motion: reduce) { .vs-bar { transform: none; animation: none !important; } .vs-label, .vs-cause { animation: none !important; } }
 
 /* Run a test: the setup row, then the two ways to open a page. */
 .test-card { display: grid; }
@@ -1123,22 +1170,29 @@ svg { display: block; flex: none; }
 @media (min-width: 1024px) {
   #root:has(.rails) { --page: 1200px; }
   #root:has(.rails) .shell, #root:has(.rails) .footer { max-width: var(--page); }
-  .rails .title { font-size: 40px; line-height: 48px; letter-spacing: -0.03em; }
+  .rails .title { font-size: 40px; line-height: 48px; letter-spacing: -0.0525em; }
   .rails .start-copy { max-width: 640px; }
   .rails .lede { font-size: 17px; line-height: 28px; }
-  .rails .subtitle { font-size: 30px; line-height: 38px; letter-spacing: -0.025em; }
+  .rails .subtitle { font-size: 30px; line-height: 38px; letter-spacing: -0.0475em; }
   .rails .home-head .lede { max-width: 640px; }
   .home-sec[data-split] { grid-template-columns: 320px minmax(0, 1fr); gap: 48px; }
   .rails .home-body .meta, .rails .test-pane .meta { font-size: 15px; line-height: 24px; }
   .rails .example-title, .rails .how-title, .rails .test-pane .h2 { font-size: 17px; line-height: 24px; }
   .rails .example { padding: 24px; }
   .rails .how-visual { height: 200px; }
-  .rails .how-visual > * { scale: 1.25; }
   .rails .example-tag { height: 28px; padding: 0 10px; font-size: 13px; }
   .rails .example-go { font-size: 15px; }
   .rails .runs .h2 { font-size: 19px; }
   .rails .setup-btn { font-size: 15px; }
   .rails .free-grid { gap: 16px; }
+  .rails .vs { gap: 28px; }
+  .rails .vs-tool { font-size: 17px; line-height: 24px; }
+  .rails .vs-ours { font-size: 19px; }
+  .rails .vs-value, .rails .vs-blind { font-size: 15px; }
+  .rails .vs-bars, .rails .vs-blind { height: 88px; }
+  .rails .vs-bars { gap: 4px; }
+  .rails .vs-track { gap: 12px; }
+  .rails .vs-label, .rails .vs-cause { font-size: 13px; }
   #root:has(.rails) .topbar { height: 72px; }
   #root:has(.rails) .topbar-link { font-size: 15px; }
   #root:has(.rails) .brand-word { font-size: 19px; }
@@ -1163,50 +1217,40 @@ svg { display: block; flex: none; }
   }
 }
 
-/* Hero: tinted glass slabs fanning open and shut. Each slab turns about a pin
-   near its base; where they overlap, the tints deepen like stacked glass.
-   At rest under reduced motion, the fan stays open. */
-.glass-fan { position: relative; width: 320px; height: 300px; flex: none; }
-.glass-slab {
-  position: absolute; left: 50%; bottom: 36px; width: 112px; height: 216px; margin-left: -56px;
-  border-radius: 6px; transform-origin: 50% 86%;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 52%, transparent), color-mix(in srgb, var(--c) 20%, transparent) 50%, color-mix(in srgb, var(--c) 2%, transparent));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent), inset 0 1px 0 rgba(255,255,255,.7);
-  transform: perspective(900px) rotateX(12deg) rotateZ(var(--open));
-  animation: fan 9s var(--ease-in-out) infinite both;
-  animation-delay: calc(var(--i) * 70ms);
-  will-change: transform;
-}
-:root[data-theme="dark"] .glass-slab { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
-@keyframes fan {
-  0%, 12% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--shut)); }
-  48%, 74% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--open)); }
-  100% { transform: perspective(900px) rotateX(12deg) rotateZ(var(--shut)); }
-}
-/* A soft shadow under the pin that widens as the fan opens. */
-.glass-shadow {
-  position: absolute; left: 50%; bottom: 20px; width: 240px; height: 28px; margin-left: -120px; border-radius: 50%;
-  background: radial-gradient(closest-side, var(--shadow), transparent); opacity: .5;
-  animation: fan-shadow 9s var(--ease-in-out) infinite both;
-}
-@keyframes fan-shadow {
-  0%, 12% { transform: scaleX(.5); }
-  48%, 74% { transform: scaleX(1); }
-  100% { transform: scaleX(.5); }
-}
-@media (prefers-reduced-motion: reduce) { .glass-slab, .glass-shadow { animation: none; } }
+/* On desktop the hero fills the first screen under the top bar (and the
+   banner while it's open), up to a cap so tall screens don't go empty. The
+   copy keeps its place at the top and the orbit takes the rest; the type
+   stays at its size. */
 @media (min-width: 1024px) {
-  .glass-fan { width: 400px; height: 360px; }
-  .glass-slab { width: 136px; height: 264px; margin-left: -68px; bottom: 44px; }
-  .glass-shadow { width: 300px; margin-left: -150px; bottom: 26px; }
+  .rails .start { --chrome: 72px; min-height: min(calc(100svh - var(--chrome)), 960px); padding-bottom: 0; }
+  #root:has(.banner) .rails .start { --chrome: 112px; }
+  .rails .start-top { flex: 1; gap: 32px; }
+  .rails .orbit-3d { flex: 1; height: auto; min-height: 440px; }
 }
-@media (min-width: 1024px) { .rails .start-top { grid-template-columns: minmax(0, 1fr) 400px; } }
+
+/* The orbit in glass: its canvas fills the box and rises in once the first
+   frame is drawn. Without WebGL, the plain mark stands in. */
+.orbit-3d[data-fallback] { display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.orbit-3d { position: relative; }
+/* Out of the flow, so the canvas never sizes its own box. */
+.orbit-3d canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: 0; transform: translateY(12px); filter: blur(6px); }
+.orbit-3d[data-ready] canvas { opacity: 1; transform: none; filter: none; transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out), filter var(--dur-slow) var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .orbit-3d canvas { transform: none; filter: none; } }
 
 /* The example cards open on a short run in glass: clean for the real site, broken for the demo. */
 .example-run { display: flex; align-items: flex-end; gap: 4px; height: 32px; }
 .example-run .how-frame { width: 6px; }
 
-/* Glass: the material the home page is drawn in, from the hero's fan down.
+/* Art: the flat material the home page's pictures are drawn in. A gray bar
+   or tile; a frame the page missed (data-miss) is an empty outlined slot,
+   so a chop shows as a hole exactly where it happened; an empty slot
+   (data-empty) is the lightest tone. */
+.art { border-radius: 4px; background: var(--art-3); }
+.art[data-miss] { background: none; box-shadow: inset 0 0 0 2px var(--art-line); }
+.art[data-empty] { background: var(--art-1); }
+.free-tile.art, .test-link-perf.art { background: var(--art-1); }
+
+/* Glass: the material the reports' panes are drawn in.
    A pane is tinted by --c, densest at the top and clearing toward its base,
    with a colored edge and a lit top. A pane the page missed (data-off) is
    the same glass in gray. */
@@ -1230,11 +1274,14 @@ svg { display: block; flex: none; }
 .frames-fps { font-size: 15px; line-height: 20px; font-weight: 500; color: var(--ink); white-space: nowrap; }
 .frames-unit { margin-left: 4px; font-weight: 400; color: var(--ink-3); }
 .frames-track { position: relative; height: 88px; }
-.frames-slab { position: absolute; bottom: 10px; height: 72px; width: calc(100% / 30 * .62); transform-origin: 50% 100%; transform: scaleY(0); }
+.frames-slab { position: absolute; bottom: 14px; height: 72px; width: calc(100% / 30 * .62); transform-origin: 50% 100%; transform: scaleY(0); }
 .frames[data-play] .frames-slab { animation: frames-rise var(--dur-base) var(--ease-out) var(--t) both; }
 @keyframes frames-rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-/* The same soft shadow the hero's fan stands on. */
-.frames-shadow { position: absolute; left: 0; right: 0; bottom: 2px; height: 16px; border-radius: 50%; background: radial-gradient(closest-side, var(--shadow), transparent); opacity: .35; }
+/* A chunky rail for the bars to stand on, ringed at both ends. */
+.frames-rail { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; border-radius: 3px; background: var(--art-1); }
+.frames-rail::before, .frames-rail::after { content: ""; position: absolute; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 3px var(--art-line); }
+.frames-rail::before { left: 0; }
+.frames-rail::after { right: 0; }
 @media (prefers-reduced-motion: reduce) { .frames-slab { transform: none; animation: none !important; } }
 @media (min-width: 1024px) {
   .frames { gap: 28px; }
@@ -1246,49 +1293,43 @@ svg { display: block; flex: none; }
   .frames-slab { height: 88px; }
 }
 
-/* How it works, in glass. */
-.how-probe { position: relative; width: 176px; height: 64px; }
-.how-probe-back { position: absolute; left: 0; top: 0; width: 148px; height: 52px; padding: 7px 8px; }
-.how-probe-file { display: block; font: 400 10px/12px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; color: var(--ink-3); }
-.how-probe-front {
-  position: absolute; right: 0; bottom: 0; width: 132px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  font: 500 13px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; color: var(--ink);
+/* How it works, as flat art (HowVisuals.tsx): each picture fills its panel
+   and runs off its edges. */
+.art-stage { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.art-a1 { fill: var(--art-1); }
+.art-a2 { fill: var(--art-2); }
+.art-a3 { fill: var(--art-3); }
+.art-edge { stroke: var(--art-line); stroke-width: 3; }
+.art-ink { fill: var(--solid); }
+.art-pop { fill: var(--art-pop); }
+.art-code { font: 500 13px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; fill: var(--on-solid); }
+.art-slot { fill: none; stroke: var(--art-line); stroke-width: 2; stroke-dasharray: 6 6; }
+.art-handle { fill: var(--recess); stroke: var(--art-line); stroke-width: 3; }
+.art-handle-ink { stroke: var(--ink); stroke-width: 2.5; }
+.art-frame { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+.art-trail { fill: none; stroke: var(--art-line); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 12; }
+.art-tick { stroke: var(--art-line); stroke-width: 5; stroke-linecap: round; }
+.art-tick-late { stroke: var(--ink); }
+.art-stem { stroke: var(--art-line); stroke-width: 4; }
+/* The probe drops into its slot, the page scrolls under the window, and the
+   needle swings into the late ticks, each once the section is in view. */
+.art-drop, .art-needle { transform-box: view-box; }
+.home-sec[data-shown] .art-drop { animation: how-drop var(--dur-slow) var(--ease-out) 300ms both; }
+@keyframes how-drop { from { opacity: 0; transform: translate(28px, -36px) scale(1.04); } }
+.art-scroll { animation: art-scroll 8s linear infinite; }
+@keyframes art-scroll { to { transform: translateY(var(--loop)); } }
+.art-thumb { animation: art-thumb 8s linear infinite; }
+@keyframes art-thumb { to { transform: translateY(100px); } }
+.art-needle { transform-origin: 150px -70px; transform: rotate(30deg); }
+.home-sec[data-shown] .art-needle { animation: art-swing 1400ms var(--ease-out) 300ms both; }
+@keyframes art-swing { from { transform: rotate(30deg); } 70% { transform: rotate(-32deg); } to { transform: rotate(-26deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .art-drop, .art-scroll, .art-thumb { animation: none !important; }
+  .art-needle { animation: none !important; transform: rotate(-26deg); }
 }
-/* The probe drops into the layout when the section comes into view. */
-.home-sec[data-shown] .how-probe-front { animation: how-drop var(--dur-slow) var(--ease-out) 300ms both; }
-@keyframes how-drop { from { opacity: 0; transform: translate(12px, -14px) scale(1.06); } }
-.how-scroll {
-  position: relative; width: 140px; height: 120px; overflow: hidden;
-  mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent);
-}
-.how-scroll-track { position: absolute; left: 12px; right: 12px; top: 0; display: flex; flex-direction: column; gap: 8px; animation: how-scroll 6s linear infinite; }
-/* The lit copy shows only inside the window. */
-.how-scroll-lit { position: absolute; inset: 0; clip-path: inset(calc(50% - 20px) 4px round 6px); }
-.how-strip { display: block; height: 14px; flex: none; }
-@keyframes how-scroll { to { transform: translateY(calc(-50% - 4px)); } }
-.how-window {
-  position: absolute; left: 4px; right: 4px; top: 50%; height: 40px; transform: translateY(-50%); border-radius: 6px;
-  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 30%);
-  box-shadow: inset 0 0 0 1px var(--ring-firm), inset 0 1px 0 rgba(255,255,255,.9), 0 2px 6px rgba(0,0,0,.08), 0 8px 20px -6px rgba(0,0,0,.12);
-}
-:root[data-theme="dark"] .how-window {
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0) 45%);
-  box-shadow: inset 0 0 0 1px var(--ring-firm), inset 0 1px 0 rgba(255,255,255,.14), 0 2px 6px rgba(0,0,0,.4), 0 8px 20px -6px rgba(0,0,0,.5);
-}
-/* Frame times against the budget: bars grow from zero in turn. */
-.how-budget { position: relative; height: 64px; padding-right: 52px; }
-.how-budget-bars { display: flex; align-items: flex-end; gap: 4px; height: 100%; }
-.how-bar { width: 8px; height: var(--h); transform-origin: 50% 100%; }
-.home-sec[data-shown] .how-bar { animation: frames-rise var(--dur-slow) var(--ease-out) calc(300ms + var(--i) * 40ms) both; }
-.how-budget-line { position: absolute; left: -6px; right: 0; height: 0; border-top: 1.5px dashed var(--ink); }
-.how-budget-line span {
-  position: absolute; right: 0; top: -8px; padding-left: 6px; background: var(--recess);
-  font: 400 10px/14px ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; color: var(--ink-2); white-space: nowrap;
-}
+
 .how-frames { display: flex; align-items: flex-end; gap: 4px; height: 48px; }
 .how-frame { width: 8px; height: 100%; }
-@media (prefers-reduced-motion: reduce) { .how-scroll-track, .how-probe-front, .how-bar { animation: none !important; } }
 
 /* No runs yet: a row of gray panes, nothing recorded, inside a dashed
    outline. */
