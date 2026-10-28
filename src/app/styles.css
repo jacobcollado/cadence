@@ -1369,6 +1369,12 @@ svg { display: block; flex: none; }
 .art-pop { fill: var(--art-pop); }
 .art-code { font: 500 13px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; fill: var(--on-solid); }
 .art-slot { fill: none; stroke: var(--art-line); stroke-width: 2; stroke-dasharray: 6 6; }
+.art-file { font: 400 12px/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; letter-spacing: 0; fill: var(--ink-2); }
+.art-guide { stroke: var(--art-line); stroke-width: 2; stroke-linecap: round; }
+.art-mark { fill: none; stroke: var(--on-solid); stroke-width: 1.5; stroke-linecap: round; }
+/* Once the probe is in, its slot's outline goes. */
+.home-sec[data-shown] .art-slot { animation: art-fill var(--dur-base) var(--ease-out) 1300ms both; }
+@keyframes art-fill { to { opacity: 0; } }
 .art-handle { fill: var(--recess); stroke: var(--art-line); stroke-width: 3; }
 .art-handle-ink { stroke: var(--ink); stroke-width: 2.5; }
 .art-frame { fill: none; stroke: var(--ink); stroke-width: 2.5; }
@@ -1394,6 +1400,7 @@ svg { display: block; flex: none; }
 @keyframes art-land { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) {
   .art-drop, .art-scroll, .art-thumb { animation: none !important; }
+  .home-sec[data-shown] .art-slot { animation: none; opacity: 0; }
   .art-grow, .art-flag { animation: none !important; }
 }
 

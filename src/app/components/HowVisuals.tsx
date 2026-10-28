@@ -18,25 +18,32 @@ const Pointer = ({ x, y, className }: { x: number; y: number; className?: string
   <path className={`art-a3 ${className ?? ""}`} transform={`translate(${x} ${y})`} d="M0 0 L26 9 Q28 10 26 12 L15 16 L10 27 Q9 29 7 27 Z" strokeLinejoin="round" />
 );
 
-/** The probe: the app's layout file, oversized and cropped, with the
- *  pointer carrying the component down its dashed trail into the slot. The
- *  trail starts where the pointer picks it up, so it never comes from nowhere. */
+/** The probe: the app's root layout, oversized and cropped, its tags as
+ *  nested pills with guides down their indents. The pointer carries the
+ *  component, marked with the logo in violet, down its dashed trail into the
+ *  empty slot inside the body, and the slot's outline goes once it's filled. */
 export function ProbePane() {
-  const lines = [[96, 120], [116, 92], [136, 70], [196, 104], [216, 80]];
+  const lines = [[52, 74, 70], [74, 100, 60], [98, 126, 96], [74, 204, 64], [52, 230, 72]];
   return (
     <svg {...STAGE}>
-      <rect className="art-a1 art-edge" x="44" y="30" width="420" height="300" rx="16" />
-      <rect className="art-a2" x="64" y="46" width="64" height="12" rx="6" />
-      {lines.map(([y, w], i) => <rect key={i} className="art-a2" x={i === 1 || i === 4 ? 92 : 72} y={y - 6} width={w} height="12" rx="6" />)}
-      {/* The slot the probe lands in. */}
-      <rect className="art-slot" x="92" y="148" width="150" height="34" rx="8" />
-      {/* The trail runs from where the pointer starts to where it lands. */}
-      <path className="art-trail" d="M292 52 C300 96 276 142 244 168" />
+      {/* The file's tab, then the file over its lower edge. */}
+      <rect className="art-a1 art-edge" x="34" y="16" width="124" height="40" rx="10" />
+      <text className="art-file" x="96" y="40" textAnchor="middle">layout.tsx</text>
+      <rect className="art-a1 art-edge" x="34" y="48" width="420" height="280" rx="16" />
+      {lines.map(([x, y, w]) => <rect key={y} className="art-a2" x={x} y={y - 6} width={w} height="12" rx="6" />)}
+      <line className="art-guide" x1="58" y1="88" x2="58" y2="216" />
+      <line className="art-guide" x1="82" y1="114" x2="82" y2="190" />
+      <rect className="art-slot" x="98" y="148" width="136" height="34" rx="8" />
+      <path className="art-trail" d="M284 52 C292 96 268 142 236 168" />
       <g className="art-drop">
-        <rect className="art-ink" x="92" y="148" width="150" height="34" rx="8" />
-        <text className="art-code" x="167" y="170" textAnchor="middle">{"<Cadence />"}</text>
-        <Handle x={242} y={148} />
-        <Pointer x={236} y={170} />
+        <rect className="art-ink" x="98" y="148" width="136" height="34" rx="8" />
+        <g transform="translate(103.2 155.2) scale(1.4)">
+          <path className="art-mark" d="M13.2 7.27A5.25 5.25 0 1 1 7.82 2.75" />
+          <circle className="art-pop" cx="11.38" cy="3.98" r="1.9" />
+        </g>
+        <text className="art-code" x="130" y="170">{"<Cadence />"}</text>
+        <Handle x={234} y={148} />
+        <Pointer x={228} y={170} />
       </g>
     </svg>
   );
