@@ -1,7 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { encode } from "uqr";
-import { countUp, flipText } from "../../shared/motion";
+import { countUp, DUR, flipText, reducedMotion } from "../../shared/motion";
 import { RATING_LABEL, type Rating } from "../../shared/stats";
 import { LEVEL_LABEL, RATING_LEVEL, type Level } from "../../shared/vitals";
 import { copyText } from "../lib";
@@ -202,47 +202,73 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
  * and rendered into the body, so tables and animated containers can't clip it.
  * It closes on a tap elsewhere, Escape or scroll.
  */
+/**
+ * A floating panel's life: mounted while open and for one exit animation
+ * after, so it can close back into its trigger instead of vanishing.
+ */
+export function usePresence(ms: number = DUR.base) {
+  const [mounted, setMounted] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const timer = useRef(0);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const show = () => { clearTimeout(timer.current); setClosing(false); setMounted(true); };
+  const hide = (instant = false) => {
+    clearTimeout(timer.current);
+    if (instant || reducedMotion()) { setMounted(false); setClosing(false); return; }
+    setClosing(true);
+    timer.current = window.setTimeout(() => { setMounted(false); setClosing(false); }, ms);
+  };
+  return { mounted, open: mounted && !closing, closing, show, hide };
+}
+
 function useCard<T extends HTMLElement>() {
-  const [at, setAt] = useState<{ x: number; y: number; up: boolean } | null>(null);
+  // Where the card sits, which side of its trigger, and the trigger's center
+  // within it, so it opens out of the trigger and closes back into it.
+  const [at, setAt] = useState<{ x: number; y: number; up: boolean; ox: number }>({ x: 0, y: 0, up: false, ox: 0 });
+  const { mounted, open, closing, show: mount, hide } = usePresence(DUR.fast);
   const anchor = useRef<T>(null);
   const id = useId();
   const show = () => {
     const r = anchor.current!.getBoundingClientRect();
     const up = r.bottom + 220 > innerHeight && r.top > 240;
-    setAt({ x: Math.max(16, Math.min(r.left + r.width / 2 - 140, innerWidth - 296)), y: up ? r.top - 8 : r.bottom + 8, up });
+    const x = Math.max(16, Math.min(r.left + r.width / 2 - 140, innerWidth - 296));
+    setAt({ x, y: up ? r.top - 8 : r.bottom + 8, up, ox: r.left + r.width / 2 - x });
+    mount();
   };
-  const hide = () => setAt(null);
   useEffect(() => {
-    if (!at) return;
+    if (!open) return;
     const away = (e: PointerEvent) => !anchor.current?.contains(e.target as Node) && hide();
     const key = (e: KeyboardEvent) => e.key === "Escape" && hide();
+    // Its place was measured from the trigger, so once the page moves it goes at once.
+    const scrolled = () => hide(true);
     addEventListener("pointerdown", away);
     addEventListener("keydown", key);
-    addEventListener("scroll", hide, { passive: true, capture: true });
+    addEventListener("scroll", scrolled, { passive: true, capture: true });
     return () => {
       removeEventListener("pointerdown", away);
       removeEventListener("keydown", key);
-      removeEventListener("scroll", hide, { capture: true });
+      removeEventListener("scroll", scrolled, { capture: true });
     };
-  }, [at]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   // Mouse opens on hover; touch and keyboard open on press.
   const handlers = {
     onPointerEnter: (e: React.PointerEvent) => e.pointerType === "mouse" && show(),
     onPointerLeave: (e: React.PointerEvent) => e.pointerType === "mouse" && hide(),
     onClick: (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (at) hide();
+      if (open) hide();
       else show();
     },
   };
-  const card = (title: string, children: ReactNode) => at && createPortal(
-    <div role="tooltip" id={id} className="info-tip" data-up={at.up || undefined} style={{ left: at.x, top: at.y }}>
+  const card = (title: string, children: ReactNode) => mounted && createPortal(
+    <div role="tooltip" id={id} className="info-tip" data-up={at.up || undefined} data-closing={closing || undefined}
+      style={{ left: at.x, top: at.y, transformOrigin: `${at.ox}px ${at.up ? "100%" : "0"}` }}>
       <div className="info-title">{title}</div>
       <div className="info-body">{children}</div>
     </div>,
     document.body,
   );
-  return { anchor, open: !!at, id, handlers, card };
+  return { anchor, open, id, handlers, card };
 }
 
 /** An "i" that opens a card about the title beside it, on hover or tap. */

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Run } from "../../shared/run";
 import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Icon, Info, InfoTile, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { Bar, CopyButton, CountUp, Icon, Info, InfoTile, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, usePresence, ZoneBar } from "../components/ui";
 import { scoreLevel, scores, type Scores } from "../../shared/score";
 import { heapMissing, LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
@@ -451,26 +451,35 @@ function memoryMissing(run: Run): string {
 
 /** Device details in a floating panel: context, not a result. */
 function DeviceButton({ run }: { run: Run }) {
-  const [open, setOpen] = useState(false);
+  const { mounted, open, closing, show, hide } = usePresence();
   const wrap = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const away = (e: PointerEvent) => !wrap.current?.contains(e.target as Node) && setOpen(false);
-    const key = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const away = (e: PointerEvent) => !wrap.current?.contains(e.target as Node) && hide();
+    const key = (e: KeyboardEvent) => e.key === "Escape" && hide();
     addEventListener("pointerdown", away);
     addEventListener("keydown", key);
     return () => {
       removeEventListener("pointerdown", away);
       removeEventListener("keydown", key);
     };
-  }, [open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The panel grows out of the button wherever the layout puts it (its right
+  // edge on desktop, full width on phones), and shrinks back into it.
+  useLayoutEffect(() => {
+    if (!mounted || closing) return;
+    const b = button.current!.getBoundingClientRect(), p = panel.current!.getBoundingClientRect();
+    panel.current!.style.transformOrigin = `${b.left + b.width / 2 - p.left}px ${b.top + b.height / 2 - p.top}px`;
+  }, [mounted, closing]);
   return (
     <div className="popover-wrap" ref={wrap}>
-      <button className="btn btn-secondary btn-icon-l" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <button ref={button} className="btn btn-secondary btn-icon-l" aria-expanded={open} onClick={() => (open ? hide() : show())}>
         <Icon name="info" size={14} />Details
       </button>
-      {open && (
-        <div className="popover" role="dialog" aria-label="Details">
+      {mounted && (
+        <div ref={panel} className="popover" role="dialog" aria-label="Details" data-closing={closing || undefined}>
           <DevicePanel run={run} />
         </div>
       )}

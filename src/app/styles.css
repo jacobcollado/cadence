@@ -489,9 +489,13 @@ svg { display: block; flex: none; }
   width: min(560px, calc(100vw - 32px)); padding: 20px; border-radius: 6px;
   background: var(--paper);
   box-shadow: inset 0 0 0 1px var(--ring-firm), 0 24px 48px -12px rgba(0,0,0,.24), 0 2px 6px rgba(0,0,0,.06);
+  /* It grows out of its button and shrinks back into it; the origin is set
+     from the button's place when it opens. */
   animation: pop var(--dur-base) var(--ease-out) both; transform-origin: top right;
 }
-@keyframes pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+.popover[data-closing] { animation: pop-out var(--dur-base) var(--ease-out) both; pointer-events: none; }
+@keyframes pop { from { opacity: 0; transform: scale(0.94); } }
+@keyframes pop-out { to { opacity: 0; transform: scale(0.94); } }
 .popover-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
 @media (max-width: 600px) { .popover-wrap { position: static; } .report-head { position: relative; } .popover { left: 0; right: 0; width: auto; } }
 /* The header's actions hold the device popover, so they sit above the content below. */
@@ -536,9 +540,13 @@ svg { display: block; flex: none; }
   font-size: 13px; line-height: 19px; font-weight: 400; letter-spacing: -0.01em; text-align: left; white-space: normal;
   animation: tip var(--dur-fast) var(--ease-out) both;
 }
-.info-tip[data-up] { transform: translateY(-100%); animation-name: tip-up; }
-@keyframes tip { from { opacity: 0; transform: translateY(-4px); } }
-@keyframes tip-up { from { opacity: 0; transform: translateY(calc(-100% + 4px)); } }
+/* Above its trigger it hangs from its bottom edge. It opens out of the
+   trigger's center and closes back into it (origin set when it opens). */
+.info-tip[data-up] { translate: 0 -100%; }
+.info-tip[data-closing] { animation: tip-out var(--dur-fast) var(--ease-out) both; pointer-events: none; }
+@keyframes tip { from { opacity: 0; transform: scale(0.94); } }
+@keyframes tip-out { to { opacity: 0; transform: scale(0.94); } }
+@media (prefers-reduced-motion: reduce) { .info-tip, .popover { animation: none !important; } }
 .info-title { font-size: 13px; line-height: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
 .info-body { display: flex; flex-direction: column; gap: 8px; }
 .info-body .rating-defs { display: flex; flex-direction: column; gap: 8px; }
