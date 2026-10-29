@@ -403,7 +403,8 @@ svg { display: block; flex: none; }
 @media (min-width: 1024px) { .rails .compare-sec-title { margin-bottom: 16px; } }
 /* The summary's stat cards: three across, or two with the gap beneath on phones. */
 .compare-stats { margin-bottom: 0; }
-@media (min-width: 720px) { .compare-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Two classes, so it outranks the stat row's own four-column rule. */
+@media (min-width: 720px) { .stat-row.compare-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 719px) { .compare-gap { grid-column: 1 / -1; } }
 .compare-who { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .compare-who .gbar-key { flex: none; }

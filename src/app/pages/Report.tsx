@@ -58,6 +58,9 @@ function readTab(): Tab {
 
 function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   const [highlight, setHighlight] = useState<number | null>(null);
+  // A section picked by tap or click; it lives here with the highlight so the
+  // two stay in step when the tab changes and the table remounts.
+  const [pinned, setPinned] = useState<number | null>(null);
   const [tab, setTab] = useState<Tab>(readTab);
   const cause = diagnose(run, stats);
   const metrics = pageLoad(run);
@@ -119,7 +122,7 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
       <section className="report-sec report-panel">
       <div className="tab-panel enter" key={tab} role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === "smooth" && (
-          <SmoothTab run={run} stats={stats} cause={cause} highlight={highlight} setHighlight={setHighlight} />
+          <SmoothTab run={run} stats={stats} cause={cause} highlight={highlight} setHighlight={setHighlight} pinned={pinned} setPinned={setPinned} />
         )}
         {tab === "load" && (
           <>
@@ -264,17 +267,18 @@ function Overview({ run, stats, metrics, mem, scores: sc, tab, onPick }: {
   );
 }
 
-function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
+function SmoothTab({ run, stats, cause, highlight, setHighlight, pinned, setPinned }: {
   run: Run;
   stats: RunStats;
   cause: Cause;
   highlight: number | null;
   setHighlight: (i: number | null) => void;
+  pinned: number | null;
+  setPinned: (i: number | null) => void;
 }) {
   const rows = stats.sections.filter((s) => s.frames > 0);
   // A section picked by tap or click stays highlighted in the chart until
   // it's tapped again; hovering with a mouse previews another meanwhile.
-  const [pinned, setPinned] = useState<number | null>(null);
   const pin = (i: number) => {
     const next = pinned === i ? null : i;
     setPinned(next);
