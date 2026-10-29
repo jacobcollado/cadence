@@ -39,6 +39,8 @@ function withPerf(base: string): string {
   if (!raw) return "";
   try {
     const u = new URL(/^https?:\/\//.test(raw) ? raw : `https://${raw}`);
+    // A site with a token is opened with ?perf=<token>; keep one already typed.
+    if (u.searchParams.has("perf")) return `${u.origin}${u.pathname}${u.search}`;
     return `${u.origin}${u.pathname}${u.search ? `${u.search}&perf` : "?perf"}`;
   } catch {
     return raw;
