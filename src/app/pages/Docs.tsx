@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
 import { Icon } from "../components/ui";
-import { CauseTags, FrameStrip, PassMeter, TilesSpecimen } from "../components/DocVisuals";
+import { CauseTags, FrameStrip, PassScene, TilesSpecimen } from "../components/DocVisuals";
 import { GlassFrames } from "../components/GlassFrames";
 import { reducedMotion } from "../../shared/motion";
 
@@ -35,10 +35,10 @@ function Code({ children }: { children: string }) {
 }
 
 /** A card with an icon, a title and a line or two. */
-function Card({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+function Card({ icon, visual, title, children }: { icon?: ReactNode; visual?: ReactNode; title: string; children: ReactNode }) {
   return (
-    <div className="doc-card">
-      <span className="doc-card-icon">{icon}</span>
+    <div className="doc-card" data-visual={visual ? true : undefined}>
+      {visual ?? <span className="doc-card-icon">{icon}</span>}
       <div className="doc-card-title">{title}</div>
       <p>{children}</p>
     </div>
@@ -80,7 +80,7 @@ function CipherLink() {
       <div className="cipher-line" aria-hidden="true">
         <span ref={host} className="cipher-host">{location.host}/r</span>
         <span className="cipher-hash">#</span>
-        <span className="cipher-data">{chars.join("")}</span>
+        <span className="cipher-data"><Icon name="lock" size={14} /><span>{chars.join("")}</span></span>
       </div>
       <div className="cipher-keys" aria-hidden="true">
         <span className="cipher-key">Sent to the server</span>
@@ -183,10 +183,10 @@ loadCadence();`}</Code>
 
           <Section id="test" title="Running a test" lede="The panel shows the frame rate right now and which section of the page is in the middle of the screen. Choose one of four passes.">
             <div className="doc-cards">
-              <Card icon={<PassMeter pass="steady" />} title="Steady">Scrolls the whole page at one screen per second, like someone reading. Start here.</Card>
-              <Card icon={<PassMeter pass="fast" />} title="Fast">Scrolls at four screens per second. The hardest test, and the one most sites fail first.</Card>
-              <Card icon={<PassMeter pass="idle" />} title="Idle">Holds still for ten seconds. Catches animations and videos that keep the page busy even when nobody scrolls.</Card>
-              <Card icon={<PassMeter pass="manual" />} title="Manual">Records while you scroll and tap yourself, for up to two minutes. Use it for menus, forms and anything a script can't reach.</Card>
+              <Card visual={<PassScene pass="steady" />} title="Steady">Scrolls the whole page at one screen per second, like someone reading. Start here.</Card>
+              <Card visual={<PassScene pass="fast" />} title="Fast">Scrolls at four screens per second. The hardest test, and the one most sites fail first.</Card>
+              <Card visual={<PassScene pass="idle" />} title="Idle">Holds still for ten seconds. Catches animations and videos that keep the page busy even when nobody scrolls.</Card>
+              <Card visual={<PassScene pass="manual" />} title="Manual">Records while you scroll and tap yourself, for up to two minutes. Use it for menus, forms and anything a script can't reach.</Card>
             </div>
             <p><strong>Added load</strong> gives the device extra work on every frame, so a fast laptop behaves more like a slower phone. Light adds a little, Heavy adds more. A real slower phone is still the better test.</p>
             <p>To turn Cadence off in a tab, close its panel, or open the page with <code>?perf=off</code>.</p>

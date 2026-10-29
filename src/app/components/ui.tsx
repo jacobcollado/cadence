@@ -1,7 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { encode } from "uqr";
-import { countUp, flipText } from "../../shared/motion";
+import { countUp, DUR, flipText, reducedMotion } from "../../shared/motion";
 import { RATING_LABEL, type Rating } from "../../shared/stats";
 import { LEVEL_LABEL, RATING_LEVEL, type Level } from "../../shared/vitals";
 import { copyText } from "../lib";
@@ -33,6 +33,7 @@ const paths = {
   steady: <path d="M8 2.5v11M4.5 10L8 13.5 11.5 10" />,
   fast: <path d="M4.5 3.5L8 7l3.5-3.5M4.5 9L8 12.5 11.5 9" />,
   idle: <path d="M6 3.5v9M10 3.5v9" />,
+  brief: <><circle cx="8" cy="9" r="5" /><path d="M8 6.5V9l1.5 1.5M6.5 2h3" /></>,
   manual: <path d="M6.5 8.5V3.25a1.25 1.25 0 012.5 0V8M9 7.5V6.75a1.25 1.25 0 012.5 0V9.5c0 2.5-1.75 4-4 4H7c-1.6 0-2.6-.9-3.3-2.1L2.6 9.6a1.2 1.2 0 012-1.2l1.9 2.1" />,
   lock: <><rect x="3" y="7" width="10" height="6.5" rx="1.5" /><path d="M5.25 7V5a2.75 2.75 0 015.5 0v2" /></>,
   markdown: <><rect x="1.75" y="3.5" width="12.5" height="9" rx="1.5" /><path d="M4.25 10V6l1.75 2 1.75-2v4M10.5 6v4M9.25 8.75l1.25 1.25 1.25-1.25" /></>,
@@ -124,6 +125,12 @@ export function StatusTag({ level, label, size = 24 }: { level: Level; label?: s
 }
 
 /** How a stretch of frames felt. */
+/** In place of a rating, for a section on screen too briefly to judge: the
+ *  same tag shape, with a stopwatch and a dashed outline, since nothing was graded. */
+export function BriefTag() {
+  return <span className="rating brief-tag"><Icon name="brief" size={12} />Too brief</span>;
+}
+
 export function RatingTag({ rating, size = 24 }: { rating: Rating; size?: 24 | 28 }) {
   return <StatusTag level={RATING_LEVEL[rating]} label={RATING_LABEL[rating]} size={size} />;
 }
@@ -202,47 +209,73 @@ export function CopyButton({ text, label = "Copy link", className = "btn btn-sec
  * and rendered into the body, so tables and animated containers can't clip it.
  * It closes on a tap elsewhere, Escape or scroll.
  */
+/**
+ * A floating panel's life: mounted while open and for one exit animation
+ * after, so it can close back into its trigger instead of vanishing.
+ */
+export function usePresence(ms: number = DUR.base) {
+  const [mounted, setMounted] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const timer = useRef(0);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const show = () => { clearTimeout(timer.current); setClosing(false); setMounted(true); };
+  const hide = (instant = false) => {
+    clearTimeout(timer.current);
+    if (instant || reducedMotion()) { setMounted(false); setClosing(false); return; }
+    setClosing(true);
+    timer.current = window.setTimeout(() => { setMounted(false); setClosing(false); }, ms);
+  };
+  return { mounted, open: mounted && !closing, closing, show, hide };
+}
+
 function useCard<T extends HTMLElement>() {
-  const [at, setAt] = useState<{ x: number; y: number; up: boolean } | null>(null);
+  // Where the card sits, which side of its trigger, and the trigger's center
+  // within it, so it opens out of the trigger and closes back into it.
+  const [at, setAt] = useState<{ x: number; y: number; up: boolean; ox: number }>({ x: 0, y: 0, up: false, ox: 0 });
+  const { mounted, open, closing, show: mount, hide } = usePresence(DUR.fast);
   const anchor = useRef<T>(null);
   const id = useId();
   const show = () => {
     const r = anchor.current!.getBoundingClientRect();
     const up = r.bottom + 220 > innerHeight && r.top > 240;
-    setAt({ x: Math.max(16, Math.min(r.left + r.width / 2 - 140, innerWidth - 296)), y: up ? r.top - 8 : r.bottom + 8, up });
+    const x = Math.max(16, Math.min(r.left + r.width / 2 - 140, innerWidth - 296));
+    setAt({ x, y: up ? r.top - 8 : r.bottom + 8, up, ox: r.left + r.width / 2 - x });
+    mount();
   };
-  const hide = () => setAt(null);
   useEffect(() => {
-    if (!at) return;
+    if (!open) return;
     const away = (e: PointerEvent) => !anchor.current?.contains(e.target as Node) && hide();
     const key = (e: KeyboardEvent) => e.key === "Escape" && hide();
+    // Its place was measured from the trigger, so once the page moves it goes at once.
+    const scrolled = () => hide(true);
     addEventListener("pointerdown", away);
     addEventListener("keydown", key);
-    addEventListener("scroll", hide, { passive: true, capture: true });
+    addEventListener("scroll", scrolled, { passive: true, capture: true });
     return () => {
       removeEventListener("pointerdown", away);
       removeEventListener("keydown", key);
-      removeEventListener("scroll", hide, { capture: true });
+      removeEventListener("scroll", scrolled, { capture: true });
     };
-  }, [at]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   // Mouse opens on hover; touch and keyboard open on press.
   const handlers = {
     onPointerEnter: (e: React.PointerEvent) => e.pointerType === "mouse" && show(),
     onPointerLeave: (e: React.PointerEvent) => e.pointerType === "mouse" && hide(),
     onClick: (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (at) hide();
+      if (open) hide();
       else show();
     },
   };
-  const card = (title: string, children: ReactNode) => at && createPortal(
-    <div role="tooltip" id={id} className="info-tip" data-up={at.up || undefined} style={{ left: at.x, top: at.y }}>
+  const card = (title: string, children: ReactNode) => mounted && createPortal(
+    <div role="tooltip" id={id} className="info-tip" data-up={at.up || undefined} data-closing={closing || undefined}
+      style={{ left: at.x, top: at.y, transformOrigin: `${at.ox}px ${at.up ? "100%" : "0"}` }}>
       <div className="info-title">{title}</div>
       <div className="info-body">{children}</div>
     </div>,
     document.body,
   );
-  return { anchor, open: !!at, id, handlers, card };
+  return { anchor, open, id, handlers, card };
 }
 
 /** An "i" that opens a card about the title beside it, on hover or tap. */
@@ -298,7 +331,7 @@ export interface Zone {
  * Thresholds as a color-coded bar: each zone in its status color with its
  * word under it, the cutoffs labeled, and an optional marker for this run.
  */
-export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel, glass }: {
+export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel }: {
   zones: Zone[];
   /** Where the bar starts, when the low end isn't worth the room. */
   min?: number;
@@ -306,8 +339,6 @@ export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel, glas
   format: (v: number) => string;
   marker?: number;
   markerLabel?: string;
-  /** Draw the good zone in the glass spectrum, to match frames drawn in it. */
-  glass?: boolean;
 }) {
   const range = max - min;
   const pct = (v: number) => `${((Math.min(max, Math.max(min, v)) - min) / range) * 100}%`;
@@ -318,7 +349,7 @@ export function ZoneBar({ zones, min = 0, max, format, marker, markerLabel, glas
     return s;
   });
   return (
-    <div className="zone" data-marked={marker !== undefined || undefined} data-glass={glass || undefined}>
+    <div className="zone" data-marked={marker !== undefined || undefined}>
       {marker !== undefined && (
         <div className="zone-marker" data-edge={(marker - min) / range < 0.15 ? "start" : (marker - min) / range > 0.85 ? "end" : undefined} style={{ left: pct(marker) }}>
           <span className="zone-marker-label num">{markerLabel ?? format(marker)}</span>

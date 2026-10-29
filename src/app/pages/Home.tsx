@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from "react";
 import { MODE_LABEL } from "../../shared/stats";
 import { CopyButton, Icon, Qr, RatingTag, ScoreRing, splitName, StatusIcon } from "../components/ui";
-import { GlassRow, MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
-import { tint } from "../glass";
+import { MiniFrames, ProbePane, ScrollPanes } from "../components/HowVisuals";
 import { GlassFrames } from "../components/GlassFrames";
 import { RATING_LEVEL } from "../../shared/vitals";
 import { TopBar } from "../components/TopBar";
 import { Install } from "../components/Install";
-import { GlassFan } from "../components/GlassFan";
+import { HeroOrbit } from "../components/HeroOrbit";
+import { VsFrames } from "../components/VsFrames";
 import { OPEN_SETUP } from "../components/Footer";
 import { importFile, listRuns, navigate, pathOf, removeRun, saveRun, when, type Saved } from "../lib";
 import { DUR, EASE, reducedMotion } from "../../shared/motion";
@@ -17,11 +17,12 @@ const TARGET = "cadence.target";
 
 type IconName = ComponentProps<typeof Icon>["name"];
 
-// The example cards' runs: the studio site scrolls clean, the demo keeps missing frames.
-const SMOOTH = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-// Nothing recorded yet: every pane gray.
-const NONE = Array(12).fill(0);
-const SLOW = [1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1];
+// The example cards' runs, as frame times in ms: the studio site holds the
+// budget, the demo keeps blowing through it.
+const SMOOTH = [16, 17, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16, 16, 15, 16, 17, 16];
+const SLOW = [16, 17, 34, 16, 15, 50, 66, 33, 16, 17, 48, 16, 35, 52, 16, 17, 33, 16, 58, 16, 17, 40];
+// Nothing recorded yet: empty frame slots at a scroll's uneven heights.
+const NONE = [44, 52, 40, 60, 48, 36, 56, 64, 44, 50, 38, 58, 46, 62, 42, 54, 48, 40, 60, 46, 52, 38, 56, 44];
 
 // What the slow demo gets wrong, one mistake per section.
 const MISTAKES = ["Glowing canvas", "Forced layout", "Blocking tracker", "Script animation", "Resizing form"];
@@ -51,7 +52,7 @@ function LinkPreview({ link }: { link: string }) {
   return (
     <p className="test-link" data-empty={!link || undefined}>
       <span className="test-link-url">{shown.slice(0, cut)}</span>
-      {cut < shown.length && <span className="glass test-link-perf" style={link ? { "--c": tint(1 / 3) } as CSSProperties : undefined}>{shown.slice(cut)}</span>}
+      {cut < shown.length && <span className="art test-link-perf" data-empty={!link || undefined}>{shown.slice(cut)}</span>}
     </p>
   );
 }
@@ -154,7 +155,7 @@ export function Home() {
               <a href={`/r?example#${INERTIA_RUN}`} className="btn btn-lg btn-secondary" onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>See a report</a>
             </div>
           </div>
-          <GlassFan />
+          <HeroOrbit />
         </div>
       </section>
 
@@ -185,7 +186,7 @@ export function Home() {
       <Reveal split title="See it in action" lede="A real report, and a page that's slow on purpose.">
         <div className="example-cards">
           <a className="card example" href={`/r?example#${INERTIA_RUN}`} onClick={(e) => { e.preventDefault(); navigate(`/r?example#${INERTIA_RUN}`); }}>
-            <GlassRow run={SMOOTH} className="example-run" />
+            <ExampleArt times={SMOOTH} fps={60} />
             <span className="example-copy">
               <span className="example-title">Inertia, our studio's site</span>
               <span className="meta">Smooth scrolling, but the largest paint takes {"5.4 s"}.</span>
@@ -193,7 +194,7 @@ export function Home() {
             <span className="example-go">Open report<Icon name="forward" size={14} /></span>
           </a>
           <a className="card example" href="/demo.html" target="_blank" rel="noopener">
-            <GlassRow run={SLOW} className="example-run" />
+            <ExampleArt times={SLOW} fps={38} />
             <span className="example-copy">
               <span className="example-title">A page that's slow on purpose</span>
               <span className="example-tags">
@@ -205,11 +206,15 @@ export function Home() {
         </div>
       </Reveal>
 
+      <Reveal title="Why not Lighthouse or DevTools?" lede="They grade the load on your machine. Sites stutter on the scroll, on their phones.">
+        <VsFrames />
+      </Reveal>
+
       <Reveal title="Free, open and private">
         <ul className="free-grid">
-          {FREE.map((f, i) => (
+          {FREE.map((f) => (
             <li key={f.title} className="free">
-              <span className="glass free-tile" style={{ "--c": tint(i / (FREE.length - 1)) } as CSSProperties}><Icon name={f.icon} size={16} /></span>
+              <span className="art free-tile"><Icon name={f.icon} size={16} /></span>
               <span className="example-title">{f.title}</span>
             </li>
           ))}
@@ -217,13 +222,20 @@ export function Home() {
       </Reveal>
 
       <Reveal title="Run a test" lede="Install once, then open any page here or on a phone.">
-        <div className="test-stack">
-          <Setup />
+        {/* Two steps, numbered on ringed handles joined by a dashed trail:
+            install once, then open a page. */}
+        <ol className="test-stack">
+          <li className="test-step">
+            <span className="test-num num">1</span>
+            <Setup />
+          </li>
+          <li className="test-step">
+          <span className="test-num num">2</span>
           {/* One panel, two ways to open the page: here, or on a phone by its code. */}
           <div className="card test-card">
             <div className="test-pane">
               <div className="start-card-head">
-                <span className="glass free-tile" style={{ "--c": tint(1 / 3) } as CSSProperties}><Icon name="device" size={16} /></span>
+                <span className="art free-tile"><Icon name="device" size={16} /></span>
                 <span>
                   <h3 className="h2">Test on this device</h3>
                   <p className="meta">Opens the page with the probe on.</p>
@@ -247,22 +259,27 @@ export function Home() {
             </div>
             <div className="test-pane qr-card">
               <div className="start-card-head">
-                <span className="glass free-tile" style={{ "--c": tint(2 / 3) } as CSSProperties}><Icon name="phone" size={16} /></span>
+                <span className="art free-tile"><Icon name="phone" size={16} /></span>
                 <span>
                   <h3 className="h2">Test on a phone</h3>
                   <p className="meta">Scan to open it there.</p>
                 </span>
               </div>
-              {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
+              {/* The code held in a selection frame with ringed corners, ready to scan. */}
+              <div className="qr-frame" data-empty={!link || undefined}>
+                {["tl", "tr", "bl", "br"].map((c) => <span key={c} className="vs-handle" data-at={c} />)}
+                {link ? <Qr text={link} /> : <div className="qr-empty">Enter a page to get its code</div>}
+              </div>
             </div>
           </div>
-        </div>
+          </li>
+        </ol>
       </Reveal>
 
       <section className="home-sec runs" id="runs">
         <div className="runs-head">
-          <h2 className="h2">
-            Runs {runs.length > 0 && <span className="muted num">{runs.length}</span>}
+          <h2 className="subtitle runs-title">
+            Your runs {runs.length > 0 && <span className="muted num">{runs.length}</span>}
           </h2>
           {runs.length >= 2 && selected.length < 2 && <span className="runs-hint">Select two or more to compare</span>}
           {selected.length >= 2 && (
@@ -289,7 +306,10 @@ export function Home() {
 
         {runs.length === 0 ? (
           <div className="runs-empty">
-            <GlassRow run={NONE} className="runs-empty-row" />
+            {/* The frames a run will fill, as empty slots running off both sides. */}
+            <span className="runs-empty-art" aria-hidden="true">
+              {NONE.map((h, i) => <span key={i} className="art" data-empty style={{ height: `${h}%` }} />)}
+            </span>
             <strong>No runs yet</strong>
             Finish a run on any device and open its report. It lands here, ready to compare.
           </div>
@@ -381,7 +401,7 @@ function Setup() {
   return (
     <div className="card setup" id="setup" ref={el} data-open={open || undefined}>
       <button className="setup-btn" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className="glass free-tile" style={{ "--c": tint(0) } as CSSProperties}><Icon name="terminal" size={16} /></span>
+        <span className="art free-tile"><Icon name="terminal" size={16} /></span>
         <span className="setup-title">Add Cadence to your site</span>
         <span className="setup-peek">npm install cadence-probe</span>
         <Icon name="chevron" size={16} />
@@ -400,6 +420,28 @@ function Setup() {
 
 /** A home section: its heading above the content (beside it when split), rising
     into place the first time it scrolls into view. */
+const CAP = 72; // ms at the panel's full height
+const BUDGET = 1000 / 60;
+
+/** An example's picture: its frames as bars standing under a dashed line at
+ *  the 16.7 ms budget, running off the panel's sides. Frames over the budget
+ *  are red, so a clean run sits flat under the line and a broken one spikes
+ *  through it. The frame rate it reached is tagged in the corner. */
+function ExampleArt({ times, fps }: { times: number[]; fps: number }) {
+  return (
+    <span className="example-art" aria-hidden="true">
+      <span className="example-bars">
+        {times.map((ms, i) => (
+          <span key={i} className="art example-bar" data-late={ms > BUDGET + 1 || undefined}
+            style={{ "--h": `${(ms / CAP) * 100}%`, "--i": i } as CSSProperties} />
+        ))}
+      </span>
+      <span className="example-budget" style={{ bottom: `calc(var(--floor) + (100% - var(--floor)) * ${(BUDGET / CAP).toFixed(4)} * var(--reach))` } as CSSProperties} />
+      <span className="example-fps num">{fps} fps</span>
+    </span>
+  );
+}
+
 function Reveal({ title, lede, split, children }: { title: string; lede?: string; split?: boolean; children: ReactNode }) {
   const el = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(reducedMotion);

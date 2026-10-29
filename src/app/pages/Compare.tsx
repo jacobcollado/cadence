@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Run } from "../../shared/run";
 import { computeStats, MODE_LABEL, type RunStats } from "../../shared/stats";
-import { Bar, RatingTag, splitName } from "../components/ui";
+import { Bar, BriefTag, CountUp, Fields, Icon, RatingTag, splitName } from "../components/ui";
 import { TopBar } from "../components/TopBar";
-import { decodeRun, listRuns, pathOf, when, SERIES } from "../lib";
+import { decodeRun, listRuns, navigate, pathOf, when, SERIES } from "../lib";
 
 interface Entry {
   run: Run;
@@ -24,41 +24,63 @@ interface Hover {
   y: number;
 }
 
-// What tells runs apart in a sentence: the device, then the page, the mode or
-// the time when the same device ran more than once.
-function names(entries: Entry[]): string[] {
-  return entries.map((e) => {
-    const name = e.run.device.name.replace(" · ", " ");
-    const same = entries.filter((o) => o.run.device.name === e.run.device.name);
-    if (same.length === 1) return name;
-    const page = pathOf(e.run.url);
-    if (same.filter((o) => pathOf(o.run.url) === page).length === 1) return `${name} on ${page}`;
-    if (same.filter((o) => o.run.mode === e.run.mode).length === 1) return `${name}, ${MODE_LABEL[e.run.mode].toLowerCase()}`;
-    return `${name}, ${when(e.run.at).toLowerCase()}`;
-  });
-}
+type Verdict =
+  | { kind: "line"; text: string }
+  | { kind: "split"; slow: number; fast: number; gap?: { label: string; min: number; max: number } };
 
-function summary(entries: Entry[], groups: Group[]): string {
+/** The answer, as parts: one line when the runs agree, or which run was
+ *  slowest, which fastest and where they split furthest apart. */
+function verdict(entries: Entry[], groups: Group[]): Verdict {
   const r = Math.round;
-  if (entries.every((e) => e.stats.rating === "smooth")) return `All ${entries.length} runs were smooth.`;
-  const label = names(entries);
+  if (entries.every((e) => e.stats.rating === "smooth")) return { kind: "line", text: `All ${entries.length} runs were smooth.` };
   const fps = entries.map((e) => e.stats.fps);
-  const lo = fps.indexOf(Math.min(...fps));
-  const hi = fps.indexOf(Math.max(...fps));
-  if (r(fps[lo]) === r(fps[hi])) return `All ${entries.length} runs averaged ${r(fps[lo])} fps.`;
-  let text = `${label[lo]} was the slowest at ${r(fps[lo])} fps, against ${r(fps[hi])} on ${label[hi]}.`;
+  const slow = fps.indexOf(Math.min(...fps));
+  const fast = fps.indexOf(Math.max(...fps));
+  if (r(fps[slow]) === r(fps[fast])) return { kind: "line", text: `All ${entries.length} runs averaged ${r(fps[slow])} fps.` };
   // The section where the runs split furthest apart.
-  let widest: { label: string; min: number; max: number } | undefined;
+  let gap: { label: string; min: number; max: number } | undefined;
   for (const g of groups.slice(1)) {
     const v = g.values.filter((x): x is number => x !== null);
     if (v.length < 2) continue;
     const min = Math.min(...v), max = Math.max(...v);
-    if (!widest || max - min > widest.max - widest.min) widest = { label: g.label, min, max };
+    if (!gap || max - min > gap.max - gap.min) gap = { label: g.label, min, max };
   }
-  if (widest && r(widest.max - widest.min) >= 5) {
-    text += ` The widest gap was in ${widest.label}, ${r(widest.min)} against ${r(widest.max)} fps.`;
-  }
-  return text;
+  return { kind: "split", slow, fast, gap: gap && r(gap.max - gap.min) >= 5 ? gap : undefined };
+}
+
+/** The summary as stat cards, like the report's: each card says what it
+ *  measures, then the number, then whose it is. */
+function Summary({ entries, groups }: { entries: Entry[]; groups: Group[] }) {
+  const v = verdict(entries, groups);
+  if (v.kind === "line") return <p className="compare-agree">{v.text}</p>;
+  const who = (i: number) => (
+    <span className="stat-sub compare-who">
+      <i className="gbar-key" style={{ background: entries[i].color }} />
+      <span className="compare-who-run">Run {i + 1}</span>
+      <span className="compare-who-device">{splitName(entries[i].run.device.name).device}</span>
+    </span>
+  );
+  return (
+    <div className="stat-row compare-stats">
+      <div className="stat">
+        <span className="stat-label">Slowest run</span>
+        <span className="stat-value num">{Math.round(entries[v.slow].stats.fps)}<span>fps</span></span>
+        {who(v.slow)}
+      </div>
+      <div className="stat">
+        <span className="stat-label">Fastest run</span>
+        <span className="stat-value num">{Math.round(entries[v.fast].stats.fps)}<span>fps</span></span>
+        {who(v.fast)}
+      </div>
+      {v.gap && (
+        <div className="stat compare-gap">
+          <span className="stat-label">Widest gap</span>
+          <span className="stat-value num">{Math.round(v.gap.max - v.gap.min)}<span>fps</span></span>
+          <span className="stat-sub">{v.gap.label}, {Math.round(v.gap.min)} to {Math.round(v.gap.max)} fps</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function Compare() {
@@ -80,9 +102,13 @@ export function Compare() {
     return (
       <div className="shell">
         <TopBar />
-        <div className="recess empty enter" style={{ marginTop: 48 }}>
-          <strong>Pick two runs or more</strong>
-          Select runs in the list, then compare them.
+        <div className="rails report">
+          <section className="report-sec report-top">
+            <div className="recess empty enter">
+              <strong>Pick two runs or more</strong>
+              Select runs in the list, then compare them.
+            </div>
+          </section>
         </div>
       </div>
     );
@@ -106,6 +132,7 @@ export function Compare() {
       return { label, values: found.map((s) => s?.fps ?? null), dropped: found.map((s) => s?.dropped ?? null) };
     }),
   ];
+  const saved = listRuns();
   const max = Math.max(...entries.map((e) => e.run.hz));
   const ticks = [0, 30, 60, 90, 120, 144, 240].filter((t) => t <= max);
 
@@ -132,84 +159,118 @@ export function Compare() {
   return (
     <div className="shell">
       <TopBar />
-      <header className="report-head compare-head enter">
-        <h1 className="subtitle">Compare runs</h1>
-        <p className="compare-summary">{summary(entries, groups)}</p>
-      </header>
-
-      <div className="compare-legend enter">
-        <div className="compare-legend-row compare-legend-head" aria-hidden="true">
-          <span />
-          <span>Device</span>
-          <span className="col-browser">Browser</span>
-          <span className="col-mode">Mode</span>
-          <span className="col-when">When</span>
-          <span>Rating</span>
-          <span className="r">Frame rate</span>
-        </div>
-        {entries.map((e) => { const n = splitName(e.run.device.name); return (
-          <div className="compare-legend-row" key={e.run.id}>
-            <i className="dot" style={{ background: e.color }} />
-            <span className="run-cell" style={{ color: "var(--ink)" }}>{n.device}</span>
-            <span className="run-cell col-browser">{n.browser}</span>
-            <span className="run-cell col-mode">{MODE_LABEL[e.run.mode]}</span>
-            <span className="run-cell col-when">{when(e.run.at)}</span>
-            <span><RatingTag rating={e.stats.rating} /></span>
-            <div className="run-fps">
-              <strong className="num">{Math.round(e.stats.fps)}</strong>
-              <span>fps</span>
+      <div className="rails report compare">
+        <section className="report-sec report-top">
+          <header className="compare-head enter">
+            <a href="/#runs" className="compare-back" onClick={(e) => { e.preventDefault(); navigate("/#runs"); }}>
+              <Icon name="back" size={14} />All runs
+            </a>
+            <div className="compare-title">
+              <h1 className="subtitle">Compare runs</h1>
+              <span className="compare-count num">{entries.length} runs</span>
             </div>
-          </div>
-        ); })}
-      </div>
+          </header>
+        </section>
 
-      <section className="card block enter">
-        <div className="block-head">
-          <div className="block-title">
-            <h2 className="h2">Frame rate by section</h2>
-            <p className="meta">Longer bars held more frames a second, out of {max}.</p>
+        <section className="report-sec">
+          <h2 className="h2 compare-sec-title">Summary</h2>
+          <Summary entries={entries} groups={groups} />
+        </section>
+
+        {/* One card per run, keyed by its color in the chart below; each opens its report. */}
+        <section className="report-sec">
+          <h2 className="h2 compare-sec-title">Runs</h2>
+          <div className="compare-runs enter">
+            {entries.map((e, i) => {
+              const n = splitName(e.run.device.name);
+              const data = saved.find((r) => r.id === e.run.id)?.data;
+              const href = data ? `/r#${data}` : undefined;
+              return (
+                <a key={e.run.id} className="card compare-run" href={href} onClick={(ev) => { if (!href) return; ev.preventDefault(); navigate(href); }}>
+                  <span className="compare-run-top">
+                    <span className="compare-run-label"><i className="compare-key" style={{ background: e.color }} />Run {i + 1}</span>
+                    <RatingTag rating={e.stats.rating} />
+                  </span>
+                  <span className="compare-run-name">
+                    <span className="compare-device">{n.device}</span>
+                    <span className="meta">{n.browser}</span>
+                  </span>
+                  <span className="compare-run-stat">
+                    <span className="field-label">Average frame rate</span>
+                    <span className="compare-fps num"><CountUp value={Math.round(e.stats.fps)} /><span>fps</span></span>
+                  </span>
+                  <Fields items={[["Mode", MODE_LABEL[e.run.mode]], ["Page", pathOf(e.run.url)], ["Tested", when(e.run.at)]]} />
+                </a>
+              );
+            })}
           </div>
-        </div>
-        <div ref={chart} style={{ position: "relative" }} onPointerLeave={() => setHover(null)}>
-          {groups.map((g, gi) => (
-            <div className="group" key={g.label}>
-              <span className="group-label">{g.label}</span>
-              <div className="group-bars">
-                {entries.map((e, ei) => {
-                  const v = g.values[ei];
-                  return (
-                    <div className="gbar-row" key={e.run.id}>
-                      {v === null ? (
-                        <span className="brief">Too brief</span>
-                      ) : (
-                        <>
-                          <div style={{ flex: `0 0 calc((100% - 32px) * ${v / max})`, minWidth: 2 }}>
-                            <Bar value={1} className="gbar" color={e.color} delay={gi * 30 + ei * 20} />
-                          </div>
-                          <span className="num">{Math.round(v)}</span>
-                        </>
-                      )}
-                      {v !== null && (
-                        <span
-                          className="gbar-hit"
-                          onPointerEnter={(ev) => showTip(gi, ei, ev.currentTarget.previousElementSibling as HTMLElement)}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+        </section>
+
+        <section className="report-sec report-panel">
+          <section className="card block enter">
+            <div className="block-head">
+              <div className="block-title">
+                <h2 className="h2">Frame rate by section</h2>
+                <p className="meta">Longer bars held more frames a second, out of {max}.</p>
+              </div>
+              {/* Which color is which run, matching the cards above. */}
+              <div className="legend">
+                {entries.map((e, i) => <span key={e.run.id}><i className="swatch" style={{ background: e.color }} />Run {i + 1}</span>)}
               </div>
             </div>
-          ))}
-          <div className="axis">
-            <span />
-            <div className="axis-ticks" style={{ marginRight: 32 }}>
-              {ticks.map((t) => <span key={t} className="num" style={{ left: `${(t / max) * 100}%` }}>{t}</span>)}
+            <div ref={chart} className="compare-chart" data-hover={hover ? true : undefined} onPointerLeave={() => setHover(null)}>
+              {/* Gridlines at each tick, behind the bars. */}
+              <div className="compare-grid" aria-hidden="true">
+                <span />
+                <div className="compare-grid-lines">
+                  {ticks.map((t) => <i key={t} style={{ left: `${(t / max) * 100}%` }} />)}
+                </div>
+              </div>
+              {groups.map((g, gi) => (
+                <div className="group" data-whole={gi === 0 || undefined} key={g.label}>
+                  <span className="group-label">{g.label}</span>
+                  <div className="group-bars">
+                    {entries.map((e, ei) => {
+                      const v = g.values[ei];
+                      return (
+                        // Each run's row: its color key, its bar in a faint track out to the
+                        // top refresh rate, and its value in a fixed column at the end.
+                        <div className="gbar-row" key={e.run.id} data-on={hover?.group === gi && hover.entry === ei || undefined}>
+                          <i className="gbar-key" style={{ background: e.color }} aria-label={`Run ${ei + 1}`} />
+                          <div className="gbar-track">
+                            {v === null ? (
+                              <BriefTag />
+                            ) : (
+                              <div className="gbar-fill" style={{ width: `${(v / max) * 100}%` }}>
+                                <Bar value={1} className="gbar" color={e.color} delay={gi * 30 + ei * 20} />
+                              </div>
+                            )}
+                          </div>
+                          <span className="num gbar-val">{v === null ? "" : Math.round(v)}</span>
+                          {v !== null && (
+                            <span
+                              className="gbar-hit"
+                              onPointerEnter={(ev) => ev.pointerType === "mouse" && showTip(gi, ei, ev.currentTarget.parentElement!.querySelector(".gbar-fill") as HTMLElement)}
+                              onClick={(ev) => showTip(gi, ei, ev.currentTarget.parentElement!.querySelector(".gbar-fill") as HTMLElement)}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className="axis">
+                <span />
+                <div className="axis-ticks">
+                  {ticks.map((t) => <span key={t} className="num" style={{ left: `${(t / max) * 100}%` }}>{t}</span>)}
+                </div>
+              </div>
+              {tip}
             </div>
-          </div>
-          {tip}
-        </div>
-      </section>
+          </section>
+        </section>
+      </div>
     </div>
   );
 }

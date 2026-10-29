@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Run } from "../../shared/run";
 import { LOADS } from "../../shared/run";
 import {
   choppyBelow, computeStats, diagnose, FREEZE, MIN_SECTION_TIME, MODE_LABEL, RATING_LABEL, type Cause, type RunStats,
 } from "../../shared/stats";
-import { Bar, CopyButton, CountUp, Icon, Info, InfoTile, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, ZoneBar } from "../components/ui";
+import { Bar, BriefTag, CopyButton, CountUp, Icon, Info, InfoTile, RatingTag, ScoreRing, splitName, StatusIcon, StatusTag, usePresence, ZoneBar } from "../components/ui";
 import { scoreLevel, scores, type Scores } from "../../shared/score";
 import { heapMissing, LEVEL_LABEL, memory, pageLoad, RATING_LEVEL, type Level, type MemoryReport, type Metric } from "../../shared/vitals";
 import { Timeline } from "../components/Timeline";
@@ -12,7 +12,6 @@ import { TopBar } from "../components/TopBar";
 import { reportMarkdown } from "../markdown";
 import { ADVICE, CAUSE_LABEL, scrollTip } from "../../shared/advice";
 import { decodeRun, dismissSavedNote, download, pathOf, saveRun, savedNoteSeen, when } from "../lib";
-import { CATEGORY, tint } from "../glass";
 
 type State = { run: Run; stats: RunStats } | { error: string } | null;
 
@@ -59,6 +58,9 @@ function readTab(): Tab {
 
 function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
   const [highlight, setHighlight] = useState<number | null>(null);
+  // A section picked by tap or click; it lives here with the highlight so the
+  // two stay in step when the tab changes and the table remounts.
+  const [pinned, setPinned] = useState<number | null>(null);
   const [tab, setTab] = useState<Tab>(readTab);
   const cause = diagnose(run, stats);
   const metrics = pageLoad(run);
@@ -118,9 +120,9 @@ function ReportBody({ run, stats }: { run: Run; stats: RunStats }) {
       </section>
 
       <section className="report-sec report-panel">
-      <div className="tab-panel enter" key={tab} role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} style={{ "--cat": tint(CATEGORY[tab]) } as CSSProperties}>
+      <div className="tab-panel enter" key={tab} role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === "smooth" && (
-          <SmoothTab run={run} stats={stats} cause={cause} highlight={highlight} setHighlight={setHighlight} />
+          <SmoothTab run={run} stats={stats} cause={cause} highlight={highlight} setHighlight={setHighlight} pinned={pinned} setPinned={setPinned} />
         )}
         {tab === "load" && (
           <>
@@ -250,7 +252,6 @@ function Overview({ run, stats, metrics, mem, scores: sc, tab, onPick }: {
           aria-selected={tab === t.id}
           aria-controls={`panel-${t.id}`}
           className="tile"
-          style={{ "--c": tint(CATEGORY[t.id]) } as CSSProperties}
           onClick={() => onPick(t.id)}
         >
           <span className="tile-label">
@@ -266,29 +267,23 @@ function Overview({ run, stats, metrics, mem, scores: sc, tab, onPick }: {
   );
 }
 
-function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
+function SmoothTab({ run, stats, cause, highlight, setHighlight, pinned, setPinned }: {
   run: Run;
   stats: RunStats;
   cause: Cause;
   highlight: number | null;
   setHighlight: (i: number | null) => void;
+  pinned: number | null;
+  setPinned: (i: number | null) => void;
 }) {
   const rows = stats.sections.filter((s) => s.frames > 0);
-  // Where each section sits in the run, so its bar takes the same glass color
-  // as its frames in the chart above.
-  const mids = new Map<number, number>();
-  {
-    const first = new Map<number, number>(), last = new Map<number, number>();
-    run.seg.forEach((seg, i) => {
-      if (!first.has(seg)) first.set(seg, i);
-      last.set(seg, i);
-    });
-    const total = stats.time || 1;
-    for (const [seg, a] of first) {
-      const t0 = a ? stats.times[a - 1] : 0;
-      mids.set(seg, (t0 + stats.times[last.get(seg)!]) / 2 / total);
-    }
-  }
+  // A section picked by tap or click stays highlighted in the chart until
+  // it's tapped again; hovering with a mouse previews another meanwhile.
+  const pin = (i: number) => {
+    const next = pinned === i ? null : i;
+    setPinned(next);
+    setHighlight(next);
+  };
   const judged = stats.judged;
   const smoothCount = judged.filter((s) => s.rating === "smooth").length;
   const budget = Math.round(stats.interval);
@@ -323,7 +318,6 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
               max={FREEZE * 1.6}
               format={(v) => `${Math.round(v)} ms`}
               marker={stats.worst}
-              glass
             />
           </>,
         },
@@ -347,7 +341,7 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
             </Info>
           </div>
           <div className="legend">
-            <span><i className="swatch swatch-glass" />On time</span>
+            <span><i className="swatch" style={{ background: "var(--data)" }} />On time</span>
             <span><i className="swatch" style={{ background: "var(--warn)" }} />Late</span>
             <span><i className="swatch" style={{ background: "var(--bad)" }} />Freeze over {FREEZE} ms</span>
             {lane && <span><i className="swatch" style={{ background: "var(--ink-2)" }} />Busy main thread</span>}
@@ -365,11 +359,12 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
               <Info title="Sections">
                 <p>The parts of the page, top to bottom, found from its landmarks and headings. Each frame counts toward the section crossing the middle of the screen when it was drawn.</p>
                 <p>So a slow section is where to look in the code.</p>
+                <p>Tap a section, or hover it, to see its frames in the chart above. Tap it again to clear.</p>
               </Info>
             </div>
           </div>
           <div className="table-scroll">
-            <table className="table">
+            <table className="table sec-table">
               <thead>
                 <tr>
                   <th>Section</th>
@@ -388,7 +383,6 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                           min={Math.round(run.hz / 2)}
                           max={run.hz}
                           format={(v) => `${Math.round(v)} fps`}
-                          glass
                         />
                       </Info>
                     </span>
@@ -414,7 +408,6 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
                           ]}
                           max={FREEZE * 1.6}
                           format={(v) => `${Math.round(v)} ms`}
-                          glass
                         />
                       </Info>
                     </span>
@@ -432,19 +425,24 @@ function SmoothTab({ run, stats, cause, highlight, setHighlight }: {
               <tbody>
                 {rows.map((s, i) => {
                   const judged = s.time >= MIN_SECTION_TIME;
-                  const smooth = judged && s.rating === "smooth";
                   return (
                     <tr
                       key={s.index}
                       data-dim={!judged || undefined}
-                      onPointerEnter={() => setHighlight(s.index)}
-                      onPointerLeave={() => setHighlight(null)}
+                      data-on={highlight === s.index || undefined}
+                      data-pinned={pinned === s.index || undefined}
+                      tabIndex={0}
+                      aria-label={`${s.label}: show its frames in the chart`}
+                      onPointerEnter={(e) => e.pointerType === "mouse" && setHighlight(s.index)}
+                      onPointerLeave={(e) => e.pointerType === "mouse" && setHighlight(pinned)}
+                      onClick={() => pin(s.index)}
+                      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), pin(s.index))}
                     >
                       <td className="clip">{s.label}</td>
-                      <td>{judged ? <RatingTag rating={s.rating} /> : <span className="brief">Too brief</span>}</td>
+                      <td>{judged ? <RatingTag rating={s.rating} /> : <BriefTag />}</td>
                       <td>
                         <div className="fps-cell">
-                          <Bar value={s.fps / run.hz} rating={judged ? s.rating : undefined} delay={i * 40} color={smooth ? `color-mix(in srgb, ${tint(mids.get(s.index) ?? 0)} 70%, transparent)` : undefined} />
+                          <Bar value={s.fps / run.hz} rating={judged ? s.rating : undefined} delay={i * 40} />
                           <span className="num r">{Math.round(s.fps)}</span>
                         </div>
                       </td>
@@ -472,26 +470,35 @@ function memoryMissing(run: Run): string {
 
 /** Device details in a floating panel: context, not a result. */
 function DeviceButton({ run }: { run: Run }) {
-  const [open, setOpen] = useState(false);
+  const { mounted, open, closing, show, hide } = usePresence();
   const wrap = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const away = (e: PointerEvent) => !wrap.current?.contains(e.target as Node) && setOpen(false);
-    const key = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const away = (e: PointerEvent) => !wrap.current?.contains(e.target as Node) && hide();
+    const key = (e: KeyboardEvent) => e.key === "Escape" && hide();
     addEventListener("pointerdown", away);
     addEventListener("keydown", key);
     return () => {
       removeEventListener("pointerdown", away);
       removeEventListener("keydown", key);
     };
-  }, [open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The panel grows out of the button wherever the layout puts it (its right
+  // edge on desktop, full width on phones), and shrinks back into it.
+  useLayoutEffect(() => {
+    if (!mounted || closing) return;
+    const b = button.current!.getBoundingClientRect(), p = panel.current!.getBoundingClientRect();
+    panel.current!.style.transformOrigin = `${b.left + b.width / 2 - p.left}px ${b.top + b.height / 2 - p.top}px`;
+  }, [mounted, closing]);
   return (
     <div className="popover-wrap" ref={wrap}>
-      <button className="btn btn-secondary btn-icon-l" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <button ref={button} className="btn btn-secondary btn-icon-l" aria-expanded={open} onClick={() => (open ? hide() : show())}>
         <Icon name="info" size={14} />Details
       </button>
-      {open && (
-        <div className="popover" role="dialog" aria-label="Details">
+      {mounted && (
+        <div ref={panel} className="popover" role="dialog" aria-label="Details" data-closing={closing || undefined}>
           <DevicePanel run={run} />
         </div>
       )}
