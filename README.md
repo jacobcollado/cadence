@@ -36,6 +36,7 @@ It works anywhere a phone can reach the page: a preview deploy, staging or produ
 ## Safe to ship
 
 - **Off for your visitors.** The probe only loads when the address ends in `?perf`, and stays on for that tab until you close the panel or visit with `?perf=off`.
+- **Lock it in production.** Set a token, `<Cadence token="x7k2-team" />`, and plain `?perf` does nothing; only `?perf=x7k2-team` turns it on.
 - **Nothing leaves the browser.** There's no server and no tracking. A report is a link, with the run compressed into the part after the `#`, which browsers never send.
 
 ## What a report tells you

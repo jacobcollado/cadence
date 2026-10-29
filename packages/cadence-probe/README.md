@@ -50,6 +50,7 @@ Open any page with `?perf` on the end, on any device. A small panel appears: pic
 | `param` | `"perf"` | The query switch that turns the probe on. |
 | `app` | `"https://cad-ence.dev"` | Where reports open. |
 | `enabled` | `true` | Set `false` to never load, for example outside staging. |
+| `token` | none | Safe to ship to production: plain `?perf` does nothing, only `?perf=<token>` turns it on. |
 
 Because the probe ships inside your own bundle, it works under strict Content Security Policies with no extra setup.
 

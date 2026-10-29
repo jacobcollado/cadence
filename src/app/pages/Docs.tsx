@@ -248,11 +248,18 @@ loadCadence();`}</Code>
                 <p>Set to <code>false</code> to never load Cadence, for example on your live site if you only test on staging.</p>
               </div>
               <div className="props-row">
+                <code>token</code><code className="props-type">string</code><span className="props-plain">None</span>
+                <p>Safe to ship to production: with a token, plain <code>?perf</code> does nothing and only <code>?perf=</code> followed by your token turns Cadence on. To test on a phone, enter the page here with your token on the end, and the code carries it. The token ships in your page's code, so it keeps casual visitors out; Cadence only measures their own scroll and sends nothing anywhere.</p>
+              </div>
+              <div className="props-row">
                 <code>app</code><code className="props-type">string</code><span className="props-plain">This site</span>
                 <p>Where reports open.</p>
               </div>
             </div>
-            <Code>{`// Only on staging, turned on with ?test
+            <Code>{`// On production, turned on only with ?perf=x7k2-team
+<Cadence token="x7k2-team" />
+
+// Only on staging, turned on with ?test
 <Cadence param="test" enabled={process.env.NODE_ENV !== "production"} />`}</Code>
           </Section>
 
