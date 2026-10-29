@@ -2,11 +2,11 @@
 
 Stress test your site on the devices your customers use.
 
-Cadence scrolls a page on a real phone, laptop or desktop and records every frame. The report shows which section stuttered, what the browser was busy with when it did, and what to change first.
+Lighthouse grades the load. Cadence times the scroll. It scrolls a page on a real phone, laptop or desktop, records every frame, and shows which section stuttered, what the browser was busy with, and what to change first.
 
-Try it at [cad-ence.dev](https://cad-ence.dev).
+[cad-ence.dev](https://cad-ence.dev) · [Docs](https://cad-ence.dev/docs) · [A page that's slow on purpose](https://cad-ence.dev/demo.html)
 
-## Add it to your site
+## Quick start
 
 ```sh
 npm install cadence-probe
@@ -23,52 +23,44 @@ import { Cadence } from "cadence-probe/react";
 </body>
 ```
 
-Anywhere else, call `loadCadence()` from `cadence-probe`.
+Anywhere else, call `loadCadence()` from `cadence-probe` once when the page starts.
 
-Then open any page with `?perf` on the end. A panel appears; pick a pass, run it, and open the report. Visitors never download the probe. It only loads with `?perf`, and stays on for that tab until you close the panel or visit with `?perf=off`.
+Then open any page with `?perf` on the end. A panel appears: pick a pass, run it, and open the report.
 
-Sections are named from the page's markup. To name one yourself, add `data-cadence="Pricing"` to it.
+## Test on a real phone
 
-## How runs are judged
+Open [cad-ence.dev](https://cad-ence.dev), enter your page, and scan the QR code with your phone. The page opens there with Cadence on. No app, no cable, no remote debugging.
 
-The rules live in `src/shared/stats.ts`, so the panel and the report always agree.
+It works anywhere a phone can reach the page: a preview deploy, staging or production.
 
-- A frame is on time, late (it missed a refresh) or a freeze (50 ms or more).
-- **Smooth** holds 92% of the refresh rate with 95% of frames on time and no freezes. **Choppy** is under 45 fps, or under three quarters of the screen's rate when it's slower than 60. **Uneven** is everything in between.
-- A whole run is Smooth only when every section on screen long enough to judge is Smooth too.
-- Every report has a score out of 100, like Lighthouse, and each category has its own: 90 and up is good, 50 to 89 needs work, under 50 is poor. Each measurement is scored on Lighthouse's log-normal curve, pinned so Cadence's good threshold scores 90 and its poor threshold 50. The overall score weighs smoothness 50, page load 30 and memory 20, counting only what was measured. The rules live in `src/shared/score.ts`.
-- Each freeze is traced to a slow script, to style and layout, or to drawing, based on what the browser reported during it. Browsers only report frames with 50 ms of work or more, so a freeze within one refresh of that line with no report stays untraced rather than being put down to drawing. The report says when most dropped frames couldn't be traced.
+## Safe to ship
 
-Cadence runs in any modern browser. Frame timing and page elements work everywhere. Chromium browsers (Chrome, Edge, Arc, Dia, Aside, Helium and others) also report slow scripts, layout shift and input delay. Safari and Firefox show those as not reported, never as zero.
+- **Off for your visitors.** The probe only loads when the address ends in `?perf`, and stays on for that tab until you close the panel or visit with `?perf=off`.
+- **Nothing leaves the browser.** There's no server and no tracking. A report is a link, with the run compressed into the part after the `#`, which browsers never send.
 
-Chromium browsers only give pages a rounded heap figure that they rarely refresh. Cadence shows the heap only when it moved during the run, and watches page elements for leaks everywhere.
+## What a report tells you
 
-A report is a link. The run is compressed into the part after the `#`, which browsers don't send to the server.
+- **Smoothness**, for the whole page and each section, named from the page's headings and landmarks. To name one yourself, add `data-cadence="Pricing"` to it.
+- **Why it slowed down**: each freeze traced to a script, to layout, or to drawing. Chromium browsers name the exact script.
+- **A score out of 100**, like Lighthouse, for smoothness, page load and memory.
+
+Cadence runs in any modern browser. Safari and Firefox show what they can't measure as not reported, never as zero. How every rating is decided is in the [docs](https://cad-ence.dev/docs).
 
 ## Develop
 
 ```sh
 npm install
 npm run dev:probe   # rebuilds public/probe.js on change
-npm run dev         # the app on http://localhost:5173
+npm run dev         # the site on http://localhost:5173
 ```
-
-`/demo.html` is a landing page for a product that doesn't exist, slow on purpose. Each section makes one common mistake (a glowing canvas, a scroll handler that forces layout, a blocking tracker, script-driven layout animation, a resizing form), so it shows up in a report even on a fast machine.
 
 - `src/probe`: the panel and the measurements. No framework, about 17 KB gzipped.
 - `src/app`: the site and the report (Vite and React).
 - `src/shared`: the run format, the rules and the advice, used by both.
-- `packages/cadence-probe`: the npm package, a small loader around the probe.
 
-## Releasing the package
+`/demo.html` is a landing page for a product that doesn't exist, slow on purpose: each section makes one common mistake, so it shows up in a report even on a fast machine.
 
-Release only when the probe changes, which means anything in `src/probe/`, `src/shared/` or `packages/cadence-probe/`. Site changes go live on deploy.
-
-```sh
-npm run release:package -- patch   # or minor, major
-cd packages/cadence-probe
-npm publish
-```
+Want to help? Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
 ## License
 

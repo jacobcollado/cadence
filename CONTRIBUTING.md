@@ -20,9 +20,13 @@ Open an issue with the report link (Copy link on any report) and the device and 
 
 New accounts and very large changes may be blocked automatically.
 
+## The npm package
+
+The package (`packages/cadence-probe`) and its releases are handled by the maintainer only. Pull requests that change it, or its version, are closed.
+
 ## Rules for the probe
 
-The probe (`src/probe`, `src/shared` and `packages/cadence-probe`) ships to npm and runs on other people's sites. Changes there need to:
+The probe (`src/probe` and `src/shared`) runs on other people's sites. Changes there need to:
 
 - Send nothing anywhere. No `fetch`, beacons, sockets or new URLs.
 - Add no dependencies.
